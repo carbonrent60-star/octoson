@@ -109,7 +109,7 @@ export default function AppSidebar({
               <Link
                 key={item.href}
                 href={item.href}
-                className={`group relative flex h-[44px] items-center gap-3 overflow-hidden rounded-[12px] px-3 text-[12px] font-medium transition-colors duration-200 ${
+                className={`group relative flex h-[44px] items-center gap-3 overflow-hidden rounded-[12px] px-3 text-[12px] font-medium transition-colors duration-100 ${
                   active
                     ? "text-white"
                     : "text-white/32 hover:text-white/70"
@@ -120,15 +120,15 @@ export default function AppSidebar({
                     layoutId={mobile ? "mobile-nav-active" : "desktop-nav-active"}
                     className="absolute inset-0 rounded-[12px] border border-white/[0.065] bg-white/[0.05]"
                     transition={{
-                      type: "spring",
-                      stiffness: 430,
-                      damping: 35,
+                      type: "tween",
+                      duration: 0.12,
+                      ease: [0.22, 1, 0.36, 1],
                     }}
                   />
                 )}
 
                 {!active && (
-                  <div className="absolute inset-0 rounded-[12px] bg-white/0 transition-colors duration-200 group-hover:bg-white/[0.025]" />
+                  <div className="absolute inset-0 rounded-[12px] bg-white/0 transition-colors duration-100 group-hover:bg-white/[0.025]" />
                 )}
 
                 {active && (
