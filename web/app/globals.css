@@ -1,0 +1,273 @@
+@import "tailwindcss";
+
+:root {
+  --background: #050507;
+  --foreground: #f5f5f7;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: #050507;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(
+      900px 500px at 75% -180px,
+      rgba(103, 232, 249, 0.025),
+      transparent 65%
+    ),
+    #050507;
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: rgba(165, 243, 252, 0.18);
+  color: white;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  border: 2px solid #050507;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.09);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Octoson interactive surfaces */
+.octo-game-grid {
+  background-image:
+    linear-gradient(
+      rgba(255, 255, 255, 0.018) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.018) 1px,
+      transparent 1px
+    );
+  background-size: 32px 32px;
+}
+
+.octo-glass {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.045),
+      rgba(255, 255, 255, 0.012)
+    );
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.035),
+    0 24px 70px rgba(0,0,0,.22);
+}
+
+.octo-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.octo-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-130%);
+  background: linear-gradient(
+    100deg,
+    transparent 25%,
+    rgba(207, 250, 254, 0.08) 48%,
+    transparent 72%
+  );
+  animation: octo-shimmer 3.8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes octo-shimmer {
+  0%, 55% {
+    transform: translateX(-130%);
+  }
+
+  85%, 100% {
+    transform: translateX(130%);
+  }
+}
+
+@keyframes octo-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+@keyframes octo-pulse-ring {
+  0% {
+    transform: scale(.8);
+    opacity: .28;
+  }
+
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+.octo-float {
+  animation: octo-float 4s ease-in-out infinite;
+}
+
+.octo-pulse-ring {
+  animation: octo-pulse-ring 1.8s ease-out infinite;
+}
+
+
+/* ==========================================================
+   OCTOSON REALISTIC 3D COIN
+   ========================================================== */
+
+.octo-coin-scene {
+  perspective: 1200px;
+  transform-style: preserve-3d;
+  filter:
+    drop-shadow(0 28px 28px rgba(0, 0, 0, 0.42))
+    drop-shadow(0 4px 10px rgba(165, 243, 252, 0.08));
+}
+
+.octo-coin-face {
+  overflow: hidden;
+  border-radius: 9999px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform-style: preserve-3d;
+
+  border: 1px solid rgba(255, 255, 255, 0.58);
+
+  background:
+    radial-gradient(
+      circle at 33% 25%,
+      rgba(255, 255, 255, 0.9),
+      rgba(220, 245, 247, 0.78) 20%,
+      rgba(152, 192, 198, 0.92) 61%,
+      rgba(75, 101, 108, 0.98) 100%
+    );
+
+  box-shadow:
+    inset 0 0 0 2px rgba(0, 0, 0, 0.08),
+    inset 0 0 24px rgba(255, 255, 255, 0.34),
+    inset 0 -18px 28px rgba(0, 0, 0, 0.16),
+    0 0 0 1px rgba(165, 243, 252, 0.08);
+}
+
+.octo-coin-heads {
+  transform: translateZ(8px);
+}
+
+.octo-coin-tails {
+  transform: rotateY(180deg) translateZ(8px);
+}
+
+.octo-coin-edge {
+  transform: translateZ(0);
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(38, 58, 63, 1) 0px,
+      rgba(174, 214, 220, 1) 2px,
+      rgba(68, 92, 98, 1) 4px,
+      rgba(215, 239, 242, 1) 6px
+    );
+
+  box-shadow:
+    0 0 0 8px rgba(89, 120, 126, 0.95),
+    0 0 0 9px rgba(210, 240, 243, 0.32),
+    inset 0 0 16px rgba(0, 0, 0, 0.4);
+}
+
+.octo-coin-ring {
+  border:
+    2px solid rgba(5, 18, 21, 0.19);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.42),
+    0 1px 0 rgba(255, 255, 255, 0.24);
+}
+
+.octo-coin-shine {
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      118deg,
+      rgba(255, 255, 255, 0) 15%,
+      rgba(255, 255, 255, 0.34) 35%,
+      rgba(255, 255, 255, 0.06) 47%,
+      rgba(255, 255, 255, 0) 62%
+    );
+
+  mix-blend-mode: screen;
+}
+
+
+/* slightly stronger visual clarity across functional pages */
+.octo-panel {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.032),
+      rgba(255, 255, 255, 0.014)
+    );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.025),
+    0 22px 70px rgba(0, 0, 0, 0.16);
+}

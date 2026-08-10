@@ -26,3 +26,34 @@ patch-backups/
 backups/
 data/canvas-debug/
 data/bot.lock
+
+# Octoson local/dev files
+.env
+.env.*
+!.env.example
+web/.env
+web/.env.*
+!web/.env.example
+
+# Build/dependencies
+node_modules/
+web/node_modules/
+.next/
+web/.next/
+
+# Development backups
+*.before-*
+*.save
+*.reference
+
+# Debug output
+data/canvas-debug/
+web/data/canvas-debug/
+
+# macOS
+.DS_Store
+*.before-*
+*.before-*
+*.save
+*.reference
+*.bak
