@@ -2,9 +2,9 @@ import "server-only";
 
 import { createClient } from "@supabase/supabase-js";
 
-let client: ReturnType<typeof createClient> | null = null;
+let client: any = null;
 
-export function getSupabaseServerClient() {
+export function getSupabaseServerClient(): any {
   const url = process.env.SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 

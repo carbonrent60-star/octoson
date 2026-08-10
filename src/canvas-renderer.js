@@ -36,7 +36,6 @@ console.log('[FONT CHECK]', {
 
 
 const iconCache = new Map();
-let suppressCasinoSceneText = false;
 
 // ======================================================
 // CANVAS DEBUG BUILD
@@ -44,7 +43,7 @@ let suppressCasinoSceneText = false;
 // TEMPORARILY left ON so we can prove exactly which renderer
 // Discord is using and inspect the raw scene before compositing.
 const CANVAS_DEBUG_BUILD = 'OCTOSON-CANVAS-DEBUG-V6';
-const CANVAS_DEBUG_ENABLED = true;
+const CANVAS_DEBUG_ENABLED = false;
 const CANVAS_DEBUG_DIR = join(process.cwd(), 'data', 'canvas-debug');
 let canvasDebugCounter = 0;
 
@@ -312,33 +311,25 @@ export async function renderCasinoCard({
   canvasDebugLog('SCENE START', {
     renderId,
     game,
-    canvas: '660x330',
-    suppressBefore: suppressCasinoSceneText
+    canvas: '660x330'
   });
 
-  suppressCasinoSceneText = true;
-
-  try {
-    await drawCasinoScene(
-      sceneCtx,
-      game,
-      0,
-      0,
-      660,
-      330,
-      accent,
-      tone,
-      board,
-{ multiplier, status, bet, blackjackState }
-    );
-  } finally {
-    suppressCasinoSceneText = false;
-  }
+  await drawCasinoScene(
+    sceneCtx,
+    game,
+    0,
+    0,
+    660,
+    330,
+    accent,
+    tone,
+    board,
+    { multiplier, status, bet, blackjackState }
+  );
 
   canvasDebugLog('SCENE COMPLETE', {
     renderId,
     game,
-    suppressAfter: suppressCasinoSceneText
   });
 
   // CRITICAL DEBUG FILE:
@@ -528,8 +519,7 @@ async function drawCasinoScene(ctx, game, x, y, w, h, accent, tone, board, meta 
     w,
     h,
     tone,
-    meta,
-    suppressCasinoSceneText
+    meta
   });
 
   roundRect(ctx, x, y, w, h, 24);
@@ -1001,8 +991,7 @@ function drawTowerScene(ctx, x, y, w, h, accent, board, meta) {
     w,
     h,
     board: `${board ?? ''}`.slice(0, 180),
-    meta,
-    suppressCasinoSceneText
+    meta
   });
 
   const floor = Number(`${board}`.match(/Mərtəbə\s*(\d+)/i)?.[1] ?? 3);
@@ -1940,8 +1929,6 @@ function normalizeCanvasText(value = '') {
 }
 
 function drawText(ctx, text, x, y, options = {}) {
-  if (suppressCasinoSceneText) return;
-
   const {
     size = 20,
     weight = 600,

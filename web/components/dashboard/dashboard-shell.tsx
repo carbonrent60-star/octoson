@@ -6,12 +6,14 @@ import { Menu, X } from "lucide-react";
 import AppSidebar from "@/components/app-sidebar";
 import { OctosonAudioProvider } from "@/components/audio/octoson-audio";
 import SoundControl from "@/components/audio/sound-control";
+import PresenceHeartbeat from "@/components/presence-heartbeat";
 
 type DashboardShellProps = {
   children: React.ReactNode;
   userName?: string | null;
   userImage?: string | null;
   logout: () => Promise<void>;
+  isAdmin?: boolean;
 };
 
 export default function DashboardShell({
@@ -19,12 +21,14 @@ export default function DashboardShell({
   userName,
   userImage,
   logout,
+  isAdmin = false,
 }: DashboardShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
     <OctosonAudioProvider>
     <div className="relative min-h-screen bg-[#050507] text-white">
+      <PresenceHeartbeat />
       {/* ambient background */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         <div className="absolute left-[18%] top-[-300px] h-[620px] w-[620px] rounded-full bg-cyan-300/[0.035] blur-[140px]" />
@@ -42,7 +46,7 @@ export default function DashboardShell({
 
       {/* DESKTOP SIDEBAR */}
       <div className="fixed inset-y-0 left-0 z-50 hidden w-[260px] lg:block">
-        <AppSidebar />
+        <AppSidebar isAdmin={isAdmin} />
       </div>
 
       {/* MOBILE OVERLAY */}
@@ -70,7 +74,7 @@ export default function DashboardShell({
               }}
               className="fixed inset-y-0 left-0 z-[80] w-[270px] lg:hidden"
             >
-              <AppSidebar mobile />
+              <AppSidebar mobile isAdmin={isAdmin} />
 
               <button
                 type="button"

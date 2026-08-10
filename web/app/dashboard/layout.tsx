@@ -1,5 +1,6 @@
 import { auth, signOut } from "@/auth";
 import DashboardShell from "@/components/dashboard/dashboard-shell";
+import { isOctosonAdmin } from "@/lib/admin";
 import { getOctosonGuildMember } from "@/lib/discord-server";
 import { redirect } from "next/navigation";
 
@@ -35,6 +36,7 @@ export default async function DashboardLayout({
       userName={session.user.name}
       userImage={session.user.image}
       logout={logout}
+      isAdmin={isOctosonAdmin(session.user.discordId)}
     >
       {children}
     </DashboardShell>

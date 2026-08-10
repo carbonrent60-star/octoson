@@ -53,7 +53,7 @@ export async function chooseJobAction(
 
   refresh();
 
-  await sendOctosonWorldActivity({
+  void sendOctosonWorldActivity({
     userId: id,
     kind: "job",
     emoji: result.job.emoji ?? "💼",
@@ -108,7 +108,7 @@ export async function missionAction(
 
   const amount = Number(result.amount ?? 0);
 
-  await sendOctosonWorldActivity({
+  void sendOctosonWorldActivity({
     userId: id,
     kind: "mission",
     emoji: amount >= 0 ? "⚡" : "💥",
@@ -156,7 +156,7 @@ export async function buyBusinessAction(
 
   refresh();
 
-  await sendOctosonWorldActivity({
+  void sendOctosonWorldActivity({
     userId: id,
     kind: "business",
     emoji: result.item.emoji ?? "🏢",
@@ -206,7 +206,7 @@ export async function upgradeBusinessAction(
 
   refresh();
 
-  await sendOctosonWorldActivity({
+  void sendOctosonWorldActivity({
     userId: id,
     kind: "upgrade",
     emoji: result.item.emoji ?? "📈",
@@ -244,7 +244,7 @@ export async function buyPropertyAction(
 
   refresh();
 
-  await sendOctosonWorldActivity({
+  void sendOctosonWorldActivity({
     userId: id,
     kind: "property",
     emoji: result.item.emoji ?? "🏠",
@@ -290,7 +290,7 @@ export async function buyVehicleAction(
 
   refresh();
 
-  await sendOctosonWorldActivity({
+  void sendOctosonWorldActivity({
     userId: id,
     kind: "vehicle",
     emoji: result.item.emoji ?? "🚘",
@@ -342,7 +342,7 @@ export async function collectIncomeAction(): Promise<WorldActionResult> {
 
   const amount = Number(result.amount ?? 0);
 
-  await sendOctosonWorldActivity({
+  void sendOctosonWorldActivity({
     userId: id,
     kind: "income",
     emoji: "💰",
@@ -386,7 +386,7 @@ export async function exploreAction(
 
   refresh();
 
-  await sendOctosonWorldActivity({
+  void sendOctosonWorldActivity({
     userId: id,
     kind: "explore",
     emoji: result.map.emoji ?? "🧭",

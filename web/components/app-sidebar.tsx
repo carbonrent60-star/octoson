@@ -14,6 +14,7 @@ import {
   ShoppingBag,
   Sparkles,
   Trophy,
+  ShieldCheck,
 } from "lucide-react";
 
 const navigation = [
@@ -29,8 +30,10 @@ const navigation = [
 
 export default function AppSidebar({
   mobile = false,
+  isAdmin = false,
 }: {
   mobile?: boolean;
+  isAdmin?: boolean;
 }) {
   const pathname = usePathname();
 
@@ -88,7 +91,13 @@ export default function AppSidebar({
         </p>
 
         <nav className="space-y-1">
-          {navigation.map((item) => {
+          {[...navigation, ...(isAdmin ? [
+            {
+              href: "/dashboard/admin",
+              label: "Admin Panel",
+              icon: ShieldCheck,
+            },
+          ] : [])].map((item) => {
             const Icon = item.icon;
 
             const active =

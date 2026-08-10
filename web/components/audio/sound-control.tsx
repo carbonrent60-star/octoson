@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import {
   Volume2,
   VolumeX,
@@ -16,21 +17,43 @@ export default function SoundControl() {
     play,
   } = useOctosonAudio();
 
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const close = (event: PointerEvent) => {
+      if (
+        rootRef.current &&
+        !rootRef.current.contains(event.target as Node)
+      ) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("pointerdown", close);
+
+    return () => {
+      document.removeEventListener("pointerdown", close);
+    };
+  }, []);
+
   return (
-    <div className="group relative">
+    <div
+      ref={rootRef}
+      className="relative"
+    >
       <button
         type="button"
-        aria-label={
-          muted ? "Səsi aç" : "Səsi söndür"
-        }
+        aria-label="Səs ayarları"
+        aria-expanded={open}
         onClick={() => {
-          toggleMuted();
+          setOpen((value) => !value);
 
-          if (muted) {
-            setTimeout(() => play("click"), 0);
+          if (!open) {
+            play("click");
           }
         }}
-        className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.07] bg-white/[0.025] text-white/35 transition hover:border-white/[0.12] hover:bg-white/[0.055] hover:text-white/70"
+        className="flex h-10 w-10 touch-manipulation items-center justify-center rounded-xl border border-white/[0.07] bg-white/[0.025] text-white/40 transition active:scale-95 hover:border-white/[0.12] hover:bg-white/[0.055] hover:text-white/70"
       >
         {muted || volume === 0 ? (
           <VolumeX className="h-4 w-4" />
@@ -39,34 +62,58 @@ export default function SoundControl() {
         )}
       </button>
 
-      <div className="pointer-events-none absolute right-0 top-full z-[100] pt-2 opacity-0 transition group-hover:pointer-events-auto group-hover:opacity-100">
-        <div className="w-44 rounded-[14px] border border-white/[0.08] bg-[#0b0b0e]/95 p-3 shadow-2xl backdrop-blur-xl">
-          <div className="flex items-center justify-between">
-            <span className="text-[9px] font-medium uppercase tracking-[0.12em] text-white/25">
-              Səs
-            </span>
+      {open && (
+        <div className="absolute right-0 top-full z-[100] pt-2">
+          <div className="w-48 rounded-[16px] border border-white/[0.09] bg-[#0b0b0e]/95 p-3.5 shadow-2xl backdrop-blur-xl">
+            <div className="flex items-center justify-between">
+              <span className="text-[9px] font-semibold uppercase tracking-[0.12em] text-white/30">
+                Səs
+              </span>
 
-            <span className="text-[9px] text-white/25">
-              {Math.round(volume * 100)}%
-            </span>
+              <span className="text-[9px] tabular-nums text-white/30">
+                {Math.round(volume * 100)}%
+              </span>
+            </div>
+
+            <input
+              aria-label="Səs səviyyəsi"
+              type="range"
+              min="0"
+              max="1"
+              step="0.01"
+              value={volume}
+              onChange={(event) => {
+                setVolume(Number(event.target.value));
+              }}
+              className="mt-3 h-6 w-full cursor-pointer touch-manipulation accent-cyan-100"
+            />
+
+            <button
+              type="button"
+              onClick={() => {
+                toggleMuted();
+
+                if (muted) {
+                  setTimeout(() => play("click"), 0);
+                }
+              }}
+              className="mt-2 flex h-9 w-full touch-manipulation items-center justify-center gap-2 rounded-xl border border-white/[0.07] bg-white/[0.035] text-[10px] font-medium text-white/50 transition active:scale-[0.98] hover:bg-white/[0.06] hover:text-white/80"
+            >
+              {muted ? (
+                <>
+                  <Volume2 className="h-3.5 w-3.5" />
+                  Səsi aç
+                </>
+              ) : (
+                <>
+                  <VolumeX className="h-3.5 w-3.5" />
+                  Səsi söndür
+                </>
+              )}
+            </button>
           </div>
-
-          <input
-            aria-label="Səs səviyyəsi"
-            type="range"
-            min="0"
-            max="1"
-            step="0.01"
-            value={volume}
-            onChange={(event) => {
-              setVolume(
-                Number(event.target.value)
-              );
-            }}
-            className="mt-3 w-full accent-cyan-100"
-          />
         </div>
-      </div>
+      )}
     </div>
   );
 }
