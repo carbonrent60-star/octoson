@@ -750,6 +750,18 @@ async function renderWorldCanvasPng(input: {
         mode: "width",
         value: 1200,
       },
+      font: {
+        fontFiles: [
+          process.cwd() + "/../assets/fonts/Inter_24pt-Regular.ttf",
+          process.cwd() + "/../assets/fonts/Inter_24pt-Medium.ttf",
+          process.cwd() + "/../assets/fonts/Inter_24pt-SemiBold.ttf",
+          process.cwd() + "/../assets/fonts/Inter_24pt-Bold.ttf",
+          process.cwd() + "/../assets/fonts/Inter_24pt-ExtraBold.ttf",
+          process.cwd() + "/../assets/fonts/Inter_24pt-Black.ttf",
+        ],
+        loadSystemFonts: false,
+        defaultFontFamily: "Inter",
+      },
     });
 
   return Buffer.from(
@@ -1493,6 +1505,18 @@ async function renderCasinoCanvasPng(input: {
       fitTo: {
         mode: "width",
         value: 1200,
+      },
+      font: {
+        fontFiles: [
+          process.cwd() + "/../assets/fonts/Inter_24pt-Regular.ttf",
+          process.cwd() + "/../assets/fonts/Inter_24pt-Medium.ttf",
+          process.cwd() + "/../assets/fonts/Inter_24pt-SemiBold.ttf",
+          process.cwd() + "/../assets/fonts/Inter_24pt-Bold.ttf",
+          process.cwd() + "/../assets/fonts/Inter_24pt-ExtraBold.ttf",
+          process.cwd() + "/../assets/fonts/Inter_24pt-Black.ttf",
+        ],
+        loadSystemFonts: false,
+        defaultFontFamily: "Inter",
       },
     });
 

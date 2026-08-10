@@ -9,6 +9,12 @@ const nextConfig: NextConfig = {
     "@supabase/supabase-js",
     "@resvg/resvg-js",
   ],
+
+  outputFileTracingIncludes: {
+    "/*": [
+      "../assets/fonts/*.ttf",
+    ],
+  },
 };
 
 export default nextConfig;
