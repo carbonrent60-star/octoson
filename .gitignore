@@ -1,0 +1,28 @@
+node_modules/
+.env
+npm-debug.log*
+.DS_Store
+
+# Environment / secrets
+.env
+.env.local
+.env.*.local
+web/.env
+web/.env.local
+web/.env.*.local
+
+# Next / Node
+node_modules/
+web/node_modules/
+.next/
+web/.next/
+
+# Local backups
+patch-backups/
+*.bak
+
+# macOS
+.DS_Store
+backups/
+data/canvas-debug/
+data/bot.lock

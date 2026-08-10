@@ -1,0 +1,1537 @@
+{
+  "users": {
+    "1124916604417876008": {
+      "balance": 0,
+      "bank": 0,
+      "xp": 63,
+      "level": 2,
+      "prestige": 0,
+      "dailyStreak": 1,
+      "lastDaily": "2026-08-07",
+      "lastWeekly": null,
+      "lastMonthly": null,
+      "lastInterest": null,
+      "lastTax": null,
+      "luck": 55,
+      "reputation": 19,
+      "rank": "🌱 Yeni başlayan",
+      "title": "Yeni üzv",
+      "badges": [
+        "🎰",
+        "🎁",
+        "🏆",
+        "💎"
+      ],
+      "achievements": [
+        "🎰 İlk Oyun",
+        "🎁 İlk Gündəlik",
+        "🏆 İlk Qələbə",
+        "💎 10000 Aura"
+      ],
+      "collection": [],
+      "transactions": [],
+      "cooldowns": {
+        "casino": 1786168288468,
+        "rob": 1786167948493,
+        "crime": 1786119545579
+      },
+      "moderation": {
+        "casinoMaxBet": null,
+        "casinoReason": null,
+        "casinoRestrictedAt": null,
+        "casinoRestrictedBy": null,
+        "restrictions": []
+      },
+      "settings": {
+        "publicProfile": true,
+        "dmRewards": false,
+        "compactMode": false,
+        "gameRequests": true
+      },
+      "limits": {
+        "transferDate": null,
+        "transferSent": 0,
+        "shopChestDate": "2026-08-08",
+        "shopChestsBought": 0,
+        "shopChestRevertedDate": null,
+        "robDate": null,
+        "robTargets": {},
+        "robbedCount": 0
+      },
+      "loan": {
+        "creditScore": 720,
+        "active": null,
+        "frozen": false,
+        "insured": false,
+        "insuranceMonth": null,
+        "stats": {
+          "onTimePayments": 0,
+          "latePayments": 0,
+          "totalBorrowed": 0,
+          "totalRepaid": 0
+        }
+      },
+      "prime": {
+        "activeUntil": null,
+        "purchasedAt": null,
+        "refundsRemaining": 0,
+        "monthKey": null,
+        "losses": []
+      },
+      "world": {
+        "job": null,
+        "jobXp": 0,
+        "jobLevel": 1,
+        "lastMissionAt": null,
+        "businesses": {},
+        "businessLevels": {},
+        "properties": {},
+        "vehicles": [],
+        "lastIncomeAt": null,
+        "lastAdventure": null,
+        "exploration": {},
+        "influence": 0,
+        "guild": null,
+        "pets": [],
+        "seasonPoints": 0,
+        "netWorth": 0
+      },
+      "season": {
+        "key": "s1_dark_city",
+        "xp": 108,
+        "level": 2,
+        "claimedFree": [],
+        "claimedPrime": [],
+        "totalXp": 288
+      },
+      "objectiveProgress": {
+        "dailyKey": "2026-08-08",
+        "weeklyKey": "2026-W32",
+        "dailyRewardKey": null,
+        "weeklyRewardKey": null,
+        "daily": {
+          "casino": 3
+        },
+        "weekly": {
+          "games": 14
+        }
+      },
+      "onboarding": {
+        "welcomeSeen": false,
+        "beginnerBonusClaimed": false,
+        "tutorialCompleted": false
+      },
+      "inventory": {
+        "boosters": [],
+        "boosterCharges": 0,
+        "tickets": 0,
+        "keys": 0,
+        "chests": {
+          "🪵 Bürünc sandığı": 1
+        },
+        "collectibles": [],
+        "badges": [],
+        "titles": [],
+        "borders": [],
+        "effects": []
+      },
+      "stats": {
+        "gamesPlayed": 14,
+        "gamesWon": 5,
+        "gamesLost": 9,
+        "auraEarned": 0,
+        "auraLost": 0,
+        "biggestWin": 0,
+        "biggestLoss": 0,
+        "currentStreak": 1,
+        "longestStreak": 1,
+        "favoriteGames": {},
+        "averageBet": 0,
+        "highestMultiplier": 0,
+        "jackpotsWon": 0
+      }
+    },
+    "1220194387867205743": {
+      "balance": 0,
+      "bank": 0,
+      "xp": 25,
+      "level": 1,
+      "prestige": 0,
+      "dailyStreak": 0,
+      "lastDaily": null,
+      "lastWeekly": null,
+      "lastMonthly": null,
+      "lastInterest": null,
+      "lastTax": null,
+      "luck": 54,
+      "reputation": 5,
+      "rank": "🌱 Yeni başlayan",
+      "title": "Yeni üzv",
+      "badges": [
+        "💎",
+        "🎰"
+      ],
+      "achievements": [
+        "💎 10000 Aura",
+        "🎰 İlk Oyun"
+      ],
+      "collection": [],
+      "transactions": [],
+      "cooldowns": {
+        "casino": 1786101074994,
+        "robbedUntil": 1786101198492
+      },
+      "moderation": {
+        "casinoMaxBet": null,
+        "casinoReason": null,
+        "casinoRestrictedAt": null,
+        "casinoRestrictedBy": null,
+        "restrictions": []
+      },
+      "settings": {
+        "publicProfile": true,
+        "dmRewards": false,
+        "compactMode": false,
+        "gameRequests": true
+      },
+      "limits": {
+        "transferDate": null,
+        "transferSent": 0,
+        "shopChestDate": "2026-08-08",
+        "shopChestsBought": 0,
+        "shopChestRevertedDate": null,
+        "robDate": null,
+        "robTargets": {},
+        "robbedCount": 0
+      },
+      "loan": {
+        "creditScore": 720,
+        "active": null,
+        "frozen": false,
+        "insured": false,
+        "insuranceMonth": null,
+        "stats": {
+          "onTimePayments": 0,
+          "latePayments": 0,
+          "totalBorrowed": 0,
+          "totalRepaid": 0
+        }
+      },
+      "prime": {
+        "activeUntil": null,
+        "purchasedAt": null,
+        "refundsRemaining": 0,
+        "monthKey": null,
+        "losses": []
+      },
+      "world": {
+        "job": null,
+        "jobXp": 0,
+        "jobLevel": 1,
+        "lastMissionAt": null,
+        "businesses": {},
+        "businessLevels": {},
+        "properties": {},
+        "vehicles": [],
+        "lastIncomeAt": null,
+        "lastAdventure": null,
+        "exploration": {},
+        "influence": 0,
+        "guild": null,
+        "pets": [],
+        "seasonPoints": 0,
+        "netWorth": 0
+      },
+      "season": {
+        "key": "s1_dark_city",
+        "xp": 50,
+        "level": 1,
+        "claimedFree": [],
+        "claimedPrime": [],
+        "totalXp": 50
+      },
+      "objectiveProgress": {
+        "dailyKey": "2026-08-08",
+        "weeklyKey": "2026-W32",
+        "dailyRewardKey": null,
+        "weeklyRewardKey": null,
+        "daily": {},
+        "weekly": {
+          "games": 5
+        }
+      },
+      "onboarding": {
+        "welcomeSeen": false,
+        "beginnerBonusClaimed": false,
+        "tutorialCompleted": false
+      },
+      "inventory": {
+        "boosters": [],
+        "boosterCharges": 0,
+        "tickets": 0,
+        "keys": 0,
+        "chests": {},
+        "collectibles": [],
+        "badges": [],
+        "titles": [],
+        "borders": [],
+        "effects": []
+      },
+      "stats": {
+        "gamesPlayed": 5,
+        "gamesWon": 0,
+        "gamesLost": 5,
+        "auraEarned": 0,
+        "auraLost": 0,
+        "biggestWin": 0,
+        "biggestLoss": 0,
+        "currentStreak": 0,
+        "longestStreak": 0,
+        "favoriteGames": {},
+        "averageBet": 0,
+        "highestMultiplier": 0,
+        "jackpotsWon": 0
+      }
+    },
+    "wallet-deduction-test": {
+      "balance": 0,
+      "bank": 0,
+      "xp": 10,
+      "level": 1,
+      "prestige": 0,
+      "dailyStreak": 0,
+      "lastDaily": null,
+      "lastWeekly": null,
+      "lastMonthly": null,
+      "lastInterest": null,
+      "lastTax": null,
+      "luck": 52,
+      "reputation": 2,
+      "rank": "🌱 Yeni başlayan",
+      "title": "Yeni üzv",
+      "badges": [
+        "🎰"
+      ],
+      "achievements": [
+        "🎰 İlk Oyun"
+      ],
+      "collection": [],
+      "transactions": [],
+      "cooldowns": {},
+      "moderation": {
+        "casinoMaxBet": null,
+        "casinoReason": null,
+        "casinoRestrictedAt": null,
+        "casinoRestrictedBy": null,
+        "restrictions": []
+      },
+      "settings": {
+        "publicProfile": true,
+        "dmRewards": false,
+        "compactMode": false,
+        "gameRequests": true
+      },
+      "limits": {
+        "transferDate": null,
+        "transferSent": 0,
+        "shopChestDate": "2026-08-08",
+        "shopChestsBought": 0,
+        "shopChestRevertedDate": null,
+        "robDate": null,
+        "robTargets": {},
+        "robbedCount": 0
+      },
+      "loan": {
+        "creditScore": 720,
+        "active": null,
+        "frozen": false,
+        "insured": false,
+        "insuranceMonth": null,
+        "stats": {
+          "onTimePayments": 0,
+          "latePayments": 0,
+          "totalBorrowed": 0,
+          "totalRepaid": 0
+        }
+      },
+      "prime": {
+        "activeUntil": null,
+        "purchasedAt": null,
+        "refundsRemaining": 0,
+        "monthKey": null,
+        "losses": []
+      },
+      "world": {
+        "job": null,
+        "jobXp": 0,
+        "jobLevel": 1,
+        "lastMissionAt": null,
+        "businesses": {},
+        "businessLevels": {},
+        "properties": {},
+        "vehicles": [],
+        "lastIncomeAt": null,
+        "lastAdventure": null,
+        "exploration": {},
+        "influence": 0,
+        "guild": null,
+        "pets": [],
+        "seasonPoints": 0,
+        "netWorth": 0
+      },
+      "season": {
+        "key": "s1_dark_city",
+        "xp": 20,
+        "level": 1,
+        "claimedFree": [],
+        "claimedPrime": [],
+        "totalXp": 20
+      },
+      "objectiveProgress": {
+        "dailyKey": "2026-08-08",
+        "weeklyKey": "2026-W32",
+        "dailyRewardKey": null,
+        "weeklyRewardKey": null,
+        "daily": {
+          "casino": 1
+        },
+        "weekly": {
+          "games": 2
+        }
+      },
+      "onboarding": {
+        "welcomeSeen": false,
+        "beginnerBonusClaimed": false,
+        "tutorialCompleted": false
+      },
+      "inventory": {
+        "boosters": [],
+        "boosterCharges": 0,
+        "tickets": 0,
+        "keys": 0,
+        "chests": {},
+        "collectibles": [],
+        "badges": [],
+        "titles": [],
+        "borders": [],
+        "effects": []
+      },
+      "stats": {
+        "gamesPlayed": 2,
+        "gamesWon": 0,
+        "gamesLost": 2,
+        "auraEarned": 0,
+        "auraLost": 0,
+        "biggestWin": 0,
+        "biggestLoss": 0,
+        "currentStreak": 0,
+        "longestStreak": 0,
+        "favoriteGames": {},
+        "averageBet": 0,
+        "highestMultiplier": 0,
+        "jackpotsWon": 0
+      }
+    },
+    "wallet-reset-test": {
+      "balance": 0,
+      "bank": 0,
+      "xp": 0,
+      "level": 1,
+      "prestige": 0,
+      "dailyStreak": 0,
+      "lastDaily": null,
+      "lastWeekly": null,
+      "lastMonthly": null,
+      "lastInterest": null,
+      "lastTax": null,
+      "luck": 50,
+      "reputation": 0,
+      "rank": "🌱 Yeni başlayan",
+      "title": "Yeni üzv",
+      "badges": [],
+      "achievements": [],
+      "collection": [],
+      "transactions": [],
+      "cooldowns": {},
+      "moderation": {
+        "casinoMaxBet": null,
+        "casinoReason": null,
+        "casinoRestrictedAt": null,
+        "casinoRestrictedBy": null,
+        "restrictions": []
+      },
+      "settings": {
+        "publicProfile": true,
+        "dmRewards": false,
+        "compactMode": false,
+        "gameRequests": true
+      },
+      "limits": {
+        "transferDate": null,
+        "transferSent": 0,
+        "shopChestDate": "2026-08-08",
+        "shopChestsBought": 0,
+        "shopChestRevertedDate": null,
+        "robDate": null,
+        "robTargets": {},
+        "robbedCount": 0
+      },
+      "loan": {
+        "creditScore": 720,
+        "active": null,
+        "frozen": false,
+        "insured": false,
+        "insuranceMonth": null,
+        "stats": {
+          "onTimePayments": 0,
+          "latePayments": 0,
+          "totalBorrowed": 0,
+          "totalRepaid": 0
+        }
+      },
+      "prime": {
+        "activeUntil": null,
+        "purchasedAt": null,
+        "refundsRemaining": 0,
+        "monthKey": null,
+        "losses": []
+      },
+      "world": {
+        "job": null,
+        "jobXp": 0,
+        "jobLevel": 1,
+        "lastMissionAt": null,
+        "businesses": {},
+        "businessLevels": {},
+        "properties": {},
+        "vehicles": [],
+        "lastIncomeAt": null,
+        "lastAdventure": null,
+        "exploration": {},
+        "influence": 0,
+        "guild": null,
+        "pets": [],
+        "seasonPoints": 0,
+        "netWorth": 0
+      },
+      "season": {
+        "key": "s1_dark_city",
+        "xp": 0,
+        "level": 1,
+        "claimedFree": [],
+        "claimedPrime": [],
+        "totalXp": 0
+      },
+      "objectiveProgress": {
+        "dailyKey": "2026-08-08",
+        "weeklyKey": "2026-W32",
+        "dailyRewardKey": null,
+        "weeklyRewardKey": null,
+        "daily": {},
+        "weekly": {}
+      },
+      "onboarding": {
+        "welcomeSeen": false,
+        "beginnerBonusClaimed": false,
+        "tutorialCompleted": false
+      },
+      "inventory": {
+        "boosters": [],
+        "boosterCharges": 0,
+        "tickets": 0,
+        "keys": 0,
+        "chests": {},
+        "collectibles": [],
+        "badges": [],
+        "titles": [],
+        "borders": [],
+        "effects": []
+      },
+      "stats": {
+        "gamesPlayed": 0,
+        "gamesWon": 0,
+        "gamesLost": 0,
+        "auraEarned": 0,
+        "auraLost": 0,
+        "biggestWin": 0,
+        "biggestLoss": 0,
+        "currentStreak": 0,
+        "longestStreak": 0,
+        "favoriteGames": {},
+        "averageBet": 0,
+        "highestMultiplier": 0,
+        "jackpotsWon": 0
+      }
+    },
+    "1271393115525222487": {
+      "balance": 0,
+      "bank": 0,
+      "xp": 0,
+      "level": 9,
+      "prestige": 0,
+      "dailyStreak": 1,
+      "lastDaily": "2026-08-07",
+      "lastWeekly": null,
+      "lastMonthly": null,
+      "lastInterest": null,
+      "lastTax": null,
+      "luck": 44,
+      "reputation": 100,
+      "rank": "🌱 Yeni başlayan",
+      "title": "Yeni üzv",
+      "badges": [
+        "🎰",
+        "🏆",
+        "💎",
+        "🎲",
+        "🎁"
+      ],
+      "achievements": [
+        "🎰 İlk Oyun",
+        "🏆 İlk Qələbə",
+        "💎 10000 Aura",
+        "🎲 100 Oyun",
+        "🎁 İlk Gündəlik"
+      ],
+      "collection": [],
+      "transactions": [],
+      "cooldowns": {
+        "casino": 1786168478753,
+        "robbedUntil": 1786168008493
+      },
+      "moderation": {
+        "casinoMaxBet": null,
+        "casinoReason": null,
+        "casinoRestrictedAt": null,
+        "casinoRestrictedBy": null,
+        "restrictions": []
+      },
+      "settings": {
+        "publicProfile": true,
+        "dmRewards": false,
+        "compactMode": false,
+        "gameRequests": true
+      },
+      "limits": {
+        "transferDate": null,
+        "transferSent": 0,
+        "shopChestDate": "2026-08-08",
+        "shopChestsBought": 0,
+        "shopChestRevertedDate": null,
+        "robDate": null,
+        "robTargets": {},
+        "robbedCount": 0
+      },
+      "loan": {
+        "creditScore": 720,
+        "active": null,
+        "frozen": false,
+        "insured": false,
+        "insuranceMonth": null,
+        "stats": {
+          "onTimePayments": 0,
+          "latePayments": 0,
+          "totalBorrowed": 0,
+          "totalRepaid": 0
+        }
+      },
+      "prime": {
+        "activeUntil": null,
+        "purchasedAt": null,
+        "refundsRemaining": 0,
+        "monthKey": null,
+        "losses": []
+      },
+      "world": {
+        "job": null,
+        "jobXp": 0,
+        "jobLevel": 1,
+        "lastMissionAt": null,
+        "businesses": {},
+        "businessLevels": {},
+        "properties": {},
+        "vehicles": [],
+        "lastIncomeAt": null,
+        "lastAdventure": null,
+        "exploration": {},
+        "influence": 0,
+        "guild": null,
+        "pets": [],
+        "seasonPoints": 0,
+        "netWorth": 0
+      },
+      "season": {
+        "key": "s1_dark_city",
+        "xp": 378,
+        "level": 9,
+        "claimedFree": [],
+        "claimedPrime": [],
+        "totalXp": 3078
+      },
+      "objectiveProgress": {
+        "dailyKey": "2026-08-08",
+        "weeklyKey": "2026-W32",
+        "dailyRewardKey": null,
+        "weeklyRewardKey": null,
+        "daily": {
+          "transfer": 4,
+          "casino": 12
+        },
+        "weekly": {
+          "games": 187
+        }
+      },
+      "onboarding": {
+        "welcomeSeen": false,
+        "beginnerBonusClaimed": false,
+        "tutorialCompleted": false
+      },
+      "inventory": {
+        "boosters": [],
+        "boosterCharges": 0,
+        "tickets": 0,
+        "keys": 0,
+        "chests": {
+          "🪵 Bürünc sandığı": 1
+        },
+        "collectibles": [],
+        "badges": [],
+        "titles": [],
+        "borders": [],
+        "effects": []
+      },
+      "stats": {
+        "gamesPlayed": 187,
+        "gamesWon": 82,
+        "gamesLost": 105,
+        "auraEarned": 0,
+        "auraLost": 0,
+        "biggestWin": 0,
+        "biggestLoss": 0,
+        "currentStreak": 1,
+        "longestStreak": 1,
+        "favoriteGames": {},
+        "averageBet": 0,
+        "highestMultiplier": 0,
+        "jackpotsWon": 0
+      }
+    },
+    "1518171019817386004": {
+      "balance": 0,
+      "bank": 0,
+      "xp": 0,
+      "level": 1,
+      "prestige": 0,
+      "dailyStreak": 0,
+      "lastDaily": null,
+      "lastWeekly": null,
+      "lastMonthly": null,
+      "lastInterest": null,
+      "lastTax": null,
+      "luck": 50,
+      "reputation": 0,
+      "rank": "🌱 Yeni başlayan",
+      "title": "Yeni üzv",
+      "badges": [],
+      "achievements": [],
+      "collection": [],
+      "transactions": [],
+      "cooldowns": {},
+      "moderation": {
+        "casinoMaxBet": null,
+        "casinoReason": null,
+        "casinoRestrictedAt": null,
+        "casinoRestrictedBy": null,
+        "restrictions": []
+      },
+      "settings": {
+        "publicProfile": true,
+        "dmRewards": false,
+        "compactMode": false,
+        "gameRequests": true
+      },
+      "limits": {
+        "transferDate": null,
+        "transferSent": 0,
+        "shopChestDate": "2026-08-08",
+        "shopChestsBought": 0,
+        "shopChestRevertedDate": null,
+        "robDate": null,
+        "robTargets": {},
+        "robbedCount": 0
+      },
+      "loan": {
+        "creditScore": 720,
+        "active": null,
+        "frozen": false,
+        "insured": false,
+        "insuranceMonth": null,
+        "stats": {
+          "onTimePayments": 0,
+          "latePayments": 0,
+          "totalBorrowed": 0,
+          "totalRepaid": 0
+        }
+      },
+      "prime": {
+        "activeUntil": null,
+        "purchasedAt": null,
+        "refundsRemaining": 0,
+        "monthKey": null,
+        "losses": []
+      },
+      "world": {
+        "job": null,
+        "jobXp": 0,
+        "jobLevel": 1,
+        "lastMissionAt": null,
+        "businesses": {},
+        "businessLevels": {},
+        "properties": {},
+        "vehicles": [],
+        "lastIncomeAt": null,
+        "lastAdventure": null,
+        "exploration": {},
+        "influence": 0,
+        "guild": null,
+        "pets": [],
+        "seasonPoints": 0,
+        "netWorth": 0
+      },
+      "season": {
+        "key": "s1_dark_city",
+        "xp": 0,
+        "level": 1,
+        "claimedFree": [],
+        "claimedPrime": [],
+        "totalXp": 0
+      },
+      "objectiveProgress": {
+        "dailyKey": "2026-08-08",
+        "weeklyKey": "2026-W32",
+        "dailyRewardKey": null,
+        "weeklyRewardKey": null,
+        "daily": {},
+        "weekly": {}
+      },
+      "onboarding": {
+        "welcomeSeen": false,
+        "beginnerBonusClaimed": false,
+        "tutorialCompleted": false
+      },
+      "inventory": {
+        "boosters": [],
+        "boosterCharges": 0,
+        "tickets": 0,
+        "keys": 0,
+        "chests": {},
+        "collectibles": [],
+        "badges": [],
+        "titles": [],
+        "borders": [],
+        "effects": []
+      },
+      "stats": {
+        "gamesPlayed": 0,
+        "gamesWon": 0,
+        "gamesLost": 0,
+        "auraEarned": 0,
+        "auraLost": 0,
+        "biggestWin": 0,
+        "biggestLoss": 0,
+        "currentStreak": 0,
+        "longestStreak": 0,
+        "favoriteGames": {},
+        "averageBet": 0,
+        "highestMultiplier": 0,
+        "jackpotsWon": 0
+      }
+    },
+    "386421496463097857": {
+      "balance": 0,
+      "bank": 0,
+      "xp": 0,
+      "level": 1,
+      "prestige": 0,
+      "dailyStreak": 0,
+      "lastDaily": null,
+      "lastWeekly": null,
+      "lastMonthly": null,
+      "lastInterest": null,
+      "lastTax": null,
+      "luck": 50,
+      "reputation": 0,
+      "rank": "🌱 Yeni başlayan",
+      "title": "Yeni üzv",
+      "badges": [],
+      "achievements": [],
+      "collection": [],
+      "transactions": [],
+      "cooldowns": {},
+      "moderation": {
+        "casinoMaxBet": null,
+        "casinoReason": null,
+        "casinoRestrictedAt": null,
+        "casinoRestrictedBy": null,
+        "restrictions": []
+      },
+      "settings": {
+        "publicProfile": true,
+        "dmRewards": false,
+        "compactMode": false,
+        "gameRequests": true
+      },
+      "limits": {
+        "transferDate": null,
+        "transferSent": 0,
+        "shopChestDate": "2026-08-08",
+        "shopChestsBought": 0,
+        "shopChestRevertedDate": null,
+        "robDate": null,
+        "robTargets": {},
+        "robbedCount": 0
+      },
+      "loan": {
+        "creditScore": 720,
+        "active": null,
+        "frozen": false,
+        "insured": false,
+        "insuranceMonth": null,
+        "stats": {
+          "onTimePayments": 0,
+          "latePayments": 0,
+          "totalBorrowed": 0,
+          "totalRepaid": 0
+        }
+      },
+      "prime": {
+        "activeUntil": null,
+        "purchasedAt": null,
+        "refundsRemaining": 0,
+        "monthKey": null,
+        "losses": []
+      },
+      "world": {
+        "job": null,
+        "jobXp": 0,
+        "jobLevel": 1,
+        "lastMissionAt": null,
+        "businesses": {},
+        "businessLevels": {},
+        "properties": {},
+        "vehicles": [],
+        "lastIncomeAt": null,
+        "lastAdventure": null,
+        "exploration": {},
+        "influence": 0,
+        "guild": null,
+        "pets": [],
+        "seasonPoints": 0,
+        "netWorth": 0
+      },
+      "season": {
+        "key": "s1_dark_city",
+        "xp": 0,
+        "level": 1,
+        "claimedFree": [],
+        "claimedPrime": [],
+        "totalXp": 0
+      },
+      "objectiveProgress": {
+        "dailyKey": "2026-08-08",
+        "weeklyKey": "2026-W32",
+        "dailyRewardKey": null,
+        "weeklyRewardKey": null,
+        "daily": {},
+        "weekly": {}
+      },
+      "onboarding": {
+        "welcomeSeen": false,
+        "beginnerBonusClaimed": false,
+        "tutorialCompleted": false
+      },
+      "inventory": {
+        "boosters": [],
+        "boosterCharges": 0,
+        "tickets": 0,
+        "keys": 0,
+        "chests": {},
+        "collectibles": [],
+        "badges": [],
+        "titles": [],
+        "borders": [],
+        "effects": []
+      },
+      "stats": {
+        "gamesPlayed": 0,
+        "gamesWon": 0,
+        "gamesLost": 0,
+        "auraEarned": 0,
+        "auraLost": 0,
+        "biggestWin": 0,
+        "biggestLoss": 0,
+        "currentStreak": 0,
+        "longestStreak": 0,
+        "favoriteGames": {},
+        "averageBet": 0,
+        "highestMultiplier": 0,
+        "jackpotsWon": 0
+      }
+    },
+    "1160454837780103179": {
+      "balance": 0,
+      "bank": 0,
+      "xp": 0,
+      "level": 1,
+      "prestige": 0,
+      "dailyStreak": 0,
+      "lastDaily": null,
+      "lastWeekly": null,
+      "lastMonthly": null,
+      "lastInterest": null,
+      "lastTax": null,
+      "luck": 50,
+      "reputation": 0,
+      "rank": "🌱 Yeni başlayan",
+      "title": "Yeni üzv",
+      "badges": [
+        "💎"
+      ],
+      "achievements": [
+        "💎 10000 Aura"
+      ],
+      "collection": [],
+      "transactions": [],
+      "cooldowns": {
+        "rob": 1786127749838
+      },
+      "moderation": {
+        "casinoMaxBet": null,
+        "casinoReason": null,
+        "casinoRestrictedAt": null,
+        "casinoRestrictedBy": null,
+        "restrictions": []
+      },
+      "settings": {
+        "publicProfile": true,
+        "dmRewards": false,
+        "compactMode": false,
+        "gameRequests": true
+      },
+      "limits": {
+        "transferDate": null,
+        "transferSent": 0,
+        "shopChestDate": "2026-08-08",
+        "shopChestsBought": 0,
+        "shopChestRevertedDate": null,
+        "robDate": null,
+        "robTargets": {},
+        "robbedCount": 0
+      },
+      "loan": {
+        "creditScore": 720,
+        "active": null,
+        "frozen": false,
+        "insured": false,
+        "insuranceMonth": null,
+        "stats": {
+          "onTimePayments": 0,
+          "latePayments": 0,
+          "totalBorrowed": 0,
+          "totalRepaid": 0
+        }
+      },
+      "prime": {
+        "activeUntil": null,
+        "purchasedAt": null,
+        "refundsRemaining": 0,
+        "monthKey": null,
+        "losses": []
+      },
+      "world": {
+        "job": null,
+        "jobXp": 0,
+        "jobLevel": 1,
+        "lastMissionAt": null,
+        "businesses": {},
+        "businessLevels": {},
+        "properties": {},
+        "vehicles": [],
+        "lastIncomeAt": null,
+        "lastAdventure": null,
+        "exploration": {},
+        "influence": 0,
+        "guild": null,
+        "pets": [],
+        "seasonPoints": 0,
+        "netWorth": 0
+      },
+      "season": {
+        "key": "s1_dark_city",
+        "xp": 0,
+        "level": 1,
+        "claimedFree": [],
+        "claimedPrime": [],
+        "totalXp": 0
+      },
+      "objectiveProgress": {
+        "dailyKey": "2026-08-08",
+        "weeklyKey": "2026-W32",
+        "dailyRewardKey": null,
+        "weeklyRewardKey": null,
+        "daily": {},
+        "weekly": {}
+      },
+      "onboarding": {
+        "welcomeSeen": false,
+        "beginnerBonusClaimed": false,
+        "tutorialCompleted": false
+      },
+      "inventory": {
+        "boosters": [],
+        "boosterCharges": 0,
+        "tickets": 0,
+        "keys": 0,
+        "chests": {},
+        "collectibles": [],
+        "badges": [],
+        "titles": [],
+        "borders": [],
+        "effects": []
+      },
+      "stats": {
+        "gamesPlayed": 0,
+        "gamesWon": 0,
+        "gamesLost": 0,
+        "auraEarned": 0,
+        "auraLost": 0,
+        "biggestWin": 0,
+        "biggestLoss": 0,
+        "currentStreak": 0,
+        "longestStreak": 0,
+        "favoriteGames": {},
+        "averageBet": 0,
+        "highestMultiplier": 0,
+        "jackpotsWon": 0
+      }
+    },
+    "1402645493892255783": {
+      "balance": 0,
+      "bank": 0,
+      "xp": 133,
+      "level": 4,
+      "prestige": 0,
+      "dailyStreak": 1,
+      "lastDaily": "2026-08-07",
+      "lastWeekly": null,
+      "lastMonthly": null,
+      "lastInterest": null,
+      "lastTax": null,
+      "luck": 70,
+      "reputation": 77,
+      "rank": "🌱 Yeni başlayan",
+      "title": "Yeni üzv",
+      "badges": [
+        "🎁",
+        "🎰",
+        "🏆",
+        "💎"
+      ],
+      "achievements": [
+        "🎁 İlk Gündəlik",
+        "🎰 İlk Oyun",
+        "🏆 İlk Qələbə",
+        "💎 10000 Aura"
+      ],
+      "collection": [],
+      "transactions": [],
+      "cooldowns": {
+        "casino": 1786135967583,
+        "crime": 1786135630191
+      },
+      "moderation": {
+        "casinoMaxBet": null,
+        "casinoReason": null,
+        "casinoRestrictedAt": null,
+        "casinoRestrictedBy": null,
+        "restrictions": []
+      },
+      "settings": {
+        "publicProfile": true,
+        "dmRewards": false,
+        "compactMode": false,
+        "gameRequests": true
+      },
+      "limits": {
+        "transferDate": null,
+        "transferSent": 0,
+        "shopChestDate": "2026-08-08",
+        "shopChestsBought": 0,
+        "shopChestRevertedDate": null,
+        "robDate": null,
+        "robTargets": {},
+        "robbedCount": 0
+      },
+      "loan": {
+        "creditScore": 720,
+        "active": null,
+        "frozen": false,
+        "insured": false,
+        "insuranceMonth": null,
+        "stats": {
+          "onTimePayments": 0,
+          "latePayments": 0,
+          "totalBorrowed": 0,
+          "totalRepaid": 0
+        }
+      },
+      "prime": {
+        "activeUntil": null,
+        "purchasedAt": null,
+        "refundsRemaining": 0,
+        "monthKey": null,
+        "losses": []
+      },
+      "world": {
+        "job": null,
+        "jobXp": 0,
+        "jobLevel": 1,
+        "lastMissionAt": null,
+        "businesses": {},
+        "businessLevels": {},
+        "properties": {},
+        "vehicles": [],
+        "lastIncomeAt": null,
+        "lastAdventure": null,
+        "exploration": {},
+        "influence": 0,
+        "guild": null,
+        "pets": [],
+        "seasonPoints": 0,
+        "netWorth": 0
+      },
+      "season": {
+        "key": "s1_dark_city",
+        "xp": 245,
+        "level": 4,
+        "claimedFree": [],
+        "claimedPrime": [],
+        "totalXp": 920
+      },
+      "objectiveProgress": {
+        "dailyKey": "2026-08-08",
+        "weeklyKey": "2026-W32",
+        "dailyRewardKey": null,
+        "weeklyRewardKey": null,
+        "daily": {},
+        "weekly": {
+          "games": 59
+        }
+      },
+      "onboarding": {
+        "welcomeSeen": true,
+        "beginnerBonusClaimed": true,
+        "tutorialCompleted": false
+      },
+      "inventory": {
+        "boosters": [],
+        "boosterCharges": 0,
+        "tickets": 1,
+        "keys": 0,
+        "chests": {
+          "🪵 Bürünc sandığı": 1
+        },
+        "collectibles": [],
+        "badges": [],
+        "titles": [],
+        "borders": [],
+        "effects": []
+      },
+      "stats": {
+        "gamesPlayed": 59,
+        "gamesWon": 18,
+        "gamesLost": 41,
+        "auraEarned": 0,
+        "auraLost": 0,
+        "biggestWin": 0,
+        "biggestLoss": 0,
+        "currentStreak": 1,
+        "longestStreak": 1,
+        "favoriteGames": {},
+        "averageBet": 0,
+        "highestMultiplier": 0,
+        "jackpotsWon": 0
+      }
+    },
+    "1506759479226793994": {
+      "balance": 0,
+      "bank": 0,
+      "xp": 0,
+      "level": 1,
+      "prestige": 0,
+      "dailyStreak": 0,
+      "lastDaily": null,
+      "lastWeekly": null,
+      "lastMonthly": null,
+      "lastInterest": null,
+      "lastTax": null,
+      "luck": 50,
+      "reputation": 0,
+      "rank": "🌱 Yeni başlayan",
+      "title": "Yeni üzv",
+      "badges": [],
+      "achievements": [],
+      "collection": [],
+      "transactions": [],
+      "cooldowns": {},
+      "moderation": {
+        "casinoMaxBet": null,
+        "casinoReason": null,
+        "casinoRestrictedAt": null,
+        "casinoRestrictedBy": null,
+        "restrictions": []
+      },
+      "settings": {
+        "publicProfile": true,
+        "dmRewards": false,
+        "compactMode": false,
+        "gameRequests": true
+      },
+      "limits": {
+        "transferDate": null,
+        "transferSent": 0,
+        "shopChestDate": "2026-08-08",
+        "shopChestsBought": 0,
+        "shopChestRevertedDate": null,
+        "robDate": null,
+        "robTargets": {},
+        "robbedCount": 0
+      },
+      "loan": {
+        "creditScore": 720,
+        "active": null,
+        "frozen": false,
+        "insured": false,
+        "insuranceMonth": null,
+        "stats": {
+          "onTimePayments": 0,
+          "latePayments": 0,
+          "totalBorrowed": 0,
+          "totalRepaid": 0
+        }
+      },
+      "prime": {
+        "activeUntil": null,
+        "purchasedAt": null,
+        "refundsRemaining": 0,
+        "monthKey": null,
+        "losses": []
+      },
+      "world": {
+        "job": null,
+        "jobXp": 0,
+        "jobLevel": 1,
+        "lastMissionAt": null,
+        "businesses": {},
+        "businessLevels": {},
+        "properties": {},
+        "vehicles": [],
+        "lastIncomeAt": null,
+        "lastAdventure": null,
+        "exploration": {},
+        "influence": 0,
+        "guild": null,
+        "pets": [],
+        "seasonPoints": 0,
+        "netWorth": 0
+      },
+      "season": {
+        "key": "s1_dark_city",
+        "xp": 0,
+        "level": 1,
+        "claimedFree": [],
+        "claimedPrime": [],
+        "totalXp": 0
+      },
+      "objectiveProgress": {
+        "dailyKey": "2026-08-08",
+        "weeklyKey": "2026-W32",
+        "dailyRewardKey": null,
+        "weeklyRewardKey": null,
+        "daily": {},
+        "weekly": {}
+      },
+      "onboarding": {
+        "welcomeSeen": false,
+        "beginnerBonusClaimed": false,
+        "tutorialCompleted": false
+      },
+      "inventory": {
+        "boosters": [],
+        "boosterCharges": 0,
+        "tickets": 0,
+        "keys": 0,
+        "chests": {},
+        "collectibles": [],
+        "badges": [],
+        "titles": [],
+        "borders": [],
+        "effects": []
+      },
+      "stats": {
+        "gamesPlayed": 0,
+        "gamesWon": 0,
+        "gamesLost": 0,
+        "auraEarned": 0,
+        "auraLost": 0,
+        "biggestWin": 0,
+        "biggestLoss": 0,
+        "currentStreak": 0,
+        "longestStreak": 0,
+        "favoriteGames": {},
+        "averageBet": 0,
+        "highestMultiplier": 0,
+        "jackpotsWon": 0
+      }
+    },
+    "1517655870782308382": {
+      "balance": 0,
+      "bank": 0,
+      "xp": 0,
+      "level": 1,
+      "prestige": 0,
+      "dailyStreak": 0,
+      "lastDaily": null,
+      "lastWeekly": null,
+      "lastMonthly": null,
+      "lastInterest": null,
+      "lastTax": null,
+      "luck": 50,
+      "reputation": 0,
+      "rank": "🌱 Yeni başlayan",
+      "title": "Yeni üzv",
+      "badges": [],
+      "achievements": [],
+      "collection": [],
+      "transactions": [],
+      "cooldowns": {},
+      "moderation": {
+        "casinoMaxBet": null,
+        "casinoReason": null,
+        "casinoRestrictedAt": null,
+        "casinoRestrictedBy": null,
+        "restrictions": []
+      },
+      "settings": {
+        "publicProfile": true,
+        "dmRewards": false,
+        "compactMode": false,
+        "gameRequests": true
+      },
+      "limits": {
+        "transferDate": null,
+        "transferSent": 0,
+        "shopChestDate": "2026-08-08",
+        "shopChestsBought": 0,
+        "shopChestRevertedDate": null,
+        "robDate": null,
+        "robTargets": {},
+        "robbedCount": 0
+      },
+      "loan": {
+        "creditScore": 720,
+        "active": null,
+        "frozen": false,
+        "insured": false,
+        "insuranceMonth": null,
+        "stats": {
+          "onTimePayments": 0,
+          "latePayments": 0,
+          "totalBorrowed": 0,
+          "totalRepaid": 0
+        }
+      },
+      "prime": {
+        "activeUntil": null,
+        "purchasedAt": null,
+        "refundsRemaining": 0,
+        "monthKey": null,
+        "losses": []
+      },
+      "world": {
+        "job": null,
+        "jobXp": 0,
+        "jobLevel": 1,
+        "lastMissionAt": null,
+        "businesses": {},
+        "businessLevels": {},
+        "properties": {},
+        "vehicles": [],
+        "lastIncomeAt": null,
+        "lastAdventure": null,
+        "exploration": {},
+        "influence": 0,
+        "guild": null,
+        "pets": [],
+        "seasonPoints": 0,
+        "netWorth": 0
+      },
+      "season": {
+        "key": "s1_dark_city",
+        "xp": 0,
+        "level": 1,
+        "claimedFree": [],
+        "claimedPrime": [],
+        "totalXp": 0
+      },
+      "objectiveProgress": {
+        "dailyKey": "2026-08-08",
+        "weeklyKey": "2026-W32",
+        "dailyRewardKey": null,
+        "weeklyRewardKey": null,
+        "daily": {},
+        "weekly": {}
+      },
+      "onboarding": {
+        "welcomeSeen": false,
+        "beginnerBonusClaimed": false,
+        "tutorialCompleted": false
+      },
+      "inventory": {
+        "boosters": [],
+        "boosterCharges": 0,
+        "tickets": 0,
+        "keys": 0,
+        "chests": {},
+        "collectibles": [],
+        "badges": [],
+        "titles": [],
+        "borders": [],
+        "effects": []
+      },
+      "stats": {
+        "gamesPlayed": 0,
+        "gamesWon": 0,
+        "gamesLost": 0,
+        "auraEarned": 0,
+        "auraLost": 0,
+        "biggestWin": 0,
+        "biggestLoss": 0,
+        "currentStreak": 0,
+        "longestStreak": 0,
+        "favoriteGames": {},
+        "averageBet": 0,
+        "highestMultiplier": 0,
+        "jackpotsWon": 0
+      }
+    }
+  },
+  "settings": {
+    "chestsEnabled": true,
+    "chestsUpdatedAt": null,
+    "chestsUpdatedBy": null,
+    "safeModeEnabled": false,
+    "safeModeUpdatedAt": null,
+    "safeModeUpdatedBy": null
+  }
+}

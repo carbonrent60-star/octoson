@@ -1,0 +1,198 @@
+{
+  "nextCaseId": 10,
+  "cases": [
+    {
+      "id": 1,
+      "type": "note",
+      "moderatorId": "1220194387867205743",
+      "targetId": "917402670619299840",
+      "reason": "bleeeee",
+      "evidence": [],
+      "meta": {},
+      "status": "open",
+      "createdAt": 1786046691259,
+      "resolvedAt": null,
+      "resolvedBy": null
+    },
+    {
+      "id": 2,
+      "type": "warn",
+      "moderatorId": "1220194387867205743",
+      "targetId": "917402670619299840",
+      "reason": "test",
+      "evidence": [],
+      "meta": {},
+      "status": "completed",
+      "createdAt": 1786046717483,
+      "resolvedAt": 1786046748136,
+      "resolvedBy": "1220194387867205743"
+    },
+    {
+      "id": 3,
+      "type": "warn",
+      "moderatorId": "1220194387867205743",
+      "targetId": "386421496463097857",
+      "reason": "test",
+      "evidence": [],
+      "meta": {},
+      "status": "completed",
+      "createdAt": 1786046750464,
+      "resolvedAt": 1786046780763,
+      "resolvedBy": "1220194387867205743"
+    },
+    {
+      "id": 4,
+      "type": "dm",
+      "moderatorId": "1220194387867205743",
+      "targetId": "386421496463097857",
+      "reason": "salam gaga",
+      "evidence": [],
+      "meta": {},
+      "status": "open",
+      "createdAt": 1786046762525,
+      "resolvedAt": null,
+      "resolvedBy": null
+    },
+    {
+      "id": 5,
+      "type": "dm",
+      "moderatorId": "1220194387867205743",
+      "targetId": "386421496463097857",
+      "reason": "salam gaga",
+      "evidence": [],
+      "meta": {},
+      "status": "open",
+      "createdAt": 1786046766470,
+      "resolvedAt": null,
+      "resolvedBy": null
+    },
+    {
+      "id": 6,
+      "type": "restriction",
+      "moderatorId": "386421496463097857",
+      "targetId": "386421496463097857",
+      "reason": "rrrr",
+      "evidence": [],
+      "meta": {
+        "action": "add",
+        "restriction": {
+          "id": "r_mshyjr0g_7qza",
+          "type": "rob",
+          "moderatorId": "386421496463097857",
+          "reason": "rrrr",
+          "meta": {},
+          "createdAt": 1786047468928,
+          "expiresAt": null
+        },
+        "previous": [],
+        "new": [
+          {
+            "id": "r_mshyjr0g_7qza",
+            "type": "rob",
+            "moderatorId": "386421496463097857",
+            "reason": "rrrr",
+            "meta": {},
+            "createdAt": 1786047468928,
+            "expiresAt": null
+          }
+        ]
+      },
+      "status": "completed",
+      "createdAt": 1786047468932,
+      "resolvedAt": 1786047499266,
+      "resolvedBy": "386421496463097857"
+    },
+    {
+      "id": 7,
+      "type": "timeout",
+      "moderatorId": "386421496463097857",
+      "targetId": "386421496463097857",
+      "reason": "eee",
+      "evidence": [],
+      "meta": {
+        "durationMs": 60000
+      },
+      "status": "completed",
+      "createdAt": 1786047535012,
+      "resolvedAt": 1786047565389,
+      "resolvedBy": "386421496463097857"
+    },
+    {
+      "id": 8,
+      "type": "restriction",
+      "moderatorId": "386421496463097857",
+      "targetId": "386421496463097857",
+      "reason": "e",
+      "evidence": [],
+      "meta": {
+        "action": "add",
+        "restriction": {
+          "id": "r_mshylvqo_kzb3",
+          "type": "casino",
+          "moderatorId": "386421496463097857",
+          "reason": "e",
+          "meta": {},
+          "createdAt": 1786047568368,
+          "expiresAt": null
+        },
+        "previous": [
+          {
+            "id": "r_mshyjr0g_7qza",
+            "type": "rob",
+            "moderatorId": "386421496463097857",
+            "reason": "rrrr",
+            "meta": {},
+            "createdAt": 1786047468928,
+            "expiresAt": null
+          }
+        ],
+        "new": [
+          {
+            "id": "r_mshyjr0g_7qza",
+            "type": "rob",
+            "moderatorId": "386421496463097857",
+            "reason": "rrrr",
+            "meta": {},
+            "createdAt": 1786047468928,
+            "expiresAt": null
+          },
+          {
+            "id": "r_mshylvqo_kzb3",
+            "type": "casino",
+            "moderatorId": "386421496463097857",
+            "reason": "e",
+            "meta": {},
+            "createdAt": 1786047568368,
+            "expiresAt": null
+          }
+        ]
+      },
+      "status": "completed",
+      "createdAt": 1786047568371,
+      "resolvedAt": 1786047598660,
+      "resolvedBy": "386421496463097857"
+    },
+    {
+      "id": 9,
+      "type": "restriction",
+      "moderatorId": "386421496463097857",
+      "targetId": "1517925838153060503",
+      "reason": "",
+      "evidence": [],
+      "meta": {
+        "action": "remove",
+        "removed": [],
+        "previous": [],
+        "new": []
+      },
+      "status": "completed",
+      "createdAt": 1786055147462,
+      "resolvedAt": 1786055177941,
+      "resolvedBy": "386421496463097857"
+    }
+  ],
+  "reports": [],
+  "settings": {
+    "staffChannelId": null
+  }
+}

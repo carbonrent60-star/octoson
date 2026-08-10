@@ -1,0 +1,23 @@
+{
+  "parties": {
+    "party_mshtbf76_iei4": {
+      "id": "party_mshtbf76_iei4",
+      "hostId": "1124916604417876008",
+      "hostUsername": "yusufifutbol",
+      "channelId": null,
+      "createdAt": 1786038682290,
+      "members": [
+        {
+          "id": "1124916604417876008",
+          "username": "yusufifutbol"
+        }
+      ],
+      "status": "waiting",
+      "xp": 0,
+      "level": 1,
+      "potBonusPercent": 10,
+      "maxPlayers": 8,
+      "gameQueue": []
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "drops": {
+    "drop_msg5qx9i_lgluwr": {
+      "id": "drop_msg5qx9i_lgluwr",
+      "amount": 400,
+      "claims": 9,
+      "creatorId": "1220194387867205743",
+      "claimedBy": [
+        "1124916604417876008",
+        "1425456451870130258",
+        "1271393115525222487"
+      ],
+      "createdAt": 1785938628582
+    }
+  }
+}

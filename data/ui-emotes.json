@@ -1,0 +1,32 @@
+{
+  "leaderboard": {
+    "id": "1325885164181782609",
+    "name": "discord_trophy",
+    "animated": false
+  },
+  "profile": {
+    "id": "1338598749488025630",
+    "name": "User",
+    "animated": false
+  },
+  "cashout": {
+    "id": "992013315129741413",
+    "name": "MoneyCash",
+    "animated": false
+  },
+  "daily": {
+    "id": "1067219324059787305",
+    "name": "blurple_gift",
+    "animated": false
+  },
+  "market": {
+    "id": "1497925537614794983",
+    "name": "ShoppingCart",
+    "animated": false
+  },
+  "games": {
+    "id": "766365741435846656",
+    "name": "c_gamenight",
+    "animated": false
+  }
+}
