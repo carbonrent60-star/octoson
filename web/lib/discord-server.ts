@@ -251,22 +251,510 @@ export type OctosonWorldActivity = {
 
 const WORLD_ACTIVITY_CHANNEL_ID = "1536377802859880589";
 
-function activityColor(
+function worldCanvasEscape(value: unknown) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+}
+
+function worldCanvasPlainText(value: unknown) {
+  return String(value ?? "")
+    .replace(/\*\*/g, "")
+    .replace(/__/g, "")
+    .replace(/`/g, "")
+    .replace(/\r?\n+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function worldCanvasNumber(value: number) {
+  return Math.round(Number(value || 0)).toLocaleString("en-US");
+}
+
+function worldActivityMeta(
   kind?: OctosonWorldActivity["kind"],
   amount?: number
 ) {
-  if (kind === "mission" && typeof amount === "number") {
-    return amount >= 0 ? 0x67e8f9 : 0xef4444;
+  switch (kind) {
+    case "mission":
+      if (typeof amount === "number" && amount < 0) {
+        return {
+          label: "MISSİYA",
+          accent: "#FB7185",
+          glow: "#F43F5E",
+        };
+      }
+      return {
+        label: "MISSİYA",
+        accent: "#67E8F9",
+        glow: "#22D3EE",
+      };
+
+    case "income":
+      return {
+        label: "GƏLİR",
+        accent: "#6EE7B7",
+        glow: "#34D399",
+      };
+
+    case "business":
+      return {
+        label: "BİZNES",
+        accent: "#7DD3FC",
+        glow: "#38BDF8",
+      };
+
+    case "property":
+      return {
+        label: "ƏMLAK",
+        accent: "#C4B5FD",
+        glow: "#A78BFA",
+      };
+
+    case "vehicle":
+      return {
+        label: "NƏQLİYYAT",
+        accent: "#FCD34D",
+        glow: "#F59E0B",
+      };
+
+    case "upgrade":
+      return {
+        label: "UPGRADE",
+        accent: "#A5B4FC",
+        glow: "#818CF8",
+      };
+
+    case "explore":
+      return {
+        label: "KƏŞF",
+        accent: "#5EEAD4",
+        glow: "#2DD4BF",
+      };
+
+    case "job":
+    default:
+      return {
+        label: "WORLD",
+        accent: "#67E8F9",
+        glow: "#22D3EE",
+      };
+  }
+}
+
+function buildWorldCanvasSvg(input: {
+  displayName: string;
+  title: string;
+  description: string;
+  amount?: number;
+  kind?: OctosonWorldActivity["kind"];
+}) {
+  const width = 1200;
+  const height = 630;
+
+  const meta = worldActivityMeta(
+    input.kind,
+    input.amount
+  );
+
+  const name = worldCanvasEscape(
+    worldCanvasPlainText(input.displayName).slice(0, 42)
+  );
+
+  const title = worldCanvasEscape(
+    worldCanvasPlainText(input.title).slice(0, 58)
+  );
+
+  const description = worldCanvasEscape(
+    worldCanvasPlainText(input.description).slice(0, 120)
+  );
+
+  const hasAmount =
+    typeof input.amount === "number" &&
+    Number.isFinite(input.amount);
+
+  const amount = hasAmount
+    ? Number(input.amount)
+    : 0;
+
+  const signedAmount =
+    `${amount > 0 ? "+" : ""}${worldCanvasNumber(amount)}`;
+
+  const amountLabel =
+    amount > 0
+      ? "QAZANC"
+      : amount < 0
+        ? "XƏRC"
+        : "AURA";
+
+  return `
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="${width}"
+  height="${height}"
+  viewBox="0 0 ${width} ${height}"
+>
+  <defs>
+    <linearGradient id="worldBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#080B0F"/>
+      <stop offset="52%" stop-color="#07090D"/>
+      <stop offset="100%" stop-color="#040507"/>
+    </linearGradient>
+
+    <linearGradient id="worldHero" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#11171C"/>
+      <stop offset="100%" stop-color="#090C10"/>
+    </linearGradient>
+
+    <radialGradient
+      id="worldAmbient"
+      cx="0"
+      cy="0"
+      r="1"
+      gradientUnits="userSpaceOnUse"
+      gradientTransform="translate(150 80) rotate(35) scale(650 470)"
+    >
+      <stop stop-color="#67E8F9" stop-opacity="0.12"/>
+      <stop offset="1" stop-color="#67E8F9" stop-opacity="0"/>
+    </radialGradient>
+
+    <radialGradient
+      id="worldGlow"
+      cx="0"
+      cy="0"
+      r="1"
+      gradientUnits="userSpaceOnUse"
+      gradientTransform="translate(900 330) scale(470 330)"
+    >
+      <stop stop-color="${meta.glow}" stop-opacity="0.17"/>
+      <stop offset="1" stop-color="${meta.glow}" stop-opacity="0"/>
+    </radialGradient>
+
+    <filter id="worldShadow" x="-30%" y="-30%" width="160%" height="180%">
+      <feDropShadow
+        dx="0"
+        dy="24"
+        stdDeviation="28"
+        flood-color="#000000"
+        flood-opacity="0.58"
+      />
+    </filter>
+  </defs>
+
+  <rect
+    width="1200"
+    height="630"
+    rx="38"
+    fill="url(#worldBg)"
+  />
+
+  <rect
+    width="1200"
+    height="630"
+    rx="38"
+    fill="url(#worldAmbient)"
+  />
+
+  <rect
+    width="1200"
+    height="630"
+    rx="38"
+    fill="url(#worldGlow)"
+  />
+
+  <rect
+    x="46"
+    y="38"
+    width="1108"
+    height="1"
+    fill="#FFFFFF"
+    opacity="0.08"
+  />
+
+  <circle
+    cx="68"
+    cy="72"
+    r="5"
+    fill="#A5F3FC"
+  />
+
+  <text
+    x="87"
+    y="80"
+    fill="#A5F3FC"
+    fill-opacity="0.74"
+    font-size="18"
+    font-family="Inter, Arial, sans-serif"
+    font-weight="800"
+    letter-spacing="5"
+  >OCTOSON</text>
+
+  <text
+    x="1135"
+    y="79"
+    text-anchor="end"
+    fill="#FFFFFF"
+    fill-opacity="0.32"
+    font-size="13"
+    font-family="Inter, Arial, sans-serif"
+    font-weight="700"
+    letter-spacing="2.4"
+  >WORLD ACTIVITY</text>
+
+  <text
+    x="62"
+    y="137"
+    fill="#FFFFFF"
+    fill-opacity="0.30"
+    font-size="13"
+    font-family="Inter, Arial, sans-serif"
+    font-weight="800"
+    letter-spacing="2.4"
+  >OYUNÇU</text>
+
+  <text
+    x="62"
+    y="172"
+    fill="#FFFFFF"
+    fill-opacity="0.92"
+    font-size="25"
+    font-family="Inter, Arial, sans-serif"
+    font-weight="750"
+  >${name}</text>
+
+  <text
+    x="1138"
+    y="137"
+    text-anchor="end"
+    fill="#FFFFFF"
+    fill-opacity="0.30"
+    font-size="13"
+    font-family="Inter, Arial, sans-serif"
+    font-weight="800"
+    letter-spacing="2.4"
+  >KATEQORİYA</text>
+
+  <text
+    x="1138"
+    y="172"
+    text-anchor="end"
+    fill="${meta.accent}"
+    fill-opacity="0.92"
+    font-size="18"
+    font-family="Inter, Arial, sans-serif"
+    font-weight="850"
+    letter-spacing="3"
+  >${meta.label}</text>
+
+  <rect
+    x="44"
+    y="202"
+    width="1112"
+    height="285"
+    rx="30"
+    fill="url(#worldHero)"
+    stroke="#FFFFFF"
+    stroke-opacity="0.075"
+    filter="url(#worldShadow)"
+  />
+
+  <rect
+    x="44"
+    y="251"
+    width="3"
+    height="186"
+    rx="1.5"
+    fill="${meta.accent}"
+    opacity="0.90"
+  />
+
+  <circle
+    cx="88"
+    cy="257"
+    r="5"
+    fill="${meta.accent}"
+  />
+
+  <text
+    x="105"
+    y="264"
+    fill="${meta.accent}"
+    font-size="14"
+    font-family="Inter, Arial, sans-serif"
+    font-weight="850"
+    letter-spacing="3.5"
+  >${meta.label}</text>
+
+  <text
+    x="82"
+    y="333"
+    fill="#FFFFFF"
+    fill-opacity="0.96"
+    font-size="42"
+    font-family="Inter, Arial, sans-serif"
+    font-weight="820"
+    letter-spacing="-1"
+  >${title}</text>
+
+  <text
+    x="84"
+    y="386"
+    fill="#FFFFFF"
+    fill-opacity="0.52"
+    font-size="20"
+    font-family="Inter, Arial, sans-serif"
+    font-weight="600"
+  >${description}</text>
+
+  ${
+    hasAmount
+      ? `
+  <line
+    x1="760"
+    y1="254"
+    x2="760"
+    y2="435"
+    stroke="#FFFFFF"
+    stroke-opacity="0.07"
+  />
+
+  <text
+    x="1110"
+    y="287"
+    text-anchor="end"
+    fill="#FFFFFF"
+    fill-opacity="0.28"
+    font-size="12"
+    font-family="Inter, Arial, sans-serif"
+    font-weight="800"
+    letter-spacing="2.3"
+  >${amountLabel}</text>
+
+  <text
+    x="1110"
+    y="365"
+    text-anchor="end"
+    fill="${meta.accent}"
+    font-size="58"
+    font-family="Inter, Arial, sans-serif"
+    font-weight="850"
+    letter-spacing="-2"
+  >${signedAmount}</text>
+
+  <text
+    x="1110"
+    y="402"
+    text-anchor="end"
+    fill="${meta.accent}"
+    fill-opacity="0.65"
+    font-size="13"
+    font-family="Inter, Arial, sans-serif"
+    font-weight="850"
+    letter-spacing="4"
+  >AURA</text>
+      `
+      : `
+  <circle
+    cx="1068"
+    cy="345"
+    r="56"
+    fill="${meta.accent}"
+    fill-opacity="0.035"
+    stroke="${meta.accent}"
+    stroke-opacity="0.14"
+  />
+
+  <circle
+    cx="1068"
+    cy="345"
+    r="10"
+    fill="${meta.accent}"
+    opacity="0.78"
+  />
+      `
   }
 
-  if (kind === "income") return 0x22c55e;
-  if (kind === "business") return 0x38bdf8;
-  if (kind === "property") return 0xa78bfa;
-  if (kind === "vehicle") return 0xf59e0b;
-  if (kind === "upgrade") return 0x818cf8;
-  if (kind === "explore") return 0x2dd4bf;
+  <rect
+    x="44"
+    y="511"
+    width="1112"
+    height="58"
+    rx="18"
+    fill="#FFFFFF"
+    fill-opacity="0.025"
+    stroke="#FFFFFF"
+    stroke-opacity="0.055"
+  />
 
-  return 0x67e8f9;
+  <text
+    x="70"
+    y="547"
+    fill="#FFFFFF"
+    fill-opacity="0.34"
+    font-size="13"
+    font-family="Inter, Arial, sans-serif"
+    font-weight="700"
+  >Octoson World hadisəsi Discord economy ilə sinxronlaşdırıldı</text>
+
+  <circle
+    cx="62"
+    cy="600"
+    r="3"
+    fill="${meta.accent}"
+    opacity="0.55"
+  />
+
+  <text
+    x="75"
+    y="605"
+    fill="#FFFFFF"
+    fill-opacity="0.27"
+    font-size="12"
+    font-family="Inter, Arial, sans-serif"
+    font-weight="650"
+  >Discord economy ilə canlı sinxron</text>
+
+  <text
+    x="1138"
+    y="605"
+    text-anchor="end"
+    fill="#A5F3FC"
+    fill-opacity="0.34"
+    font-size="11"
+    font-family="Inter, Arial, sans-serif"
+    font-weight="850"
+    letter-spacing="2.3"
+  >OCTOSON.BAKHISHOV.COM</text>
+</svg>
+`;
+}
+
+async function renderWorldCanvasPng(input: {
+  displayName: string;
+  title: string;
+  description: string;
+  amount?: number;
+  kind?: OctosonWorldActivity["kind"];
+}): Promise<Buffer> {
+  const svg = buildWorldCanvasSvg(input);
+
+  const { Resvg } =
+    await import("@resvg/resvg-js");
+
+  const renderer =
+    new Resvg(svg, {
+      fitTo: {
+        mode: "width",
+        value: 1200,
+      },
+    });
+
+  return Buffer.from(
+    renderer.render().asPng()
+  );
 }
 
 export async function sendOctosonWorldActivity(
@@ -276,75 +764,59 @@ export async function sendOctosonWorldActivity(
 
   if (!token) {
     console.error(
-      "[OCTOSON WEB ACTIVITY] DISCORD_BOT_TOKEN is missing"
+      "[OCTOSON WORLD CANVAS] DISCORD_BOT_TOKEN is missing"
     );
     return false;
   }
 
   try {
-    const member = await resolvePublicMember(activity.userId);
+    const member =
+      await resolvePublicMember(activity.userId);
 
     const displayName =
       member?.name ||
       member?.username ||
       `İstifadəçi ${activity.userId.slice(-4)}`;
 
-    const avatar = member?.avatar ?? undefined;
-
     const siteBase =
-      process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "") ||
-      "https://octoson.bakhishov.com";
+      process.env.NEXT_PUBLIC_SITE_URL?.replace(
+        /\/+$/,
+        ""
+      ) || "https://octoson.bakhishov.com";
 
-    const worldUrl = `${siteBase}/dashboard/world`;
+    const worldUrl =
+      `${siteBase}/dashboard/world`;
 
-    const amountText =
-      typeof activity.amount === "number"
-        ? `${
-            activity.amount > 0 ? "+" : ""
-          }${activity.amount.toLocaleString("en-US")} Aura`
-        : null;
-
-    const fields = [];
-
-    if (amountText) {
-      fields.push({
-        name: "Aura",
-        value: `**${amountText}**`,
-        inline: true,
+    const png =
+      await renderWorldCanvasPng({
+        displayName,
+        title: activity.title,
+        description: activity.description,
+        amount: activity.amount,
+        kind: activity.kind,
       });
-    }
 
-    fields.push({
-      name: "Platforma",
-      value: "🌐 Octoson Web",
-      inline: true,
-    });
-
-    const body = {
+    const payload = {
       allowed_mentions: {
         parse: [],
       },
 
       embeds: [
         {
-          author: {
-            name: displayName,
-            ...(avatar ? { icon_url: avatar } : {}),
-          },
-
-          title: `${activity.emoji ?? "🌐"} ${activity.title}`,
-
-          description: activity.description,
-
-          color: activityColor(
-            activity.kind,
-            activity.amount
+          color: parseInt(
+            worldActivityMeta(
+              activity.kind,
+              activity.amount
+            ).accent.slice(1),
+            16
           ),
 
-          fields,
+          image: {
+            url: "attachment://world-activity.png",
+          },
 
           footer: {
-            text: "Octoson World • Discord economy ilə canlı sinxron",
+            text: "Octoson • World activity",
           },
 
           timestamp: new Date().toISOString(),
@@ -367,7 +839,34 @@ export async function sendOctosonWorldActivity(
           ],
         },
       ],
+
+      attachments: [
+        {
+          id: 0,
+          filename: "world-activity.png",
+          description:
+            `${displayName} • ${worldCanvasPlainText(activity.title)}`,
+        },
+      ],
     };
+
+    const form = new FormData();
+
+    form.append(
+      "payload_json",
+      JSON.stringify(payload)
+    );
+
+    form.append(
+      "files[0]",
+      new Blob(
+        [new Uint8Array(png)],
+        {
+          type: "image/png",
+        }
+      ),
+      "world-activity.png"
+    );
 
     const response = await fetch(
       `https://discord.com/api/v10/channels/${WORLD_ACTIVITY_CHANNEL_ID}/messages`,
@@ -376,21 +875,22 @@ export async function sendOctosonWorldActivity(
 
         headers: {
           Authorization: `Bot ${token}`,
-          "Content-Type": "application/json",
-          "User-Agent": "DiscordBot (OctosonWeb, 1.0.0)",
+          "User-Agent":
+            "DiscordBot (OctosonWeb, 1.0.0)",
         },
 
-        body: JSON.stringify(body),
+        body: form,
 
         cache: "no-store",
       }
     );
 
     if (!response.ok) {
-      const text = await response.text();
+      const text =
+        await response.text();
 
       console.error(
-        "[OCTOSON WEB ACTIVITY] Discord send failed:",
+        "[OCTOSON WORLD CANVAS] Discord send failed:",
         response.status,
         text
       );
@@ -398,23 +898,23 @@ export async function sendOctosonWorldActivity(
       return false;
     }
 
-    const message = await response.json();
+    const message =
+      await response.json();
 
     console.log(
-      `[OCTOSON WEB ACTIVITY] Sent ${activity.kind ?? "activity"} → ${message.id}`
+      `[OCTOSON WORLD CANVAS] Sent ${activity.kind ?? "activity"} → ${message.id}`
     );
 
     return true;
   } catch (error) {
     console.error(
-      "[OCTOSON WEB ACTIVITY] Unexpected error:",
+      "[OCTOSON WORLD CANVAS] Unexpected error:",
       error
     );
 
     return false;
   }
 }
-
 
 export type OctosonCasinoActivity = {
   userId: string;
