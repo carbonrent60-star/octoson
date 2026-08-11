@@ -672,15 +672,7 @@ async function markFinal(
       throw finalError;
     }
 
-    revalidatePath(
-      "/dashboard"
-    );
-
-    revalidatePath(
-      "/dashboard/casino"
-    );
-
-    revalidatePath(
+revalidatePath(
       "/dashboard/casino/baccarat"
     );
 
@@ -1011,9 +1003,6 @@ export async function startBaccaratAction(
       inserted =
         data as BaccaratRow;
 
-      await economy.markCasinoPlayed(
-        userId
-      );
     } catch (error) {
       await economy.refundReservedCasinoBet(
         userId,

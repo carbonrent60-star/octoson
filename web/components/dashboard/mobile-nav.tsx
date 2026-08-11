@@ -56,11 +56,12 @@ export default function MobileNav({
           items-center justify-around
           rounded-[22px]
           border border-white/[0.09]
-          bg-[#0a0a0d]/90
+          bg-[#0a0a0d]/95
           px-1.5
           shadow-[0_-10px_45px_rgba(0,0,0,0.35),0_18px_60px_rgba(0,0,0,0.55)]
-          backdrop-blur-2xl
-          supports-[backdrop-filter]:bg-[#0a0a0d]/72
+          sm:bg-[#0a0a0d]/90
+          sm:backdrop-blur-xl
+          sm:supports-[backdrop-filter]:bg-[#0a0a0d]/78
         "
       >
         {items.map((item) => {

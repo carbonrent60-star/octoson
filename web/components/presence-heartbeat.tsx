@@ -32,12 +32,20 @@ export default function PresenceHeartbeat() {
       ).catch(() => {});
     };
 
-    send();
+    /*
+     * Presence is non-critical. Let the page paint and hydrate first,
+     * especially on mobile networks/devices.
+     */
+    const initialTimer =
+      window.setTimeout(
+        send,
+        4_000
+      );
 
     const timer =
       window.setInterval(
         send,
-        45_000
+        60_000
       );
 
     const visible = () => {
@@ -56,6 +64,10 @@ export default function PresenceHeartbeat() {
 
     return () => {
       cancelled = true;
+
+      window.clearTimeout(
+        initialTimer
+      );
 
       window.clearInterval(
         timer

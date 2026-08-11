@@ -30,7 +30,12 @@ type GuildMemberCacheEntry = {
   expiresAt: number;
 };
 
-const CACHE_TTL = 5 * 60 * 1000;
+/*
+ * Guild membership changes very rarely compared with page navigation.
+ * Keep confirmed members hot so Discord is not in the critical path
+ * every few minutes.
+ */
+const CACHE_TTL = 30 * 60 * 1000;
 const NOT_MEMBER_CACHE_TTL = 60 * 1000;
 
 const memberCache =
@@ -93,7 +98,7 @@ async function fetchGuildMember(
 
   for (
     let attempt = 0;
-    attempt < 4;
+    attempt < 2;
     attempt++
   ) {
     let response: Response;
@@ -176,7 +181,7 @@ async function fetchGuildMember(
        * sleeping for a huge global Discord
        * rate limit.
        */
-      if (retryAfterMs > 5000) {
+      if (retryAfterMs > 1200) {
         console.warn(
           `[OCTOSON WEB] Discord rate limit for ${userId}: ${retryAfterMs}ms`
         );

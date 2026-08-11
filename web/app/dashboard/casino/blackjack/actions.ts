@@ -469,11 +469,7 @@ async function markFinal(
       throw finalError;
     }
 
-    revalidatePath("/dashboard");
-    revalidatePath(
-      "/dashboard/casino"
-    );
-    revalidatePath(
+revalidatePath(
       "/dashboard/casino/blackjack"
     );
 
@@ -806,9 +802,6 @@ export async function startBlackjackAction(
       inserted =
         data as BlackjackRow;
 
-      await economy.markCasinoPlayed(
-        userId
-      );
     } catch (error) {
       await economy.refundReservedCasinoBet(
         userId,
@@ -876,9 +869,7 @@ export async function startBlackjackAction(
     revalidatePath(
       "/dashboard/casino/blackjack"
     );
-    revalidatePath("/dashboard");
-
-    return {
+return {
       ok: true,
       message:
         "Kartlar paylandı.",

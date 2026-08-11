@@ -6,8 +6,6 @@ import { randomInt } from "node:crypto";
 
 import { auth } from "@/auth";
 import { getSupabaseServerClient } from "@/lib/supabase-server";
-import { revalidatePath } from "next/cache";
-
 export type WebMinesSession = {
   id: string;
   bet: number;
@@ -341,12 +339,8 @@ export async function startMinesAction(
 
       inserted = true;
 
-      await economy.markCasinoPlayed(userId);
 
-      revalidatePath("/dashboard");
-      revalidatePath("/dashboard/casino");
-
-      return {
+return {
         ok: true,
         message: "Mines başladı.",
         session: publicSession(data as MinesRow),
@@ -474,10 +468,7 @@ export async function revealMinesTileAction(
         throw error;
       }
 
-      revalidatePath("/dashboard");
-      revalidatePath("/dashboard/casino");
-
-      void sendOctosonCasinoActivity({
+void sendOctosonCasinoActivity({
         userId,
         game: "mines",
         bet: Number(row.bet),
@@ -573,10 +564,7 @@ export async function revealMinesTileAction(
         throw error;
       }
 
-      revalidatePath("/dashboard");
-      revalidatePath("/dashboard/casino");
-
-      void sendOctosonCasinoActivity({
+void sendOctosonCasinoActivity({
         userId,
         game: "mines",
         bet: Number(row.bet),
@@ -724,10 +712,7 @@ export async function cashoutMinesAction(): Promise<MinesResult> {
       throw error;
     }
 
-    revalidatePath("/dashboard");
-    revalidatePath("/dashboard/casino");
-
-    const net = Number(settlement.net ?? 0);
+const net = Number(settlement.net ?? 0);
 
     void sendOctosonCasinoActivity({
       userId,

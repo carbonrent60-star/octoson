@@ -3,8 +3,6 @@
 import { sendOctosonCasinoActivity } from "@/lib/discord-server";
 
 import { auth } from "@/auth";
-import { revalidatePath } from "next/cache";
-
 export type CasinoGame =
   | "coinflip"
   | "dice"
@@ -749,7 +747,6 @@ export async function playCasinoAction(
      * It prevents normal repeated web requests from bypassing
      * Octoson's existing casino cooldown.
      */
-    await economy.markCasinoPlayed(userId);
 
     const outcome = resolveOutcome({
       ...input,
@@ -790,10 +787,7 @@ export async function playCasinoAction(
 
     settled = true;
 
-    revalidatePath("/dashboard");
-    revalidatePath("/dashboard/casino");
-
-    const net = Number(settlement.net ?? 0);
+const net = Number(settlement.net ?? 0);
     const balance = Number(
       settlement.profile?.balance ?? 0
     );
