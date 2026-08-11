@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import OctosonBoot from "@/components/performance/octoson-boot";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -93,8 +95,25 @@ export default function RootLayout({
     <html
       lang="az"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full">{children}</body>
+      <body className="min-h-full">
+        <Script id="octoson-boot-state" strategy="beforeInteractive">
+          {`
+            try {
+              if (
+                localStorage.getItem("octoson:boot:v1") === "1"
+              ) {
+                document.documentElement.classList.add(
+                  "octo-boot-seen"
+                );
+              }
+            } catch (_) {}
+          `}
+        </Script>
+        <OctosonBoot />
+        {children}
+      </body>
     </html>
   );
 }

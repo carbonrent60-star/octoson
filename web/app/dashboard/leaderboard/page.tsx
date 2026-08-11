@@ -28,17 +28,14 @@ function formatNumber(value: number) {
 }
 
 function cleanRank(rank: string) {
-  return rank.replace(
-    /^[\p{Extended_Pictographic}\uFE0F\s]+/u,
-    ""
-  );
+  return rank.replace(/^[\p{Extended_Pictographic}\uFE0F\s]+/u, "");
 }
 
-
 export const metadata = createPageMetadata({
-  title: 'Leaderboard',
-  description: 'October community-də ən yüksək Aura, level və progression sıralamasına bax.',
-  path: '/dashboard/leaderboard',
+  title: "Leaderboard",
+  description:
+    "October community-də ən yüksək Aura, level və progression sıralamasına bax.",
+  path: "/dashboard/leaderboard",
 });
 
 export default async function LeaderboardPage() {
@@ -59,38 +56,34 @@ export default async function LeaderboardPage() {
 
   const top = rows.slice(0, 25);
 
-  const discordMembers =
-    await getOctosonGuildMembers(
-      top.map((entry) => entry.userId)
-    );
-
-  const ownIndex = rows.findIndex(
-    (entry) =>
-      entry.userId === session.user.discordId
-  );
-
-  const ownPosition =
-    ownIndex >= 0 ? ownIndex + 1 : null;
-
-  const ownEntry =
-    ownIndex >= 0 ? rows[ownIndex] : null;
-
-  const totalAura = rows.reduce(
-    (sum, entry) => sum + entry.balance,
-    0
-  );
-
-  const totalWins = rows.reduce(
-    (sum, entry) => sum + entry.wins,
-    0
-  );
-
-  const primeUsers = rows.filter(
-    (entry) => entry.primeActive
-  ).length;
-
   const podium = top.slice(0, 3);
   const rest = top.slice(3);
+
+  /*
+   * Discord profile data is cosmetic, not leaderboard data.
+   *
+   * Previously this page waited for Discord identity lookups
+   * for all 25 leaderboard entries before rendering.
+   * Only resolve the podium here so cold navigation does not
+   * depend on up to 25 external Discord API requests.
+   */
+  const discordMembers = await getOctosonGuildMembers(
+    podium.map((entry) => entry.userId),
+  );
+
+  const ownIndex = rows.findIndex(
+    (entry) => entry.userId === session.user.discordId,
+  );
+
+  const ownPosition = ownIndex >= 0 ? ownIndex + 1 : null;
+
+  const ownEntry = ownIndex >= 0 ? rows[ownIndex] : null;
+
+  const totalAura = rows.reduce((sum, entry) => sum + entry.balance, 0);
+
+  const totalWins = rows.reduce((sum, entry) => sum + entry.wins, 0);
+
+  const primeUsers = rows.filter((entry) => entry.primeActive).length;
 
   return (
     <div className="mx-auto max-w-[1240px]">
@@ -109,8 +102,7 @@ export default async function LeaderboardPage() {
           </h1>
 
           <p className="mt-2 max-w-xl text-[13px] leading-6 text-white/25">
-            Octoson economy-də ən yüksək Aura balansına
-            sahib oyunçular.
+            Octoson economy-də ən yüksək Aura balansına sahib oyunçular.
           </p>
         </div>
 
@@ -162,34 +154,20 @@ export default async function LeaderboardPage() {
               </p>
 
               <p className="mt-1 text-[22px] font-semibold tracking-[-0.035em] text-white/80">
-                {ownPosition
-                  ? `#${ownPosition}`
-                  : "Sıralanmamısan"}
+                {ownPosition ? `#${ownPosition}` : "Sıralanmamısan"}
               </p>
             </div>
           </div>
 
           {ownEntry && (
             <div className="flex flex-wrap gap-2">
-              <OwnMetric
-                label="Aura"
-                value={formatNumber(ownEntry.balance)}
-              />
+              <OwnMetric label="Aura" value={formatNumber(ownEntry.balance)} />
 
-              <OwnMetric
-                label="Level"
-                value={String(ownEntry.level)}
-              />
+              <OwnMetric label="Level" value={String(ownEntry.level)} />
 
-              <OwnMetric
-                label="Qələbə"
-                value={formatNumber(ownEntry.wins)}
-              />
+              <OwnMetric label="Qələbə" value={formatNumber(ownEntry.wins)} />
 
-              <OwnMetric
-                label="Prestij"
-                value={String(ownEntry.prestige)}
-              />
+              <OwnMetric label="Prestij" value={String(ownEntry.prestige)} />
             </div>
           )}
         </div>
@@ -202,20 +180,15 @@ export default async function LeaderboardPage() {
               key={entry.userId}
               entry={entry}
               position={index + 1}
-              current={
-                entry.userId ===
-                session.user.discordId
-              }
+              current={entry.userId === session.user.discordId}
               currentName={
-                entry.userId ===
-                session.user.discordId
-                  ? session.user.name ?? "Sən"
+                entry.userId === session.user.discordId
+                  ? (session.user.name ?? "Sən")
                   : undefined
               }
               currentImage={
-                entry.userId ===
-                session.user.discordId
-                  ? session.user.image ?? undefined
+                entry.userId === session.user.discordId
+                  ? (session.user.image ?? undefined)
                   : undefined
               }
               member={discordMembers[entry.userId]}
@@ -244,24 +217,19 @@ export default async function LeaderboardPage() {
             {rest.map((entry, index) => {
               const position = index + 4;
 
-              const current =
-                entry.userId ===
-                session.user.discordId;
+              const current = entry.userId === session.user.discordId;
 
-              const member =
-                discordMembers[entry.userId];
+              const member = discordMembers[entry.userId];
 
               const displayName =
                 member?.name ??
                 (current
-                  ? session.user.name ?? "Sən"
+                  ? (session.user.name ?? "Sən")
                   : `İstifadəçi ${entry.userId.slice(-4)}`);
 
               const avatar =
                 member?.avatar ??
-                (current
-                  ? session.user.image ?? undefined
-                  : undefined);
+                (current ? (session.user.image ?? undefined) : undefined);
 
               return (
                 <div
@@ -277,10 +245,7 @@ export default async function LeaderboardPage() {
                   </span>
 
                   <div className="flex min-w-0 items-center gap-3">
-                    <Avatar
-                      image={avatar}
-                      name={displayName}
-                    />
+                    <Avatar image={avatar} name={displayName} />
 
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
@@ -356,9 +321,7 @@ function SummaryCard({
 
         <Icon
           className={`h-3.5 w-3.5 ${
-            accent
-              ? "text-cyan-100/45"
-              : "text-white/18"
+            accent ? "text-cyan-100/45" : "text-white/18"
           }`}
         />
       </div>
@@ -370,22 +333,14 @@ function SummaryCard({
   );
 }
 
-function OwnMetric({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
+function OwnMetric({ label, value }: { label: string; value: string }) {
   return (
     <div className="min-w-[78px] rounded-[11px] border border-white/[0.055] bg-black/20 px-3 py-2.5">
       <p className="text-[7px] uppercase tracking-[0.11em] text-white/15">
         {label}
       </p>
 
-      <p className="mt-1 text-[11px] font-semibold text-white/55">
-        {value}
-      </p>
+      <p className="mt-1 text-[11px] font-semibold text-white/55">{value}</p>
     </div>
   );
 }
@@ -408,13 +363,9 @@ function PodiumCard({
   const Icon = position === 1 ? Crown : Medal;
 
   const name =
-    member?.name ??
-    currentName ??
-    `İstifadəçi ${entry.userId.slice(-4)}`;
+    member?.name ?? currentName ?? `İstifadəçi ${entry.userId.slice(-4)}`;
 
-  const image =
-    member?.avatar ??
-    currentImage;
+  const image = member?.avatar ?? currentImage;
 
   return (
     <article
@@ -429,11 +380,7 @@ function PodiumCard({
       )}
 
       <div className="relative flex items-start justify-between">
-        <Avatar
-          image={image ?? undefined}
-          name={name}
-          large
-        />
+        <Avatar image={image ?? undefined} name={name} large />
 
         <div
           className={`flex h-9 w-9 items-center justify-center rounded-[11px] border ${
@@ -444,9 +391,7 @@ function PodiumCard({
         >
           <Icon
             className={`h-4 w-4 ${
-              position === 1
-                ? "text-amber-200/60"
-                : "text-white/25"
+              position === 1 ? "text-amber-200/60" : "text-white/25"
             }`}
           />
         </div>
@@ -464,9 +409,7 @@ function PodiumCard({
             </span>
           )}
 
-          {entry.primeActive && (
-            <Crown className="h-3 w-3 text-amber-200/50" />
-          )}
+          {entry.primeActive && <Crown className="h-3 w-3 text-amber-200/50" />}
         </div>
 
         <p className="mt-1 text-[9px] text-white/18">
@@ -491,41 +434,24 @@ function PodiumCard({
       </div>
 
       <div className="relative mt-5 grid grid-cols-3 gap-2 border-t border-white/[0.05] pt-4">
-        <PodiumMetric
-          label="LVL"
-          value={String(entry.level)}
-        />
+        <PodiumMetric label="LVL" value={String(entry.level)} />
 
-        <PodiumMetric
-          label="WINS"
-          value={formatNumber(entry.wins)}
-        />
+        <PodiumMetric label="WINS" value={formatNumber(entry.wins)} />
 
-        <PodiumMetric
-          label="PRESTIGE"
-          value={String(entry.prestige)}
-        />
+        <PodiumMetric label="PRESTIGE" value={String(entry.prestige)} />
       </div>
     </article>
   );
 }
 
-function PodiumMetric({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
+function PodiumMetric({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <p className="text-[7px] font-medium tracking-[0.1em] text-white/13">
         {label}
       </p>
 
-      <p className="mt-1 text-[10px] font-semibold text-white/40">
-        {value}
-      </p>
+      <p className="mt-1 text-[10px] font-semibold text-white/40">{value}</p>
     </div>
   );
 }
@@ -539,9 +465,7 @@ function Avatar({
   name: string;
   large?: boolean;
 }) {
-  const size = large
-    ? "h-11 w-11"
-    : "h-9 w-9";
+  const size = large ? "h-11 w-11" : "h-9 w-9";
 
   if (image) {
     return (
