@@ -1,5 +1,9 @@
 "use client";
 
+import CasinoResultToast, {
+  type CasinoToastData,
+} from "@/components/casino/casino-result-toast";
+
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -154,6 +158,9 @@ export default function SpecialGameClient({
   const [result, setResult] =
     useState<CasinoPlayResult | null>(null);
 
+  const [toast, setToast] =
+    useState<CasinoToastData | null>(null);
+
   const [pending, startTransition] =
     useTransition();
 
@@ -195,6 +202,28 @@ export default function SpecialGameClient({
   function settle(next: CasinoPlayResult) {
     setResult(next);
 
+    if (next.ok) {
+      const net = Number(next.net ?? 0);
+
+      setToast({
+        id: Date.now(),
+        type:
+          net > 0
+            ? "win"
+            : net < 0
+              ? "lose"
+              : "push",
+        amount: net,
+        multiplier:
+          typeof next.multiplier === "number"
+            ? next.multiplier
+            : undefined,
+        message:
+          next.description ??
+          next.message,
+      });
+    }
+
     if (
       next.ok &&
       typeof next.balance === "number"
@@ -218,6 +247,7 @@ export default function SpecialGameClient({
     }
 
     setResult(null);
+    setToast(null);
     setVisualPending(true);
     setSlotStage(0);
     setRun((value) => value + 1);
@@ -290,6 +320,7 @@ export default function SpecialGameClient({
     }
 
     setResult(null);
+    setToast(null);
     setVisualPending(true);
     setRun((value) => value + 1);
 
@@ -320,6 +351,7 @@ export default function SpecialGameClient({
     }
 
     setResult(null);
+    setToast(null);
     setVisualPending(true);
     setRun((value) => value + 1);
 
@@ -353,6 +385,7 @@ export default function SpecialGameClient({
 
     setHigherChoice(choice);
     setResult(null);
+    setToast(null);
     setVisualPending(true);
     setRun((value) => value + 1);
 
@@ -395,6 +428,11 @@ export default function SpecialGameClient({
 
   return (
     <div className="relative">
+      <CasinoResultToast
+        toast={toast}
+        onClose={() => setToast(null)}
+      />
+
       <button
         type="button"
         onClick={() =>

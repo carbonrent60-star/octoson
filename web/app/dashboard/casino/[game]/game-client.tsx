@@ -1,5 +1,9 @@
 "use client";
 
+import CasinoResultToast, {
+  type CasinoToastData,
+} from "@/components/casino/casino-result-toast";
+
 import {
   useEffect,
   useMemo,
@@ -404,6 +408,9 @@ export default function GameClient({
   const [result, setResult] =
     useState<CasinoPlayResult | null>(null);
 
+  const [toast, setToast] =
+    useState<CasinoToastData | null>(null);
+
   /*
    * visualResult is allowed to drive the physical landing animation.
    * result is the PUBLIC result and stays hidden until the animation
@@ -423,35 +430,6 @@ export default function GameClient({
 
   const [visualRun, setVisualRun] =
     useState(0);
-
-  useEffect(() => {
-    if (!result) {
-      return;
-    }
-
-    if (!result.ok) {
-      audio.play("error");
-      return;
-    }
-
-    const net = Number(result.net ?? 0);
-
-    if (net > 0) {
-      const multiplier = Number(
-        result.multiplier ?? 0
-      );
-
-      audio.play(
-        multiplier >= 5 || net >= 10000
-          ? "bigwin"
-          : "win"
-      );
-    } else if (net < 0) {
-      audio.play("lose");
-    } else {
-      audio.play("click");
-    }
-  }, [result, audio]);
 
   function play() {
     const amount = Number(bet);
@@ -491,6 +469,7 @@ export default function GameClient({
     }, 90);
 
     setResult(null);
+    setToast(null);
     setVisualResult(null);
     setVisualPending(true);
     setVisualRun((current) => current + 1);
@@ -513,6 +492,7 @@ export default function GameClient({
         setVisualPending(false);
         setVisualResult(next);
         setResult(next);
+        audio.play("error");
         return;
       }
 
@@ -549,6 +529,43 @@ export default function GameClient({
 
       setResult(next);
 
+      if (next.ok) {
+        const net = Number(next.net ?? 0);
+        const multiplier = Number(
+          next.multiplier ?? 0
+        );
+
+        if (net > 0) {
+          audio.play(
+            multiplier >= 5 || net >= 10000
+              ? "bigwin"
+              : "win"
+          );
+        } else if (net < 0) {
+          audio.play("lose");
+        } else {
+          audio.play("click");
+        }
+
+        setToast({
+          id: Date.now(),
+          type:
+            net > 0
+              ? "win"
+              : net < 0
+                ? "lose"
+                : "push",
+          amount: net,
+          multiplier:
+            typeof next.multiplier === "number"
+              ? next.multiplier
+              : undefined,
+          message:
+            next.description ??
+            next.message,
+        });
+      }
+
       if (
         typeof next.balance === "number"
       ) {
@@ -569,6 +586,10 @@ export default function GameClient({
 
   return (
     <div className="relative">
+      <CasinoResultToast
+        toast={toast}
+        onClose={() => setToast(null)}
+      />
       <button
         type="button"
         onClick={() => {

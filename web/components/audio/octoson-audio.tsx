@@ -299,7 +299,7 @@ export function OctosonAudioProvider({
       endFrequency?: number
     ) => {
       const start =
-        context.currentTime + 0.005 + delay;
+        context.currentTime + delay;
 
       const oscillator =
         context.createOscillator();
@@ -371,7 +371,7 @@ export function OctosonAudioProvider({
         context.createBiquadFilter();
 
       const start =
-        context.currentTime + 0.005 + delay;
+        context.currentTime + delay;
 
       const gain = makeGain(
         context,
