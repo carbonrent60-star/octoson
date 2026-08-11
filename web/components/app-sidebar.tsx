@@ -20,13 +20,13 @@ import {
 
 const navigation = [
   { href: "/dashboard", label: "Ana səhifə", icon: Home },
-  { href: "/dashboard/casino", label: "Casino", icon: Gamepad2 },
-  { href: "/dashboard/games", label: "Games", icon: Dices },
+  { href: "/dashboard/casino", label: "Kazino", icon: Gamepad2 },
+  { href: "/dashboard/games", label: "Oyunlar", icon: Dices },
   { href: "/dashboard/bank", label: "Bank", icon: Banknote },
-  { href: "/dashboard/market", label: "Market", icon: ShoppingBag },
+  { href: "/dashboard/market", label: "Bazar", icon: ShoppingBag },
   { href: "/dashboard/inventory", label: "İnventar", icon: Boxes },
-  { href: "/dashboard/world", label: "World", icon: Globe2 },
-  { href: "/dashboard/leaderboard", label: "Leaderboard", icon: Trophy },
+  { href: "/dashboard/world", label: "Dünya", icon: Globe2 },
+  { href: "/dashboard/leaderboard", label: "Reytinq", icon: Trophy },
   { href: "/dashboard/profile", label: "Profil", icon: CircleUserRound },
 ];
 
@@ -93,13 +93,18 @@ export default function AppSidebar({
         </p>
 
         <nav className="space-y-1">
-          {[...navigation, ...(isAdmin ? [
-            {
-              href: "/dashboard/admin",
-              label: "Admin Panel",
-              icon: ShieldCheck,
-            },
-          ] : [])].map((item) => {
+          {[
+            ...navigation,
+            ...(isAdmin
+              ? [
+                  {
+                    href: "/dashboard/admin",
+                    label: "Admin paneli",
+                    icon: ShieldCheck,
+                  },
+                ]
+              : []),
+          ].map((item) => {
             const Icon = item.icon;
 
             const active =
@@ -113,14 +118,14 @@ export default function AppSidebar({
                 href={item.href}
                 data-no-hover-sound="true"
                 className={`group relative flex h-[44px] items-center gap-3 overflow-hidden rounded-[12px] px-3 text-[12px] font-medium transition-colors duration-100 ${
-                  active
-                    ? "text-white"
-                    : "text-white/32 hover:text-white/70"
+                  active ? "text-white" : "text-white/32 hover:text-white/70"
                 }`}
               >
                 {active && (
                   <motion.div
-                    layoutId={mobile ? "mobile-nav-active" : "desktop-nav-active"}
+                    layoutId={
+                      mobile ? "mobile-nav-active" : "desktop-nav-active"
+                    }
                     className="absolute inset-0 rounded-[12px] border border-white/[0.065] bg-white/[0.05]"
                     transition={{
                       type: "tween",
@@ -179,7 +184,7 @@ export default function AppSidebar({
             </span>
 
             <span className="text-[10px] font-medium text-white/45">
-              Economy online
+              Economy aktivdir
             </span>
           </div>
 
