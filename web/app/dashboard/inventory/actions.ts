@@ -77,6 +77,13 @@ export async function openChestAction(): Promise<InventoryActionResult> {
             "Sandıq açma sistemi hazırda deaktivdir.",
         };
 
+      case "daily_chest_open_limit":
+        return {
+          ok: false,
+          message:
+            "Gündəlik sandıq açma limitinə çatmısan. Gündə maksimum 5 sandıq aça bilərsən.",
+        };
+
       case "missing":
       case "empty":
       case "no_chest":

@@ -132,6 +132,13 @@ export async function buyMarketItemAction(
           message: "Bu məhsul artıq mövcud deyil.",
         };
 
+      case "daily_shop_limit":
+        return {
+          ok: false,
+          message:
+            "Gündəlik mağaza limitinə çatmısan. Gündə maksimum 5 məhsul ala bilərsən.",
+        };
+
       default:
         return {
           ok: false,

@@ -23,7 +23,8 @@ const transferDailyLimit = 100000;
 const transferSingleLimit = 25000;
 const transferDailyLimitCap = 1500000;
 const transferSingleLimitCap = 350000;
-const shopChestDailyLimit = 10;
+const shopDailyPurchaseLimit = 5;
+const chestOpenDailyLimit = 5;
 const robTargetShieldMs = 60 * 1000;
 const robPairDailyLimit = 2;
 const robTargetDailyLimit = 5;
@@ -1953,39 +1954,92 @@ export async function buyShopItem(userId, itemKey) {
     return { ok: false, reason: 'missing', profile: structuredClone(user) };
   }
 
-  if (isShopChest(itemKey)) {
-    if (!store.settings.chestsEnabled) {
-      return { ok: false, reason: 'chests_disabled', item, profile: structuredClone(user) };
-    }
+  // Chests can still be globally disabled by admins.
+  if (isShopChest(itemKey) && !store.settings.chestsEnabled) {
+    return {
+      ok: false,
+      reason: 'chests_disabled',
+      item,
+      profile: structuredClone(user)
+    };
+  }
 
-    resetShopChestLimit(user, today);
-    if (user.limits.shopChestsBought + (item.amount ?? 1) > shopChestDailyLimit) {
-      return {
-        ok: false,
-        reason: 'daily_chest_limit',
-        item,
-        limit: shopChestDailyLimit,
-        remaining: Math.max(0, shopChestDailyLimit - user.limits.shopChestsBought),
-        profile: structuredClone(user)
-      };
-    }
+  /*
+   * GLOBAL STORE LIMIT
+   *
+   * All store products share ONE counter:
+   * Bronze Key + Reward Ticket + Lucky Booster +
+   * Bronze Chest + Gold Chest = max 5 purchases/day total.
+   *
+   * We derive the counter from persisted shop_buy transactions,
+   * therefore Discord and the website share the same limit.
+   */
+  const purchasesToday = (user.transactions ?? []).filter(transaction => {
+    if (transaction?.type !== 'shop_buy') return false;
+
+    const rawDate =
+      transaction.createdAt ??
+      transaction.created_at ??
+      transaction.timestamp ??
+      transaction.date ??
+      transaction.at ??
+      transaction.time;
+
+    if (!rawDate) return false;
+
+    const parsed = new Date(rawDate);
+    if (Number.isNaN(parsed.getTime())) return false;
+
+    return currentDayKey(parsed.getTime()) === today;
+  }).length;
+
+  if (purchasesToday >= shopDailyPurchaseLimit) {
+    return {
+      ok: false,
+      reason: 'daily_shop_limit',
+      item,
+      limit: shopDailyPurchaseLimit,
+      purchased: purchasesToday,
+      remaining: 0,
+      profile: structuredClone(user)
+    };
   }
 
   if (user.balance < item.price) {
-    return { ok: false, reason: 'insufficient', item, profile: structuredClone(user) };
+    return {
+      ok: false,
+      reason: 'insufficient',
+      item,
+      profile: structuredClone(user)
+    };
   }
 
   user.balance -= item.price;
   addInventoryItem(user, item);
-  addTransaction(user, -item.price, 'shop_buy', item.name);
-  if (isShopChest(itemKey)) {
-    user.limits.shopChestsBought += item.amount ?? 1;
-  }
+
+  addTransaction(
+    user,
+    -item.price,
+    'shop_buy',
+    item.name
+  );
+
   addObjectiveProgress(user, 'market', 1, 'weekly');
   awardXp(user, 10);
   unlockAchievements(user);
+
   await writeStore(store);
-  return { ok: true, item, profile: structuredClone(user) };
+
+  return {
+    ok: true,
+    item,
+    purchasedToday: purchasesToday + 1,
+    remaining: Math.max(
+      0,
+      shopDailyPurchaseLimit - (purchasesToday + 1)
+    ),
+    profile: structuredClone(user)
+  };
 }
 
 export async function revertExceededDailyChestPurchases() {
@@ -2007,13 +2061,13 @@ export async function revertExceededDailyChestPurchases() {
       .filter(transaction => isToday(transaction.at, today) && transaction.type === 'shop_buy' && shopChestNameToKey(transaction.note))
       .sort((a, b) => new Date(a.at).getTime() - new Date(b.at).getTime() || b.index - a.index);
 
-    if (chestPurchases.length <= shopChestDailyLimit) {
+    if (chestPurchases.length <= shopDailyPurchaseLimit) {
       resetShopChestLimit(user, today, chestPurchases.length);
       changed = true;
       continue;
     }
 
-    const excessPurchases = chestPurchases.slice(shopChestDailyLimit);
+    const excessPurchases = chestPurchases.slice(shopDailyPurchaseLimit);
     let refunded = 0;
     let openedAuraReverted = 0;
     let unopenedReverted = 0;
@@ -2084,7 +2138,7 @@ export async function revertExceededDailyChestPurchases() {
     }
 
     user.limits.shopChestDate = today;
-    user.limits.shopChestsBought = Math.min(shopChestDailyLimit, chestPurchases.length - unopenedReverted - openedReverted);
+    user.limits.shopChestsBought = Math.min(shopDailyPurchaseLimit, chestPurchases.length - unopenedReverted - openedReverted);
     user.limits.shopChestRevertedDate = today;
     changed = true;
 
@@ -2098,7 +2152,7 @@ export async function revertExceededDailyChestPurchases() {
         reverted: unopenedReverted + openedReverted,
         unopenedReverted,
         openedReverted,
-        limit: shopChestDailyLimit,
+        limit: shopDailyPurchaseLimit,
         items: revertedItems,
         profile: structuredClone(user)
       });
@@ -2140,6 +2194,44 @@ export async function openBestChest(userId) {
 
   if (!store.settings.chestsEnabled) {
     return { ok: false, reason: 'chests_disabled', profile: structuredClone(user) };
+  }
+
+  // Maximum successful chest opens per calendar day.
+  // Count persisted open_chest transactions so the limit survives restarts.
+  const today = new Date().toISOString().slice(0, 10);
+
+  const chestsOpenedToday = (user.transactions ?? []).filter(transaction => {
+    if (transaction?.type !== 'open_chest') {
+      return false;
+    }
+
+    const rawDate =
+      transaction.createdAt ??
+      transaction.created_at ??
+      transaction.at;
+
+    if (!rawDate) {
+      return false;
+    }
+
+    const date = new Date(rawDate);
+
+    if (Number.isNaN(date.getTime())) {
+      return false;
+    }
+
+    return date.toISOString().slice(0, 10) === today;
+  }).length;
+
+  if (chestsOpenedToday >= chestOpenDailyLimit) {
+    return {
+      ok: false,
+      reason: 'daily_chest_open_limit',
+      limit: chestOpenDailyLimit,
+      opened: chestsOpenedToday,
+      remaining: 0,
+      profile: structuredClone(user)
+    };
   }
 
   let chestName = Object.keys(user.inventory.chests).find(name => user.inventory.chests[name] > 0);
