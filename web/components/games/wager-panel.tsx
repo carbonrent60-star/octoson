@@ -302,7 +302,11 @@ export default function WagerPanel({
           </div>
 
           <h3 className="mt-2 text-[17px] font-semibold tracking-[-0.035em] text-white/90">
-            {game === "reaction" ? "Reaction wager" : "Multiplayer wager"}
+            {game === "reaction"
+              ? "Reaction wager"
+              : game === "blackjack"
+                ? "Blackjack wager"
+                : "Multiplayer wager"}
           </h3>
 
           <p className="mt-1 max-w-sm text-[10px] leading-5 text-white/25">
@@ -401,11 +405,15 @@ export default function WagerPanel({
 
             <div className="rounded-[16px] border border-emerald-300/[0.08] bg-emerald-300/[0.025] p-4">
               <p className="text-[8px] font-semibold uppercase tracking-[0.15em] text-emerald-100/25">
-                Qalibin xalis qazancı
+                {game === "blackjack"
+                  ? "Qalib ödənişi"
+                  : "Qalibin xalis qazancı"}
               </p>
 
               <p className="mt-1 font-mono text-[14px] font-semibold text-emerald-100/70">
-                +{winnerProfit.toLocaleString("en-US")} AURA
+                {game === "blackjack"
+                  ? `2× ${activeStake.toLocaleString("en-US")} AURA`
+                  : `+${winnerProfit.toLocaleString("en-US")} AURA`}
               </p>
             </div>
           </div>
@@ -420,10 +428,14 @@ export default function WagerPanel({
             </div>
 
             <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-              <span className="text-[9px] text-white/30">Qalib gəlsən</span>
+              <span className="text-[9px] text-white/30">
+                {game === "blackjack" ? "Dealer-i udsan" : "Qalib gəlsən"}
+              </span>
 
               <span className="font-mono text-[10px] font-semibold text-emerald-200/60">
-                +{winnerProfit.toLocaleString("en-US")} AURA xalis
+                {game === "blackjack"
+                  ? `${(activeStake * 2).toLocaleString("en-US")} AURA geri`
+                  : `+${winnerProfit.toLocaleString("en-US")} AURA xalis`}
               </span>
             </div>
           </div>

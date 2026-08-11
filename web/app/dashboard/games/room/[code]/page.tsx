@@ -19,10 +19,20 @@ import { notFound, redirect } from "next/navigation";
 import Connect4Game from "@/components/games/connect4-game";
 import BlackjackGame from "@/components/games/blackjack-game";
 import GameOnboarding from "@/components/games/game-onboarding";
+import PartyMatchGame from "@/components/games/party-match-game";
+
+import {
+  isSupabasePartyGame,
+} from "@/lib/supabase-party-games";
+
+import type {
+  PartyRoomState,
+} from "@/lib/octoson-party-games";
 
 import {
   kickRoomPlayerAction,
   leaveRoomAction,
+  reopenRoomForRematchAction,
   setRoomPrivacyAction,
   toggleReadyAction,
 } from "../../actions";
@@ -177,6 +187,12 @@ export default async function RoomPage({ params }: Props) {
     reaction: "Reaction",
     connect4: "Connect 4",
     blackjack: "Party Blackjack",
+    lastbutton: "Last Button",
+    undercover: "Undercover",
+    pixelwars: "Pixel Wars",
+    vault: "Vault",
+    kingofthehill: "King of the Hill",
+    octoparty: "OCTO Party",
   };
 
   return (
@@ -354,6 +370,18 @@ export default async function RoomPage({ params }: Props) {
           </GameOnboarding>
         )}
 
+      {isSupabasePartyGame(room.game) &&
+        room.status !== "waiting" &&
+        currentMatch && (
+          <PartyMatchGame
+            code={room.code}
+            myUserId={session.user.discordId}
+            initialState={
+              currentMatch.state as PartyRoomState
+            }
+          />
+        )}
+
       <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
         <div>
           <Link
@@ -432,6 +460,21 @@ export default async function RoomPage({ params }: Props) {
 
               <button className="h-10 rounded-xl border border-white/[0.07] bg-white/[0.03] px-4 text-[10px] font-semibold text-white/50 transition hover:bg-white/[0.055]">
                 {room.is_public ? "Private et" : "Public et"}
+              </button>
+            </form>
+          )}
+
+          {isHost && room.status === "finished" && (
+            <form
+              action={async (formData) => {
+                "use server";
+                await reopenRoomForRematchAction(formData);
+              }}
+            >
+              <input type="hidden" name="code" value={code} />
+
+              <button className="h-10 rounded-xl border border-cyan-200/15 bg-cyan-200/[0.06] px-4 text-[10px] font-semibold text-cyan-100/75 transition hover:bg-cyan-200/[0.1]">
+                Yenidən oyna
               </button>
             </form>
           )}

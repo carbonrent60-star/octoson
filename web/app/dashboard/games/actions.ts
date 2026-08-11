@@ -13,6 +13,25 @@ import {
   type PartyBlackjackState,
 } from "@/lib/party-blackjack";
 
+import {
+  getMultiplayerGame,
+  isMultiplayerGame,
+} from "@/lib/multiplayer-games";
+
+import {
+  createSupabasePartyMatchState,
+  getPartyWinner,
+  isSupabasePartyGame,
+} from "@/lib/supabase-party-games";
+
+import {
+  performPartyAction,
+} from "@/lib/octoson-party-engine";
+
+import type {
+  PartyRoomState,
+} from "@/lib/octoson-party-games";
+
 export type GameActionResult = {
   ok: boolean;
   message: string;
@@ -96,9 +115,11 @@ export async function createRoomAction(
 
   const requestedGame = String(formData.get("game") ?? "lobby");
 
-  const allowedGames = new Set(["lobby", "reaction", "connect4", "blackjack"]);
+  const game = isMultiplayerGame(requestedGame)
+    ? requestedGame
+    : "reaction";
 
-  const game = allowedGames.has(requestedGame) ? requestedGame : "lobby";
+  const gameDefinition = getMultiplayerGame(game);
 
   const supabase = getSupabaseServerClient();
 
@@ -139,7 +160,7 @@ export async function createRoomAction(
       status: "waiting",
       is_public: true,
       settings: {},
-      max_players: game === "connect4" ? 2 : 8,
+      max_players: gameDefinition?.maxPlayers ?? 8,
     })
     .select("id,code")
     .single();
@@ -693,7 +714,7 @@ export async function startRoomAction(
 
   const { data: players } = await supabase
     .from("game_room_players")
-    .select("user_id,ready")
+    .select("user_id,ready,player_data")
     .eq("room_id", room.id);
 
   if (!players || players.length < 2) {
@@ -753,9 +774,16 @@ export async function startRoomAction(
               playerIds,
               bet,
             )
-          : {
-              bet,
-            };
+          : isSupabasePartyGame(room.game)
+            ? createSupabasePartyMatchState({
+                game: room.game,
+                code,
+                hostId: room.host_id,
+                players: players as any,
+              })
+            : {
+                bet,
+              };
 
   const { data: createdMatch, error: matchError } = await supabase
     .from("game_matches")
@@ -1575,6 +1603,113 @@ export async function connect4MoveAction(
   };
 }
 
+
+export async function reopenRoomForRematchAction(
+  formData: FormData,
+): Promise<GameActionResult> {
+  const user = await getUser();
+
+  if (!user) {
+    return {
+      ok: false,
+      message: "Sessiya tapılmadı.",
+    };
+  }
+
+  const code = normalizeCode(formData.get("code"));
+
+  const supabase = getSupabaseServerClient();
+
+  const { data: room, error: roomError } = await supabase
+    .from("game_rooms")
+    .select("id,host_id,game,status")
+    .eq("code", code)
+    .maybeSingle();
+
+  if (roomError || !room) {
+    return {
+      ok: false,
+      message: "Otaq tapılmadı.",
+    };
+  }
+
+  if (room.host_id !== user.id) {
+    return {
+      ok: false,
+      message: "Rematch-i yalnız host başlada bilər.",
+    };
+  }
+
+  if (room.status !== "finished") {
+    return {
+      ok: false,
+      message: "Rematch yalnız oyun bitdikdən sonra açıla bilər.",
+    };
+  }
+
+  const { data: players, error: playersError } = await supabase
+    .from("game_room_players")
+    .select("user_id")
+    .eq("room_id", room.id);
+
+  if (playersError) {
+    console.error("rematch players:", playersError);
+
+    return {
+      ok: false,
+      message: "Oyunçular yoxlanıla bilmədi.",
+    };
+  }
+
+  if (!players || players.length < 2) {
+    return {
+      ok: false,
+      message: "Rematch üçün ən azı 2 oyunçu lazımdır.",
+    };
+  }
+
+  const { error: readyError } = await supabase
+    .from("game_room_players")
+    .update({
+      ready: false,
+    })
+    .eq("room_id", room.id);
+
+  if (readyError) {
+    console.error("rematch ready reset:", readyError);
+
+    return {
+      ok: false,
+      message: "Oyunçu statusları sıfırlana bilmədi.",
+    };
+  }
+
+  const { error: roomUpdateError } = await supabase
+    .from("game_rooms")
+    .update({
+      status: "waiting",
+    })
+    .eq("id", room.id)
+    .eq("status", "finished");
+
+  if (roomUpdateError) {
+    console.error("rematch room reopen:", roomUpdateError);
+
+    return {
+      ok: false,
+      message: "Lobby rematch üçün açıla bilmədi.",
+    };
+  }
+
+  revalidatePath(`/dashboard/games/room/${code}`);
+
+  return {
+    ok: true,
+    message:
+      "Lobby rematch üçün hazırdır. Yeni mərc seç və oyunu yenidən başlat.",
+  };
+}
+
 export async function reactionRematchAction(
   formData: FormData,
 ): Promise<GameActionResult> {
@@ -2183,7 +2318,7 @@ async function startAcceptedRoom(
 
   const { data: players } = await supabase
     .from("game_room_players")
-    .select("user_id,ready")
+    .select("user_id,ready,player_data")
     .eq("room_id", room.id);
 
   if (!players || players.length < 2) {
@@ -2294,9 +2429,16 @@ async function startAcceptedRoom(
               playerIds,
               amount,
             )
-          : {
-              bet: amount,
-            };
+          : isSupabasePartyGame(room.game)
+            ? createSupabasePartyMatchState({
+                game: room.game,
+                code,
+                hostId: room.host_id,
+                players: players as any,
+              })
+            : {
+                bet: amount,
+              };
 
   const { data: match, error: matchError } = await supabase
     .from("game_matches")
@@ -2407,4 +2549,232 @@ export async function startAcceptedRoomAction(
   const proposalId = String(formData.get("proposalId") ?? "").trim();
 
   return startAcceptedRoom(code, proposalId, user.id);
+}
+
+
+export async function partyMatchAction(
+  rawCode: string,
+  action: string,
+  value?: unknown,
+) {
+  const user = await getUser();
+
+  if (!user) {
+    return {
+      ok: false as const,
+      message: "Sessiya tapılmadı.",
+    };
+  }
+
+  const code =
+    normalizeCode(rawCode);
+
+  const supabase =
+    getSupabaseServerClient();
+
+  const {
+    data: room,
+    error: roomError,
+  } = await supabase
+    .from("game_rooms")
+    .select("id,code,game,status")
+    .eq("code", code)
+    .maybeSingle();
+
+  if (
+    roomError ||
+    !room
+  ) {
+    return {
+      ok: false as const,
+      message: "Otaq tapılmadı.",
+    };
+  }
+
+  if (
+    !isSupabasePartyGame(
+      room.game,
+    )
+  ) {
+    return {
+      ok: false as const,
+      message: "Bu party oyunu deyil.",
+    };
+  }
+
+  if (
+    room.status !==
+      "playing"
+  ) {
+    return {
+      ok: false as const,
+      message: "Match aktiv deyil.",
+    };
+  }
+
+  const {
+    data: membership,
+  } = await supabase
+    .from("game_room_players")
+    .select("id")
+    .eq("room_id", room.id)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (!membership) {
+    return {
+      ok: false as const,
+      message: "Sən bu otaqda deyilsən.",
+    };
+  }
+
+  const {
+    data: match,
+    error: matchError,
+  } = await supabase
+    .from("game_matches")
+    .select("id,status,state")
+    .eq("room_id", room.id)
+    .eq("game", room.game)
+    .order(
+      "created_at",
+      {
+        ascending: false,
+      },
+    )
+    .limit(1)
+    .maybeSingle();
+
+  if (
+    matchError ||
+    !match ||
+    match.status !==
+      "playing"
+  ) {
+    return {
+      ok: false as const,
+      message: "Aktiv match tapılmadı.",
+    };
+  }
+
+  const partyRoom =
+    match.state as PartyRoomState;
+
+  if (
+    !partyRoom ||
+    !Array.isArray(
+      partyRoom.players,
+    )
+  ) {
+    return {
+      ok: false as const,
+      message: "Match state düzgün deyil.",
+    };
+  }
+
+  const player =
+    partyRoom.players.find(
+      (entry) =>
+        entry.id === user.id,
+    );
+
+  if (!player) {
+    return {
+      ok: false as const,
+      message: "Match oyunçusu tapılmadı.",
+    };
+  }
+
+  performPartyAction(
+    partyRoom,
+    user.id,
+    action,
+    value,
+  );
+
+  partyRoom.updatedAt =
+    Date.now();
+
+  const finished =
+    partyRoom.status ===
+    "finished";
+
+  const winner =
+    finished
+      ? getPartyWinner(
+          partyRoom,
+        )
+      : null;
+
+  const {
+    error: updateError,
+  } = await supabase
+    .from("game_matches")
+    .update({
+      state: partyRoom,
+      status: finished
+        ? "finished"
+        : "playing",
+      winner_id:
+        winner?.id ??
+        null,
+      ended_at: finished
+        ? new Date().toISOString()
+        : null,
+    })
+    .eq("id", match.id);
+
+  if (updateError) {
+    console.error(
+      "party match update:",
+      updateError,
+    );
+
+    return {
+      ok: false as const,
+      message: "Match yenilənə bilmədi.",
+    };
+  }
+
+  await Promise.all(
+    partyRoom.players.map(
+      (entry) =>
+        supabase
+          .from("game_room_players")
+          .update({
+            score:
+              entry.score,
+          })
+          .eq(
+            "room_id",
+            room.id,
+          )
+          .eq(
+            "user_id",
+            entry.id,
+          ),
+    ),
+  );
+
+  if (finished) {
+    await supabase
+      .from("game_rooms")
+      .update({
+        status: "finished",
+      })
+      .eq("id", room.id);
+  }
+
+  revalidatePath(
+    `/dashboard/games/room/${code}`,
+  );
+
+  return {
+    ok: true as const,
+    message:
+      finished
+        ? "Match bitdi."
+        : "Hərəkət qeydə alındı.",
+    state: partyRoom,
+  };
 }

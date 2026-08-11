@@ -35,8 +35,7 @@ const games = [
   {
     id: "reaction",
     name: "Reaction",
-    description:
-      "Kim daha sürətlidir? Siqnal gələn kimi vur.",
+    description: "Kim daha sürətlidir? Siqnal gələn kimi vur.",
     icon: Zap,
     players: "2–8",
     status: "Hazırdır",
@@ -44,8 +43,7 @@ const games = [
   {
     id: "connect4",
     name: "Connect 4",
-    description:
-      "Klassik 1v1 strategiya oyunu.",
+    description: "Klassik 1v1 strategiya oyunu.",
     icon: Gamepad2,
     players: "2",
     status: "Hazırdır",
@@ -53,10 +51,57 @@ const games = [
   {
     id: "blackjack",
     name: "Party Blackjack",
-    description:
-      "Dostlarınla eyni masada blackjack.",
+    description: "Dostlarınla eyni masada blackjack.",
     icon: Sparkles,
     players: "2–8",
+    status: "Hazırdır",
+  },
+  {
+    id: "lastbutton",
+    name: "Last Button",
+    description: "Düyməni son anda bas. Vaxtı səhv hesablasan, uduzursan.",
+    icon: Zap,
+    players: "2–10",
+    status: "Hazırdır",
+  },
+  {
+    id: "undercover",
+    name: "Undercover",
+    description: "Aranızdakı gizli oyunçunu tap, ya da özünü ələ vermə.",
+    icon: Users,
+    players: "3–10",
+    status: "Hazırdır",
+  },
+  {
+    id: "pixelwars",
+    name: "Pixel Wars",
+    description: "Canlı lövhədə ərazini ələ keçir və rəqiblərini sıxışdır.",
+    icon: Gamepad2,
+    players: "2–10",
+    status: "Hazırdır",
+  },
+  {
+    id: "vault",
+    name: "Vault",
+    description: "Kodları aç, risk et və xəzinəni rəqiblərindən əvvəl götür.",
+    icon: Hash,
+    players: "2–8",
+    status: "Hazırdır",
+  },
+  {
+    id: "kingofthehill",
+    name: "King of the Hill",
+    description: "Taxtı ələ keçir və digər oyunçulara qarşı mövqeyini qoru.",
+    icon: Sparkles,
+    players: "2–10",
+    status: "Hazırdır",
+  },
+  {
+    id: "octoparty",
+    name: "OCTO Party",
+    description: "Sürətli mini-oyunlardan ibarət tam multiplayer party rejimi.",
+    icon: Radio,
+    players: "2–10",
     status: "Hazırdır",
   },
 ];
