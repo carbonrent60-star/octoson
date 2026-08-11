@@ -1864,7 +1864,18 @@ function applyGameStats(user, { game, bet = 0, won = false, net = 0, multiplier 
   user.luck = clamp(user.luck + (won ? -1 : 1) + Math.floor(Math.random() * 3) - 1, 1, 100);
   addSeasonXp(user, won ? 24 : 10);
   if (ledger) {
-    addTransaction(user, net, game, `bet:${bet}`);
+    addTransaction(
+      user,
+      net,
+      game,
+      `bet:${bet}`,
+      {
+        bet,
+        net,
+        won,
+        result: won ? 'win' : net < 0 ? 'loss' : 'push'
+      }
+    );
   }
   unlockAchievements(user);
 }
@@ -3970,6 +3981,22 @@ function addTransaction(user, amount, type, note, details = {}) {
   const balanceBefore =
     details.balanceBefore ?? balanceAfter - numericAmount;
 
+  const {
+    balanceBefore: _balanceBefore,
+    balanceAfter: _balanceAfter,
+    metadata: suppliedMetadata,
+    ...extraMetadata
+  } = details ?? {};
+
+  const metadata = {
+    ...(suppliedMetadata &&
+    typeof suppliedMetadata === 'object' &&
+    !Array.isArray(suppliedMetadata)
+      ? suppliedMetadata
+      : {}),
+    ...extraMetadata
+  };
+
   user.transactions.unshift({
     id: randomUUID(),
     at: new Date(createdAt).toISOString(),
@@ -3977,6 +4004,7 @@ function addTransaction(user, amount, type, note, details = {}) {
     amount: numericAmount,
     type,
     note,
+    metadata,
     balanceBefore,
     balanceAfter
   });

@@ -1,16 +1,13 @@
-import Link from "next/link";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import {
   Activity,
-  ArrowDownLeft,
-  ArrowUpRight,
-  Clock3,
   Coins,
   Gamepad2,
   History,
-  UserRound,
 } from "lucide-react";
+
+import ActivityFeed from "@/components/activity/activity-feed";
 
 import { createPageMetadata } from "@/lib/metadata";
 
@@ -245,81 +242,10 @@ export default async function ActivityPage() {
         </div>
 
         {transactions.length ? (
-          <div>
-            {transactions.map((transaction) => {
-              const member = members[transaction.userId];
-
-              const name =
-                member?.name ??
-                `İstifadəçi ${transaction.userId.slice(-4)}`;
-
-              const positive = transaction.amount > 0;
-
-              return (
-                <Link
-                  key={transaction.id}
-                  href={`/dashboard/users/${transaction.userId}`}
-                  className="group grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-white/[0.04] px-4 py-4 transition hover:bg-white/[0.025] last:border-0 sm:grid-cols-[minmax(220px,1fr)_minmax(150px,0.7fr)_150px]"
-                >
-                  <div className="flex min-w-0 items-center gap-3">
-                    {member?.avatar ? (
-                      <img
-                        src={member.avatar}
-                        alt=""
-                        className="h-10 w-10 shrink-0 rounded-[12px] border border-white/[0.07] object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] border border-white/[0.07] bg-white/[0.025]">
-                        <UserRound className="h-4 w-4 text-white/25" />
-                      </div>
-                    )}
-
-                    <div className="min-w-0">
-                      <p className="truncate text-[12px] font-medium text-white/65 transition group-hover:text-white/85">
-                        {name}
-                      </p>
-
-                      <div className="mt-1 flex items-center gap-1.5 text-[9px] text-white/20">
-                        <Clock3 className="h-3 w-3" />
-                        {relativeTime(transaction.createdAt)}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="hidden min-w-0 sm:block">
-                    <p className="truncate text-[11px] font-medium text-white/45">
-                      {cleanType(transaction.type)}
-                    </p>
-
-                    {transaction.note && (
-                      <p className="mt-1 truncate text-[9px] text-white/18">
-                        {transaction.note}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="flex items-center justify-end gap-2">
-                    {positive ? (
-                      <ArrowUpRight className="h-3.5 w-3.5 text-emerald-300/50" />
-                    ) : (
-                      <ArrowDownLeft className="h-3.5 w-3.5 text-rose-300/45" />
-                    )}
-
-                    <span
-                      className={`text-[11px] font-semibold tabular-nums ${
-                        positive
-                          ? "text-emerald-200/65"
-                          : "text-rose-200/60"
-                      }`}
-                    >
-                      {positive ? "+" : "-"}
-                      {formatNumber(transaction.amount)} Aura
-                    </span>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
+          <ActivityFeed
+            transactions={transactions}
+            members={members}
+          />
         ) : (
           <div className="px-6 py-16 text-center text-[12px] text-white/25">
             Hələ qeydə alınmış fəaliyyət yoxdur.

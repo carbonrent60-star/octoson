@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AvatarAmbient from "@/components/profile/avatar-ambient";
 import { auth } from "@/auth";
 import { notFound, redirect } from "next/navigation";
 import {
@@ -147,7 +148,11 @@ export default async function PublicUserPage({
       </Link>
 
       <section className="relative overflow-hidden rounded-[22px] border border-cyan-100/[0.08] bg-cyan-100/[0.018] p-5 sm:p-7">
-        <div className="pointer-events-none absolute -right-24 -top-28 h-72 w-72 rounded-full bg-cyan-200/[0.045] blur-[90px]" />
+        {member?.avatar ? (
+          <AvatarAmbient avatar={member.avatar} />
+        ) : (
+          <div className="pointer-events-none absolute -right-24 -top-28 h-72 w-72 rounded-full bg-cyan-200/[0.045] blur-[90px]" />
+        )}
 
         <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex min-w-0 items-center gap-4">
