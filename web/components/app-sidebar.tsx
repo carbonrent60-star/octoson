@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "motion/react";
 import {
+  Activity,
   Banknote,
   Boxes,
   ChevronRight,
@@ -27,6 +28,7 @@ const navigation = [
   { href: "/dashboard/inventory", label: "İnventar", icon: Boxes },
   { href: "/dashboard/world", label: "Dünya", icon: Globe2 },
   { href: "/dashboard/leaderboard", label: "Reytinq", icon: Trophy },
+  { href: "/dashboard/activity", label: "Fəaliyyət", icon: Activity },
   { href: "/dashboard/profile", label: "Profil", icon: CircleUserRound },
 ];
 

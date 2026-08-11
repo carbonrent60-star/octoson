@@ -190,9 +190,31 @@ export async function startPartyBlackjack({
     throw startError;
   }
 
+  let finalResult = result;
+
+  // If everybody received a natural blackjack, there is no
+  // Hit/Stand click to trigger settlement, so settle now.
+  if (result?.phase === 'dealer') {
+    const {
+      data: settled,
+      error: settleError,
+    } = await client.rpc(
+      'settle_blackjack_match',
+      {
+        p_match_id: match.id,
+      }
+    );
+
+    if (settleError) {
+      throw settleError;
+    }
+
+    finalResult = settled;
+  }
+
   return {
     matchId: match.id,
-    result,
+    result: finalResult,
   };
 }
 
@@ -210,6 +232,45 @@ export async function playPartyBlackjackAction({
       p_match_id: matchId,
       p_user_id: userId,
       p_action: action,
+    }
+  );
+
+  if (error) {
+    throw error;
+  }
+
+  // Last player finished -> immediately run dealer + settlement.
+  if (data?.phase === 'dealer') {
+    const {
+      data: settled,
+      error: settleError,
+    } = await supabase().rpc(
+      'settle_blackjack_match',
+      {
+        p_match_id: matchId,
+      }
+    );
+
+    if (settleError) {
+      throw settleError;
+    }
+
+    return settled;
+  }
+
+  return data;
+}
+
+export async function settlePartyBlackjack({
+  matchId,
+}) {
+  const {
+    data,
+    error,
+  } = await supabase().rpc(
+    'settle_blackjack_match',
+    {
+      p_match_id: matchId,
     }
   );
 

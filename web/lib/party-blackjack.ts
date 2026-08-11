@@ -249,6 +249,7 @@ export function playDealer(
   const deck = [...state.deck];
   const dealer = [...state.dealer];
 
+  // Dealer hits until 17 or higher.
   while (blackjackHandValue(dealer) < 17) {
     const card = deck.pop();
 
@@ -262,102 +263,59 @@ export function playDealer(
   const dealerValue =
     blackjackHandValue(dealer);
 
-  const dealerBust = dealerValue > 21;
+  const dealerBust =
+    dealerValue > 21;
 
-  const eligible = state.players.filter(
-    (player) =>
-      blackjackHandValue(player.hand) <= 21,
-  );
+  const dealerNatural =
+    isNaturalBlackjack(dealer);
 
   const result: Record<
     string,
     "win" | "lose" | "push"
   > = {};
 
-  const winningPlayers =
-    eligible.filter((player) => {
-      const value =
-        blackjackHandValue(player.hand);
-
-      if (dealerBust) {
-        return true;
-      }
-
-      return value > dealerValue;
-    });
-
-  const pushingPlayers =
-    eligible.filter(
-      (player) =>
-        !dealerBust &&
-        blackjackHandValue(player.hand) ===
-          dealerValue,
-    );
+  const winners: string[] = [];
 
   /*
-   * This project currently has a single-winner
-   * wager settlement RPC.
-   *
-   * Therefore we determine the strongest actual
-   * winning player(s). A tie can safely be refunded
-   * by the server action.
+   * Blackjack is player vs dealer.
+   * Every player is evaluated independently.
    */
-  let winners: string[] = [];
-
-  if (winningPlayers.length > 0) {
-    const bestValue = Math.max(
-      ...winningPlayers.map((player) =>
-        blackjackHandValue(player.hand),
-      ),
-    );
-
-    const bestPlayers =
-      winningPlayers.filter(
-        (player) =>
-          blackjackHandValue(player.hand) ===
-          bestValue,
-      );
-
-    const naturalWinners =
-      bestPlayers.filter((player) =>
-        isNaturalBlackjack(player.hand),
-      );
-
-    const finalWinners =
-      naturalWinners.length > 0
-        ? naturalWinners
-        : bestPlayers;
-
-    winners = finalWinners.map(
-      (player) => player.user_id,
-    );
-  }
-
   for (const player of state.players) {
-    const value =
+    const playerValue =
       blackjackHandValue(player.hand);
 
-    if (value > 21) {
-      result[player.user_id] = "lose";
-      continue;
+    const playerNatural =
+      isNaturalBlackjack(player.hand);
+
+    let playerResult:
+      | "win"
+      | "lose"
+      | "push";
+
+    if (playerValue > 21) {
+      playerResult = "lose";
+    } else if (playerNatural && !dealerNatural) {
+      playerResult = "win";
+    } else if (dealerNatural && !playerNatural) {
+      playerResult = "lose";
+    } else if (playerNatural && dealerNatural) {
+      playerResult = "push";
+    } else if (dealerBust) {
+      playerResult = "win";
+    } else if (playerValue > dealerValue) {
+      playerResult = "win";
+    } else if (playerValue < dealerValue) {
+      playerResult = "lose";
+    } else {
+      playerResult = "push";
     }
 
-    if (winners.includes(player.user_id)) {
-      result[player.user_id] = "win";
-      continue;
-    }
+    result[player.user_id] =
+      playerResult;
 
-    if (
-      pushingPlayers.some(
-        (item) =>
-          item.user_id === player.user_id,
-      )
-    ) {
-      result[player.user_id] = "push";
-      continue;
+    if (playerResult === "win") {
+      winners.push(player.user_id);
     }
-
-    result[player.user_id] = "lose";
   }
 
   return {

@@ -72,7 +72,6 @@ import {
   recordGame,
   recycleCollectible,
   revertExceededDailyChestPurchases,
-  refundReservedCasinoBet,
   salvageCollectible,
   sellInventoryItem,
   settleCasinoGame,
@@ -2894,7 +2893,7 @@ function createCasinoSession(id, userId, game, bet, options = {}) {
 
 function casinoCountdownText(session) {
   const remainingMs = Math.max(0, session.expiresAt - Date.now());
-  return `Cavab üçün **${Math.ceil(remainingMs / 1000)} saniyə** qalır. Vaxt bitsə mərc geri qaytarılır.`;
+  return `Cavab üçün **${Math.ceil(remainingMs / 1000)} saniyə** qalır. Vaxt bitsə raund məğlubiyyət sayılır və mərc geri qaytarılmır.`;
 }
 
 function isCasinoSessionExpired(session) {
@@ -2929,30 +2928,47 @@ async function expireCasinoSession(session) {
     return;
   }
 
+  /*
+   * IMPORTANT:
+   * The wager was already reserved/deducted when the game started.
+   *
+   * A timeout is therefore a LOSS — never refund the wager.
+   * This prevents players from starting a casino game, waiting
+   * 30 seconds, and receiving their Aura back.
+   */
   session.finished = true;
   activeCasinoSessions.delete(session.id);
   activeCasinoUserSessions.delete(session.userId);
   clearExpiringGame(session.id);
 
-  let profile = await getProfile(session.userId);
-  if ((session.reserved && session.cost > 0) || session.usedTicket) {
-    profile = await refundReservedCasinoBet(session.userId, session.cost, session.game, session.usedTicket);
-  }
+  const profile = await getProfile(session.userId);
 
   await session.message?.edit({
     embeds: [
       gameEmbed()
         .setColor(brand.neutral)
-        .setTitle(`${interactiveCasinoTitle(session)} ləğv edildi`)
+        .setTitle(`${interactiveCasinoTitle(session)} — Vaxt bitdi`)
         .setThumbnail(casinoImageUrl(session.game))
-        .setDescription('30 saniyə ərzində seçim edilmədi.')
+        .setDescription(
+          '30 saniyə ərzində seçim edilmədi. Raund **məğlubiyyət** kimi tamamlandı və mərc geri qaytarılmadı.'
+        )
         .addFields(
-          { name: 'Refund', value: session.usedTicket ? `+${formatNumber(session.cost)} ${gameCopy.currency} və 1 Reward Ticket geri qaytarıldı.` : `+${formatNumber(session.cost)} ${gameCopy.currency}`, inline: true },
-          { name: 'Balans', value: `${formatNumber(profile.balance)} ${gameCopy.currency}`, inline: true }
+          {
+            name: 'Mərc',
+            value: `-${formatNumber(session.cost)} ${gameCopy.currency}`,
+            inline: true
+          },
+          {
+            name: 'Balans',
+            value: `${formatNumber(profile.balance)} ${gameCopy.currency}`,
+            inline: true
+          }
         )
     ],
     components: [casinoHelpRow(session.game)]
-  }).catch(error => console.error('Casino expiry message edit failed:', error));
+  }).catch(error =>
+    console.error('Casino expiry message edit failed:', error)
+  );
 }
 
 async function handleMinesButton(interaction, session, action, value) {
