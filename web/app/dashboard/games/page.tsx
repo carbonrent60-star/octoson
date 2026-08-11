@@ -1,6 +1,7 @@
 import { createPageMetadata } from "@/lib/metadata";
 import GamesHub from "@/components/games/games-hub";
 import { getSupabaseServerClient } from "@/lib/supabase-server";
+import PartyEntry from "./party-entry";
 
 export const dynamic =
   "force-dynamic";
