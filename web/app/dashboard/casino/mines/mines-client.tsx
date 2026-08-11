@@ -111,7 +111,7 @@ export default function MinesClient({
         audio.play("error");
       }
 
-      router.refresh();
+      
     });
   }
 
@@ -146,7 +146,7 @@ export default function MinesClient({
         setBalance(result.balance);
       }
 
-      router.refresh();
+      
     });
   }
 
@@ -172,7 +172,7 @@ export default function MinesClient({
         audio.play("error");
       }
 
-      router.refresh();
+      
     });
   }
 

@@ -355,3 +355,166 @@ main .flex > * {
     min-height: 100svh;
   }
 }
+
+
+/* ==========================================================
+   OCTOSON CASINO — PREMIUM CROSS-BROWSER CARDS
+   ========================================================== */
+
+.casino-grid {
+  align-items: stretch;
+}
+
+.casino-game-card {
+  isolation: isolate;
+  min-width: 0;
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+
+  /* Explicit radius helps WebKit preserve clipping. */
+  border-radius: 20px;
+  -webkit-border-radius: 20px;
+
+  /*
+   * Do NOT force translateZ here.
+   * Safari can lose border-radius clipping when an overflow-hidden
+   * element becomes its own transformed compositing layer.
+   */
+  transform: none;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.018),
+      rgba(255,255,255,.004) 48%,
+      transparent 75%
+    ),
+    #0b0d0f;
+}
+
+.casino-game-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: inherit;
+
+  background:
+    radial-gradient(
+      500px 180px at 0% 0%,
+      rgba(255,255,255,.025),
+      transparent 58%
+    );
+}
+
+.casino-game-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: inherit;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.025),
+    inset 0 -1px 0 rgba(0,0,0,.3);
+}
+
+.casino-game-tint {
+  z-index: 0;
+  opacity: .42;
+  border-radius: inherit;
+}
+
+.casino-game-glow {
+  z-index: 0;
+  filter: blur(34px);
+  -webkit-filter: blur(34px);
+}
+
+.casino-card-grid {
+  z-index: 0;
+  opacity: .022;
+
+  background-image:
+    linear-gradient(
+      rgba(255,255,255,.22) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(255,255,255,.22) 1px,
+      transparent 1px
+    );
+
+  background-size: 30px 30px;
+
+  /*
+   * No mask-image.
+   * Instead the grid simply fades naturally because its opacity
+   * is extremely low.
+   */
+}
+
+/* Keep actual card content above decorative surfaces. */
+.casino-game-card > :not(.casino-game-tint):not(.casino-game-glow):not(.casino-card-grid) {
+  z-index: 1;
+}
+
+/* Desktop hover without moving the clipping container itself. */
+@media (hover: hover) {
+  .casino-game-card:hover {
+    border-color: rgba(255,255,255,.125);
+  }
+
+  .casino-game-card:hover .casino-card-grid {
+    opacity: .035;
+  }
+}
+
+/* Safari/WebKit-specific stabilization */
+@supports (-webkit-touch-callout: none) {
+  .casino-grid {
+    grid-auto-rows: 1fr;
+  }
+
+  .casino-game-card {
+    /*
+     * Safari needs explicit clipping but should NOT receive
+     * transform: translateZ(0) here.
+     */
+    overflow: hidden;
+    -webkit-border-radius: 20px;
+    border-radius: 20px;
+
+    /*
+     * Safari sometimes paints button backgrounds differently.
+     */
+    background-color: #0b0d0f;
+  }
+
+  .casino-game-card > * {
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+
+  .casino-game-glow {
+    /*
+     * Smaller blur in Safari = cleaner edge clipping and less
+     * GPU compositing weirdness.
+     */
+    filter: blur(26px);
+    -webkit-filter: blur(26px);
+    opacity: .16;
+  }
+
+  .casino-game-tint {
+    opacity: .34;
+  }
+
+  .casino-card-grid {
+    opacity: .018;
+  }
+}

@@ -8,7 +8,6 @@ import { OctosonAudioProvider } from "@/components/audio/octoson-audio";
 import SoundControl from "@/components/audio/sound-control";
 import PresenceHeartbeat from "@/components/presence-heartbeat";
 import MobileNav from "@/components/dashboard/mobile-nav";
-import GlobalSearch from "@/components/dashboard/global-search";
 
 type DashboardShellProps = {
   children: React.ReactNode;
@@ -103,8 +102,15 @@ export default function DashboardShell({
                 <Menu className="h-[17px] w-[17px]" />
               </button>
 
-              <div className="hidden w-[min(42vw,620px)] sm:block">
-                <GlobalSearch />
+              <div className="hidden items-center gap-2.5 sm:flex">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-300 opacity-20" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-300/80" />
+                </span>
+
+                <span className="text-[10px] font-semibold uppercase tracking-[0.17em] text-white/25">
+                  Live economy
+                </span>
               </div>
             </div>
 
@@ -116,6 +122,9 @@ export default function DashboardShell({
                   {userName || "Octoson User"}
                 </p>
 
+                <p className="mt-0.5 text-[9px] font-medium uppercase tracking-[0.13em] text-white/20">
+                  Server üzvü
+                </p>
               </div>
 
               {userImage ? (

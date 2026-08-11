@@ -8,7 +8,6 @@ import { OctosonAudioProvider } from "@/components/audio/octoson-audio";
 import SoundControl from "@/components/audio/sound-control";
 import PresenceHeartbeat from "@/components/presence-heartbeat";
 import MobileNav from "@/components/dashboard/mobile-nav";
-import GlobalSearch from "@/components/dashboard/global-search";
 
 type DashboardShellProps = {
   children: React.ReactNode;
@@ -34,7 +33,7 @@ export default function DashboardShell({
       {/* ambient background */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         <div className="absolute left-[18%] top-[-300px] h-[620px] w-[620px] rounded-full bg-cyan-300/[0.035] blur-[140px]" />
-        <div className="absolute bottom-[-350px] right-[-100px] hidden h-[700px] w-[700px] rounded-full bg-blue-500/[0.025] blur-[150px] sm:block" />
+        <div className="absolute bottom-[-350px] right-[-100px] h-[700px] w-[700px] rounded-full bg-blue-500/[0.025] blur-[150px]" />
 
         <div
           className="absolute inset-0 opacity-[0.025]"
@@ -62,7 +61,7 @@ export default function DashboardShell({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setMobileOpen(false)}
-              className="fixed inset-0 z-[70] bg-black/80 sm:backdrop-blur-sm lg:hidden"
+              className="fixed inset-0 z-[70] bg-black/70 backdrop-blur-sm lg:hidden"
             />
 
             <motion.div
@@ -92,7 +91,7 @@ export default function DashboardShell({
 
       {/* APP AREA */}
       <div className="relative min-h-screen lg:pl-[260px]">
-        <header className="fixed left-0 right-0 top-0 z-40 h-[62px] border-b border-white/[0.055] bg-[#050507]/95 sm:h-[72px] sm:bg-[#050507]/80 sm:backdrop-blur-xl lg:left-[260px]">
+        <header className="fixed left-0 right-0 top-0 z-40 h-[62px] border-b border-white/[0.055] bg-[#050507]/80 backdrop-blur-2xl sm:h-[72px] lg:left-[260px]">
           <div className="flex h-full items-center justify-between px-3.5 sm:px-7 lg:px-9">
             <div className="flex items-center gap-3">
               <button
@@ -103,8 +102,15 @@ export default function DashboardShell({
                 <Menu className="h-[17px] w-[17px]" />
               </button>
 
-              <div className="hidden w-[min(42vw,620px)] sm:block">
-                <GlobalSearch />
+              <div className="hidden items-center gap-2.5 sm:flex">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-300 opacity-20" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-300/80" />
+                </span>
+
+                <span className="text-[10px] font-semibold uppercase tracking-[0.17em] text-white/25">
+                  Live economy
+                </span>
               </div>
             </div>
 
@@ -116,6 +122,9 @@ export default function DashboardShell({
                   {userName || "Octoson User"}
                 </p>
 
+                <p className="mt-0.5 text-[9px] font-medium uppercase tracking-[0.13em] text-white/20">
+                  Server üzvü
+                </p>
               </div>
 
               {userImage ? (

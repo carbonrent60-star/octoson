@@ -441,7 +441,7 @@ export default function BlackjackClient({
         setCinematic(true);
 
         await sleep(
-          drewCard ? 620 : 420
+          drewCard ? 320 : 180
         );
 
         setMessage(result.message);
@@ -479,7 +479,7 @@ export default function BlackjackClient({
       setBalance(result.balance);
     }
 
-    router.refresh();
+    
   }
 
   function startGame() {
@@ -633,14 +633,14 @@ export default function BlackjackClient({
            * Later dealer draws stay snappy.
            */
           await sleep(
-            index <= 1 ? 720 : 610
+            index <= 1 ? 380 : 300
           );
         }
 
         /*
          * Small beat after dealer completes the hand.
          */
-        await sleep(280);
+        await sleep(100);
 
         setSession(finalSession);
 
@@ -679,7 +679,7 @@ export default function BlackjackClient({
         }
 
         setCinematic(false);
-        router.refresh();
+        
       }
     );
   }

@@ -202,7 +202,7 @@ export default function SpecialGameClient({
       setBalance(next.balance);
     }
 
-    router.refresh();
+    
   }
 
   function playSlots() {
@@ -270,7 +270,7 @@ export default function SpecialGameClient({
       ]);
       setSlotStage(3);
 
-      await sleep(550);
+      await sleep(180);
 
       setVisualPending(false);
       settle(next);
@@ -330,7 +330,7 @@ export default function SpecialGameClient({
         choice: String(towerFloor),
       });
 
-      await sleep(950);
+      await sleep(360);
 
       setVisualPending(false);
       settle(next);
@@ -374,11 +374,11 @@ export default function SpecialGameClient({
 
       setDisplayCard(cards.current);
 
-      await sleep(900);
+      await sleep(360);
 
       setDisplayCard(cards.next);
 
-      await sleep(550);
+      await sleep(180);
 
       setVisualPending(false);
       settle(next);

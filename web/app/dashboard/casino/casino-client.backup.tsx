@@ -76,7 +76,7 @@ const games: CasinoUiGame[] = [
     accentText: "#f9d98e",
     glow: "rgba(246,199,104,.16)",
     gradient:
-      "linear-gradient(145deg, rgba(255,255,255,.022) 0%, rgba(255,255,255,.008) 38%, transparent 72%)",
+      "linear-gradient(135deg, rgba(246,199,104,.13), rgba(246,199,104,.025) 46%, transparent 72%)",
     symbol: "◐",
   },
   {
@@ -94,7 +94,7 @@ const games: CasinoUiGame[] = [
     accentText: "#c4b5fd",
     glow: "rgba(139,92,246,.16)",
     gradient:
-      "linear-gradient(145deg, rgba(255,255,255,.022) 0%, rgba(255,255,255,.008) 38%, transparent 72%)",
+      "linear-gradient(135deg, rgba(139,92,246,.13), rgba(167,139,250,.025) 46%, transparent 72%)",
     symbol: "⚄",
   },
   {
@@ -113,7 +113,7 @@ const games: CasinoUiGame[] = [
     accentText: "#a5f3fc",
     glow: "rgba(34,211,238,.17)",
     gradient:
-      "linear-gradient(145deg, rgba(255,255,255,.022) 0%, rgba(255,255,255,.008) 38%, transparent 72%)",
+      "linear-gradient(135deg, rgba(34,211,238,.13), rgba(103,232,249,.02) 50%, transparent 74%)",
     symbol: "✦",
   },
   {
@@ -131,7 +131,7 @@ const games: CasinoUiGame[] = [
     accentText: "#fda4af",
     glow: "rgba(244,63,94,.16)",
     gradient:
-      "linear-gradient(145deg, rgba(255,255,255,.022) 0%, rgba(255,255,255,.008) 38%, transparent 72%)",
+      "linear-gradient(135deg, rgba(244,63,94,.13), rgba(251,113,133,.02) 48%, transparent 74%)",
     symbol: "◆",
   },
   {
@@ -149,7 +149,7 @@ const games: CasinoUiGame[] = [
     accentText: "#fdba74",
     glow: "rgba(249,115,22,.17)",
     gradient:
-      "linear-gradient(145deg, rgba(255,255,255,.022) 0%, rgba(255,255,255,.008) 38%, transparent 72%)",
+      "linear-gradient(135deg, rgba(249,115,22,.13), rgba(251,146,60,.02) 50%, transparent 74%)",
     symbol: "↗",
   },
   {
@@ -167,7 +167,7 @@ const games: CasinoUiGame[] = [
     accentText: "#5eead4",
     glow: "rgba(20,184,166,.17)",
     gradient:
-      "linear-gradient(145deg, rgba(255,255,255,.022) 0%, rgba(255,255,255,.008) 38%, transparent 72%)",
+      "linear-gradient(135deg, rgba(20,184,166,.13), rgba(45,212,191,.02) 50%, transparent 74%)",
     symbol: "✺",
   },
   {
@@ -185,7 +185,7 @@ const games: CasinoUiGame[] = [
     accentText: "#93c5fd",
     glow: "rgba(59,130,246,.16)",
     gradient:
-      "linear-gradient(145deg, rgba(255,255,255,.022) 0%, rgba(255,255,255,.008) 38%, transparent 72%)",
+      "linear-gradient(135deg, rgba(59,130,246,.13), rgba(96,165,250,.02) 50%, transparent 74%)",
     symbol: "✂",
   },
   {
@@ -204,7 +204,7 @@ const games: CasinoUiGame[] = [
     accentText: "#f0abfc",
     glow: "rgba(217,70,239,.16)",
     gradient:
-      "linear-gradient(145deg, rgba(255,255,255,.022) 0%, rgba(255,255,255,.008) 38%, transparent 72%)",
+      "linear-gradient(135deg, rgba(217,70,239,.13), rgba(232,121,249,.02) 50%, transparent 74%)",
     symbol: "♠",
   },
   {
@@ -222,7 +222,7 @@ const games: CasinoUiGame[] = [
     accentText: "#fb7185",
     glow: "rgba(225,29,72,.16)",
     gradient:
-      "linear-gradient(145deg, rgba(255,255,255,.022) 0%, rgba(255,255,255,.008) 38%, transparent 72%)",
+      "linear-gradient(135deg, rgba(225,29,72,.13), rgba(244,63,94,.02) 50%, transparent 74%)",
     symbol: "♥",
   },
   {
@@ -240,7 +240,7 @@ const games: CasinoUiGame[] = [
     accentText: "#fde68a",
     glow: "rgba(245,158,11,.16)",
     gradient:
-      "linear-gradient(145deg, rgba(255,255,255,.022) 0%, rgba(255,255,255,.008) 38%, transparent 72%)",
+      "linear-gradient(135deg, rgba(245,158,11,.13), rgba(251,191,36,.02) 50%, transparent 74%)",
     symbol: "★",
   },
   {
@@ -258,7 +258,7 @@ const games: CasinoUiGame[] = [
     accentText: "#86efac",
     glow: "rgba(34,197,94,.16)",
     gradient:
-      "linear-gradient(145deg, rgba(255,255,255,.022) 0%, rgba(255,255,255,.008) 38%, transparent 72%)",
+      "linear-gradient(135deg, rgba(34,197,94,.13), rgba(74,222,128,.02) 50%, transparent 74%)",
     symbol: "◎",
   },
   {
@@ -276,7 +276,7 @@ const games: CasinoUiGame[] = [
     accentText: "#f9a8d4",
     glow: "rgba(236,72,153,.16)",
     gradient:
-      "linear-gradient(145deg, rgba(255,255,255,.022) 0%, rgba(255,255,255,.008) 38%, transparent 72%)",
+      "linear-gradient(135deg, rgba(236,72,153,.13), rgba(244,114,182,.02) 50%, transparent 74%)",
     symbol: "✧",
   },
   {
@@ -294,7 +294,7 @@ const games: CasinoUiGame[] = [
     accentText: "#fde047",
     glow: "rgba(234,179,8,.18)",
     gradient:
-      "linear-gradient(145deg, rgba(255,255,255,.022) 0%, rgba(255,255,255,.008) 38%, transparent 72%)",
+      "linear-gradient(135deg, rgba(234,179,8,.15), rgba(250,204,21,.025) 50%, transparent 74%)",
     symbol: "♛",
   },
   {
@@ -313,7 +313,7 @@ const games: CasinoUiGame[] = [
     accentText: "#6ee7b7",
     glow: "rgba(16,185,129,.17)",
     gradient:
-      "linear-gradient(145deg, rgba(255,255,255,.022) 0%, rgba(255,255,255,.008) 38%, transparent 72%)",
+      "linear-gradient(135deg, rgba(16,185,129,.14), rgba(52,211,153,.02) 50%, transparent 74%)",
     symbol: "21",
   },
   {
@@ -332,7 +332,7 @@ const games: CasinoUiGame[] = [
     accentText: "#fbbf24",
     glow: "rgba(217,119,6,.17)",
     gradient:
-      "linear-gradient(145deg, rgba(255,255,255,.022) 0%, rgba(255,255,255,.008) 38%, transparent 72%)",
+      "linear-gradient(135deg, rgba(217,119,6,.14), rgba(245,158,11,.02) 50%, transparent 74%)",
     symbol: "777",
   },
   {
@@ -351,7 +351,7 @@ const games: CasinoUiGame[] = [
     accentText: "#f87171",
     glow: "rgba(220,38,38,.18)",
     gradient:
-      "linear-gradient(145deg, rgba(255,255,255,.022) 0%, rgba(255,255,255,.008) 38%, transparent 72%)",
+      "linear-gradient(135deg, rgba(220,38,38,.15), rgba(239,68,68,.02) 50%, transparent 74%)",
     symbol: "×",
   },
   {
@@ -370,7 +370,7 @@ const games: CasinoUiGame[] = [
     accentText: "#7dd3fc",
     glow: "rgba(14,165,233,.17)",
     gradient:
-      "linear-gradient(145deg, rgba(255,255,255,.022) 0%, rgba(255,255,255,.008) 38%, transparent 72%)",
+      "linear-gradient(135deg, rgba(14,165,233,.14), rgba(56,189,248,.02) 50%, transparent 74%)",
     symbol: "▥",
   },
   {
@@ -389,7 +389,7 @@ const games: CasinoUiGame[] = [
     accentText: "#fdba74",
     glow: "rgba(249,115,22,.17)",
     gradient:
-      "linear-gradient(145deg, rgba(255,255,255,.022) 0%, rgba(255,255,255,.008) 38%, transparent 72%)",
+      "linear-gradient(135deg, rgba(249,115,22,.14), rgba(251,146,60,.02) 50%, transparent 74%)",
     symbol: "↕",
   },
 ];
@@ -727,7 +727,7 @@ export default function CasinoClient({
                   onClick={() =>
                     openGame(game)
                   }
-                  className="group relative min-h-[190px] overflow-hidden rounded-[21px] border border-white/[0.075] bg-[linear-gradient(145deg,#101214_0%,#0b0d0f_55%,#090a0c_100%)] p-5 text-left shadow-[inset_0_1px_0_rgba(255,255,255,.025),0_18px_45px_rgba(0,0,0,.20)] transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-[2px] hover:border-white/[0.14] hover:shadow-[inset_0_1px_0_rgba(255,255,255,.04),0_24px_60px_rgba(0,0,0,.32)]"
+                  className="group relative min-h-[190px] overflow-hidden rounded-[21px] border border-white/[0.07] bg-[#0c0e10] p-5 text-left shadow-[0_14px_35px_rgba(0,0,0,.16)] transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-[2px] hover:border-white/[0.13] hover:shadow-[0_22px_55px_rgba(0,0,0,.28)]"
                   style={
                     {
                       "--game-accent":
@@ -737,7 +737,7 @@ export default function CasinoClient({
                 >
                   {/* Per-game color wash */}
                   <div
-                    className="pointer-events-none absolute inset-0 opacity-25 transition-opacity duration-500 group-hover:opacity-45"
+                    className="pointer-events-none absolute inset-0 opacity-75 transition-opacity duration-500 group-hover:opacity-100"
                     style={{
                       background:
                         game.gradient,
@@ -746,7 +746,7 @@ export default function CasinoClient({
 
                   {/* Moving hover light */}
                   <div
-                    className="pointer-events-none absolute -right-12 -top-14 h-[130px] w-[130px] rounded-full opacity-[0.10] blur-[48px] transition-all duration-500 group-hover:-right-8 group-hover:-top-10 group-hover:opacity-[0.20]"
+                    className="pointer-events-none absolute -right-16 -top-20 h-[190px] w-[190px] rounded-full opacity-40 blur-[55px] transition-all duration-500 group-hover:-right-8 group-hover:-top-12 group-hover:opacity-80"
                     style={{
                       background:
                         game.glow,
@@ -755,7 +755,7 @@ export default function CasinoClient({
 
                   {/* Fine grid */}
                   <div
-                    className="pointer-events-none absolute inset-0 opacity-[0.018] transition-opacity duration-300 group-hover:opacity-[0.032]"
+                    className="pointer-events-none absolute inset-0 opacity-[0.035] transition-opacity duration-300 group-hover:opacity-[0.065]"
                     style={{
                       backgroundImage:
                         "linear-gradient(rgba(255,255,255,.35) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.35) 1px, transparent 1px)",
@@ -770,7 +770,7 @@ export default function CasinoClient({
 
                   {/* Large decorative symbol */}
                   <div
-                    className="pointer-events-none absolute -bottom-7 right-3 select-none text-[100px] font-black leading-none opacity-[0.012] transition-all duration-500 group-hover:-translate-y-1 group-hover:scale-[1.03] group-hover:opacity-[0.028]"
+                    className="pointer-events-none absolute -bottom-7 right-3 select-none text-[100px] font-black leading-none opacity-[0.025] transition-all duration-500 group-hover:-translate-y-2 group-hover:scale-105 group-hover:opacity-[0.055]"
                     style={{
                       color: game.accent,
                     }}
@@ -872,7 +872,7 @@ export default function CasinoClient({
 
                   {/* Bottom accent */}
                   <div
-                    className="pointer-events-none absolute bottom-0 left-[12%] h-px w-0 opacity-0 transition-all duration-500 group-hover:w-[76%] group-hover:opacity-30"
+                    className="pointer-events-none absolute bottom-0 left-[12%] h-px w-0 opacity-0 transition-all duration-500 group-hover:w-[76%] group-hover:opacity-70"
                     style={{
                       background: `linear-gradient(90deg, transparent, ${game.accent}, transparent)`,
                     }}

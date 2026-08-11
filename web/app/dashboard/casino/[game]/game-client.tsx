@@ -545,7 +545,7 @@ export default function GameClient({
        * Keep wallet + result panel + win/loss sound hidden while
        * the object performs its final landing/bounce.
        */
-      await wait(timing.settle);
+      await wait(Math.min(timing.settle, 120));
 
       setResult(next);
 
@@ -555,7 +555,7 @@ export default function GameClient({
         setBalance(next.balance);
       }
 
-      router.refresh();
+      
     });
   }
 
