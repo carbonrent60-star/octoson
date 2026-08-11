@@ -548,3 +548,52 @@ main .flex > * {
     animation: none !important;
   }
 }
+
+/* ==========================================================
+   OCTOSON MOBILE NAV — HIT TESTING + FLOATING PLAY BUTTON
+   ========================================================== */
+
+/*
+ * .octo-mobile-fixed is GPU-isolated elsewhere for Safari
+ * performance. That optimization must NOT paint-contain the
+ * bottom navigation because OYNA intentionally extends outside
+ * the navbar's physical box.
+ */
+.octo-mobile-nav-root {
+  contain: none !important;
+  overflow: visible !important;
+  pointer-events: auto !important;
+  isolation: isolate;
+}
+
+/*
+ * Keep the actual navigation interactive even when Safari
+ * creates separate compositing layers for nearby page cards.
+ */
+.octo-mobile-nav-root a,
+.octo-mobile-nav-root button {
+  pointer-events: auto;
+  touch-action: manipulation;
+}
+
+/*
+ * Do not allow decorative layers in the nav to participate
+ * in mobile hit testing.
+ */
+.octo-mobile-nav-root .octo-mobile-heavy-decoration {
+  pointer-events: none !important;
+}
+
+@supports (-webkit-touch-callout: none) {
+  .octo-mobile-nav-root {
+    contain: none !important;
+    overflow: visible !important;
+
+    /*
+     * Do not force a clipped paint layer on this component.
+     * It needs to render and receive taps outside the 70px bar.
+     */
+    -webkit-transform: none !important;
+    transform: none !important;
+  }
+}

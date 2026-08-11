@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import {
   Banknote,
@@ -107,6 +107,7 @@ const quickGames = [
 
 export default function MobileNav({ onMore }: MobileNavProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const [playOpen, setPlayOpen] = useState(false);
   const [optimisticPath, setOptimisticPath] = useState(pathname);
 
@@ -114,17 +115,6 @@ export default function MobileNav({ onMore }: MobileNavProps) {
     setOptimisticPath(pathname);
     setPlayOpen(false);
   }, [pathname]);
-
-  function beginNavigation(href: string) {
-    setOptimisticPath(href);
-
-    /*
-     * Remove the launcher immediately instead of waiting for
-     * AnimatePresence's exit animation or the server response.
-     * This makes the destination clickable immediately.
-     */
-    setPlayOpen(false);
-  }
 
   useEffect(() => {
     if (!playOpen) return;
@@ -162,39 +152,155 @@ export default function MobileNav({ onMore }: MobileNavProps) {
         ? optimisticPath === "/dashboard"
         : optimisticPath.startsWith(item.href);
 
-    return (
-      <Link
-        href={item.href}
-        data-no-hover-sound="true"
-        onPointerDown={() => setOptimisticPath(item.href)}
-        onClick={() => beginNavigation(item.href)}
-        className="relative flex h-[58px] min-w-0 flex-1 touch-manipulation flex-col items-center justify-center gap-1 rounded-[17px]"
-      >
-        {active && (
-          <div className="absolute inset-1 rounded-[15px] border border-cyan-100/[0.09] bg-cyan-100/[0.06]" />
-        )}
+    const navigate = () => {
+      if (item.href === pathname) {
+        setOptimisticPath(item.href);
+        return;
+      }
 
-        <motion.div whileTap={{ scale: 0.84 }} className="relative z-10">
+      setOptimisticPath(item.href);
+      setPlayOpen(false);
+      router.push(item.href);
+    };
+
+    return (
+      <motion.button
+        type="button"
+        aria-label={item.label}
+        aria-current={active ? "page" : undefined}
+        data-no-hover-sound="true"
+        onPointerUp={(event) => {
+          if (event.pointerType === "mouse" && event.button !== 0) return;
+          navigate();
+        }}
+        whileTap={{
+          scale: 0.91,
+        }}
+        animate={{
+          scale: active ? 1 : 0.985,
+        }}
+        transition={{
+          type: "spring",
+          stiffness: 500,
+          damping: 32,
+          mass: 0.55,
+        }}
+        className="relative flex h-[58px] min-w-0 flex-1 touch-manipulation select-none flex-col items-center justify-center gap-1 overflow-visible rounded-[17px] border-0 bg-transparent p-0 outline-none [-webkit-tap-highlight-color:transparent]"
+      >
+        <AnimatePresence initial={false}>
+          {active && (
+            <motion.div
+              layoutId="octoson-mobile-tab"
+              initial={{
+                opacity: 0,
+                scale: 0.86,
+              }}
+              animate={{
+                opacity: 1,
+                scale: 1,
+              }}
+              exit={{
+                opacity: 0,
+                scale: 0.92,
+              }}
+              transition={{
+                layout: {
+                  type: "spring",
+                  stiffness: 360,
+                  damping: 28,
+                  mass: 0.7,
+                },
+                opacity: {
+                  duration: 0.16,
+                },
+                scale: {
+                  type: "spring",
+                  stiffness: 420,
+                  damping: 28,
+                },
+              }}
+              className="pointer-events-none absolute inset-1 rounded-[15px] border border-cyan-100/[0.13] bg-[linear-gradient(180deg,rgba(207,250,254,.10),rgba(103,232,249,.055))] shadow-[inset_0_1px_0_rgba(255,255,255,.045),0_5px_18px_rgba(0,0,0,.12)]"
+            />
+          )}
+        </AnimatePresence>
+
+        <motion.div
+          className="pointer-events-none relative z-10"
+          animate={{
+            y: active ? -2 : 0,
+            scale: active ? 1.1 : 1,
+          }}
+          transition={{
+            type: "spring",
+            stiffness: 440,
+            damping: 26,
+            mass: 0.55,
+          }}
+        >
           <Icon
-            strokeWidth={active ? 2.1 : 1.8}
-            className={`h-[19px] w-[19px] transition-colors ${
-              active ? "text-cyan-100" : "text-white/35"
+            strokeWidth={active ? 2.15 : 1.8}
+            className={`h-[19px] w-[19px] transition-colors duration-300 ${
+              active
+                ? "text-cyan-100 drop-shadow-[0_0_7px_rgba(165,243,252,.28)]"
+                : "text-white/35"
             }`}
           />
         </motion.div>
 
-        <span
-          className={`relative z-10 max-w-full truncate px-0.5 text-[8px] font-medium tracking-[-0.01em] transition-colors ${
-            active ? "text-cyan-50/85" : "text-white/28"
+        <motion.span
+          className={`pointer-events-none relative z-10 max-w-full truncate px-0.5 text-[8px] font-medium tracking-[-0.01em] transition-colors duration-300 ${
+            active ? "text-cyan-50/90" : "text-white/30"
           }`}
+          animate={{
+            y: active ? -1 : 0,
+            opacity: active ? 1 : 0.72,
+          }}
+          transition={{
+            type: "spring",
+            stiffness: 400,
+            damping: 30,
+          }}
         >
           {item.label}
-        </span>
+        </motion.span>
 
-        {active && (
-          <span className="absolute bottom-[3px] h-[2px] w-[12px] rounded-full bg-cyan-100/80 shadow-[0_0_9px_rgba(165,243,252,.55)]" />
-        )}
-      </Link>
+        <AnimatePresence initial={false}>
+          {active && (
+            <motion.span
+              layoutId="octoson-mobile-dot"
+              initial={{
+                opacity: 0,
+                scaleX: 0.25,
+              }}
+              animate={{
+                opacity: 1,
+                scaleX: 1,
+              }}
+              exit={{
+                opacity: 0,
+                scaleX: 0.25,
+              }}
+              transition={{
+                layout: {
+                  type: "spring",
+                  stiffness: 360,
+                  damping: 27,
+                  mass: 0.65,
+                },
+                opacity: {
+                  duration: 0.15,
+                },
+                scaleX: {
+                  type: "spring",
+                  stiffness: 440,
+                  damping: 28,
+                },
+              }}
+              className="pointer-events-none absolute bottom-[3px] h-[2px] w-[14px] origin-center rounded-full bg-cyan-100/90 shadow-[0_0_10px_rgba(165,243,252,.68)]"
+            />
+          )}
+        </AnimatePresence>
+      </motion.button>
     );
   }
 
@@ -283,9 +389,10 @@ export default function MobileNav({ onMore }: MobileNavProps) {
                     <div className="mt-5 grid grid-cols-2 gap-2.5">
                       <Link
                         href="/dashboard/casino"
-                        onPointerDown={() =>
-                          beginNavigation("/dashboard/casino")
-                        }
+                        onClick={(event) => {
+                          event.preventDefault();
+                          window.location.assign("/dashboard/casino");
+                        }}
                         className="group relative col-span-1 touch-manipulation overflow-hidden rounded-[20px] border border-cyan-100/[0.1] bg-cyan-100/[0.045] p-4"
                       >
                         <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-cyan-200/[0.08] blur-3xl" />
@@ -312,9 +419,10 @@ export default function MobileNav({ onMore }: MobileNavProps) {
 
                       <Link
                         href="/dashboard/games"
-                        onPointerDown={() =>
-                          beginNavigation("/dashboard/games")
-                        }
+                        onClick={(event) => {
+                          event.preventDefault();
+                          window.location.assign("/dashboard/games");
+                        }}
                         className="group relative col-span-1 touch-manipulation overflow-hidden rounded-[20px] border border-violet-200/[0.09] bg-violet-200/[0.035] p-4"
                       >
                         <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-violet-300/[0.07] blur-3xl" />
@@ -353,9 +461,10 @@ export default function MobileNav({ onMore }: MobileNavProps) {
 
                       <Link
                         href="/dashboard/casino"
-                        onPointerDown={() =>
-                          beginNavigation("/dashboard/casino")
-                        }
+                        onClick={(event) => {
+                          event.preventDefault();
+                          window.location.assign("/dashboard/casino");
+                        }}
                         className="flex touch-manipulation items-center gap-1 text-[9px] font-medium text-white/30"
                       >
                         Hamısı
@@ -386,7 +495,10 @@ export default function MobileNav({ onMore }: MobileNavProps) {
                           >
                             <Link
                               href={game.href}
-                              onPointerDown={() => beginNavigation(game.href)}
+                              onClick={(event) => {
+                                event.preventDefault();
+                                window.location.assign(game.href);
+                              }}
                               className="group relative flex min-h-[76px] touch-manipulation items-center gap-3 overflow-hidden rounded-[17px] border border-white/[0.065] bg-white/[0.025] p-3 transition active:scale-[0.98]"
                             >
                               <div
@@ -444,11 +556,11 @@ export default function MobileNav({ onMore }: MobileNavProps) {
         )}
       </AnimatePresence>
 
-      <div className="octo-mobile-fixed fixed inset-x-0 bottom-0 z-[60] px-2.5 pb-[max(8px,env(safe-area-inset-bottom))] lg:hidden">
-        <div className="relative mx-auto max-w-[540px]">
+      <div className="octo-mobile-fixed octo-mobile-nav-root fixed inset-x-0 bottom-0 z-[60] overflow-visible px-2.5 pb-[max(8px,env(safe-area-inset-bottom))] lg:hidden">
+        <div className="relative mx-auto max-w-[540px] overflow-visible">
           <div className="octo-mobile-heavy-decoration pointer-events-none absolute left-1/2 top-[-26px] h-16 w-28 -translate-x-1/2 rounded-full bg-cyan-300/[0.075] blur-2xl" />
 
-          <div className="relative flex h-[70px] items-center rounded-[23px] border border-white/[0.09] bg-[#0a0a0d]/[0.98] px-1.5 shadow-[0_-10px_35px_rgba(0,0,0,.38),0_16px_42px_rgba(0,0,0,.52)]">
+          <div className="relative z-10 flex h-[70px] items-center overflow-visible rounded-[23px] border border-white/[0.09] bg-[#0a0a0d]/[0.98] px-1.5 shadow-[0_-10px_35px_rgba(0,0,0,.38),0_16px_42px_rgba(0,0,0,.52)]">
             <div className="flex min-w-0 flex-1 items-center">
               {leftItems.map((item) => (
                 <NavItem key={item.href} item={item} />
@@ -461,8 +573,11 @@ export default function MobileNav({ onMore }: MobileNavProps) {
                 aria-label="Oyna"
                 aria-expanded={playOpen}
                 onClick={() => setPlayOpen((current) => !current)}
-                whileTap={{ scale: 0.91 }}
-                className="absolute left-1/2 top-[-31px] z-20 flex -translate-x-1/2 touch-manipulation flex-col items-center"
+                whileTap={{
+                  scale: 0.9,
+                  y: 2,
+                }}
+                className="pointer-events-auto absolute left-1/2 top-[-10px] z-[70] flex -translate-x-1/2 touch-manipulation select-none flex-col items-center outline-none [-webkit-tap-highlight-color:transparent]"
               >
                 <motion.span
                   animate={
@@ -481,26 +596,26 @@ export default function MobileNav({ onMore }: MobileNavProps) {
                     stiffness: 420,
                     damping: 26,
                   }}
-                  className="relative flex h-[64px] w-[64px] items-center justify-center rounded-[21px] border border-cyan-100/30 bg-[linear-gradient(145deg,rgba(207,250,254,.98),rgba(103,232,249,.82))] shadow-[0_0_0_4px_rgba(103,232,249,.04),0_0_22px_rgba(103,232,249,.18),0_10px_24px_rgba(0,0,0,.48)]"
+                  className="relative flex h-[56px] w-[56px] items-center justify-center rounded-[18px] border border-cyan-100/30 bg-[linear-gradient(145deg,rgba(207,250,254,.98),rgba(103,232,249,.82))] shadow-[0_0_0_3px_rgba(103,232,249,.04),0_0_18px_rgba(103,232,249,.16),0_7px_18px_rgba(0,0,0,.42)]"
                 >
-                  <span className="absolute inset-[1px] rounded-[20px] border border-white/40" />
+                  <span className="absolute inset-[1px] rounded-[17px] border border-white/40" />
 
-                  <span className="pointer-events-none absolute inset-0 rounded-[21px] shadow-[0_0_22px_rgba(103,232,249,.16)]" />
+                  <span className="pointer-events-none absolute inset-0 rounded-[18px] shadow-[0_0_18px_rgba(103,232,249,.15)]" />
 
                   {playOpen ? (
                     <X
-                      className="relative h-[22px] w-[22px] text-[#071013]"
+                      className="relative h-[20px] w-[20px] text-[#071013]"
                       strokeWidth={2.5}
                     />
                   ) : (
                     <Play
-                      className="relative ml-0.5 h-[22px] w-[22px] fill-[#071013] text-[#071013]"
+                      className="relative ml-0.5 h-[20px] w-[20px] fill-[#071013] text-[#071013]"
                       strokeWidth={2.2}
                     />
                   )}
                 </motion.span>
 
-                <span className="mt-1 text-[8px] font-bold uppercase tracking-[0.13em] text-cyan-50/85">
+                <span className="mt-0.5 text-[7px] font-bold uppercase tracking-[0.13em] text-cyan-50/85">
                   Oyna
                 </span>
               </motion.button>
