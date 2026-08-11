@@ -50,6 +50,9 @@ export default function MinesClient({
 
   const [bet, setBet] = useState("100");
 
+  const [mineCount, setMineCount] =
+    useState(3);
+
   const [session, setSession] =
     useState<WebMinesSession | null>(null);
 
@@ -95,7 +98,10 @@ export default function MinesClient({
     audio.play("bet");
 
     startTransition(async () => {
-      const result = await startMinesAction(amount);
+      const result = await startMinesAction(
+        amount,
+        mineCount
+      );
 
       setMessage(result.message);
 
@@ -253,7 +259,7 @@ export default function MinesClient({
       </div>
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
-        <section className="relative overflow-hidden rounded-[26px] border border-white/[0.09] bg-[#0b0c10] p-5 sm:p-7">
+        <section className="relative overflow-hidden rounded-[22px] border border-white/[0.09] bg-[#0b0c10] p-3 min-[390px]:p-4 sm:rounded-[26px] sm:p-7">
           <div className="pointer-events-none absolute left-1/2 top-[-160px] h-[350px] w-[520px] -translate-x-1/2 rounded-full bg-cyan-200/[0.06] blur-[100px]" />
 
           <div className="relative mb-6 flex items-end justify-between gap-4">
@@ -265,14 +271,14 @@ export default function MinesClient({
               <div className="mt-2 flex items-center gap-3">
                 <span className="flex items-center gap-1.5 text-[10px] text-red-100/55">
                   <Bomb className="h-3.5 w-3.5" />
-                  3 mina
+                  {session?.mineCount ?? mineCount} mina
                 </span>
 
                 <span className="h-3 w-px bg-white/10" />
 
                 <span className="flex items-center gap-1.5 text-[10px] text-cyan-50/55">
                   <Gem className="h-3.5 w-3.5" />
-                  6 təhlükəsiz
+                  {session?.safeCount ?? 25 - mineCount} təhlükəsiz
                 </span>
               </div>
             </div>
@@ -296,8 +302,8 @@ export default function MinesClient({
             </div>
           </div>
 
-          <div className="relative grid grid-cols-3 gap-3 sm:gap-4">
-            {Array.from({ length: 9 }).map(
+          <div className="relative grid grid-cols-5 gap-1.5 min-[390px]:gap-2 sm:gap-3 lg:gap-4">
+            {Array.from({ length: 25 }).map(
               (_, tile) => {
                 const revealed =
                   session?.revealed.includes(tile);
@@ -354,7 +360,7 @@ export default function MinesClient({
                       Boolean(revealed)
                     }
                     onClick={() => reveal(tile)}
-                    className={`relative flex aspect-square min-h-[90px] items-center justify-center overflow-hidden rounded-[20px] border transition-colors sm:min-h-[120px] ${
+                    className={`relative flex aspect-square min-w-0 items-center justify-center overflow-hidden rounded-[12px] border transition-colors min-[390px]:rounded-[14px] sm:rounded-[18px] lg:rounded-[20px] ${
                       showMine
                         ? "border-red-300/25 bg-red-300/[0.075] shadow-[inset_0_0_35px_rgba(248,113,113,0.05)]"
                         : safe
@@ -390,7 +396,7 @@ export default function MinesClient({
                           className="relative"
                         >
                           <div className="absolute inset-0 scale-[2.2] rounded-full bg-red-300/10 blur-xl" />
-                          <Bomb className="relative h-9 w-9 text-red-100/85 sm:h-11 sm:w-11" />
+                          <Bomb className="relative h-6 w-6 text-red-100/85 sm:h-8 sm:w-8" />
                         </motion.div>
                       ) : safe ? (
                         <motion.div
@@ -424,7 +430,7 @@ export default function MinesClient({
                             className="absolute inset-0 rounded-full bg-cyan-100/15 blur-xl"
                           />
 
-                          <Gem className="relative h-9 w-9 text-cyan-50/90 sm:h-11 sm:w-11" />
+                          <Gem className="relative h-6 w-6 text-cyan-50/90 sm:h-8 sm:w-8" />
                         </motion.div>
                       ) : (
                         <motion.div
@@ -449,7 +455,11 @@ export default function MinesClient({
 
             <span className="text-[11px] font-semibold text-white/65">
               {revealedCount}
-              <span className="text-white/25"> / 6</span>
+              <span className="text-white/25">
+                {" / "}
+                {session?.safeCount ??
+                  25 - mineCount}
+              </span>
             </span>
           </div>
         </section>
@@ -465,6 +475,98 @@ export default function MinesClient({
                 <span className="text-[8px] text-white/25">
                   Balans {formatAura(balance)}
                 </span>
+              </div>
+
+              <div className="mt-4">
+                <div className="flex items-center justify-between">
+                  <label className="text-[9px] font-semibold uppercase tracking-[0.14em] text-white/35">
+                    Mina sayı
+                  </label>
+
+                  <div className="flex items-center gap-1.5">
+                    <Bomb className="h-3 w-3 text-red-100/50" />
+                    <span className="text-[10px] font-semibold text-white/70">
+                      {mineCount}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="mt-2.5 rounded-[16px] border border-white/[0.08] bg-white/[0.025] p-3">
+                  <div className="grid grid-cols-[42px_minmax(0,1fr)_42px] items-center gap-2">
+                    <button
+                      type="button"
+                      disabled={pending || mineCount <= 1}
+                      onClick={() => {
+                        setMineCount((current) =>
+                          Math.max(1, current - 1)
+                        );
+                        audio.play("click");
+                      }}
+                      className="flex h-10 items-center justify-center rounded-[11px] border border-white/[0.08] bg-white/[0.035] text-[18px] font-medium text-white/55 transition hover:border-cyan-100/20 hover:bg-cyan-100/[0.05] hover:text-white disabled:cursor-not-allowed disabled:opacity-20"
+                      aria-label="Mina sayını azalt"
+                    >
+                      −
+                    </button>
+
+                    <div className="flex h-10 min-w-0 items-center justify-center rounded-[11px] border border-cyan-100/[0.12] bg-cyan-100/[0.04] px-2">
+                      <div className="text-center">
+                        <span className="text-[18px] font-semibold tracking-[-0.04em] text-cyan-50">
+                          {mineCount}
+                        </span>
+                        <span className="ml-1.5 text-[8px] font-medium uppercase tracking-[0.1em] text-white/28">
+                          mina
+                        </span>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      disabled={pending || mineCount >= 12}
+                      onClick={() => {
+                        setMineCount((current) =>
+                          Math.min(12, current + 1)
+                        );
+                        audio.play("click");
+                      }}
+                      className="flex h-10 items-center justify-center rounded-[11px] border border-white/[0.08] bg-white/[0.035] text-[18px] font-medium text-white/55 transition hover:border-cyan-100/20 hover:bg-cyan-100/[0.05] hover:text-white disabled:cursor-not-allowed disabled:opacity-20"
+                      aria-label="Mina sayını artır"
+                    >
+                      +
+                    </button>
+                  </div>
+
+                  <div className="mt-3">
+                    <input
+                      type="range"
+                      min={1}
+                      max={12}
+                      step={1}
+                      value={mineCount}
+                      disabled={pending}
+                      onChange={(event) =>
+                        setMineCount(
+                          Number(event.target.value)
+                        )
+                      }
+                      className="h-1.5 w-full cursor-pointer accent-cyan-100 disabled:cursor-not-allowed disabled:opacity-40"
+                      aria-label="Mina sayı"
+                    />
+
+                    <div className="mt-2 flex items-center justify-between">
+                      <span className="text-[8px] text-white/25">
+                        Az risk
+                      </span>
+
+                      <span className="text-[8px] text-white/32">
+                        {25 - mineCount} təhlükəsiz xana
+                      </span>
+
+                      <span className="text-[8px] text-white/25">
+                        Yüksək risk
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div className="mt-3 flex items-center rounded-[14px] border border-white/[0.09] bg-black/30 px-4">
@@ -587,10 +689,15 @@ export default function MinesClient({
                 </span>
               </div>
 
-              <div className="mt-4 grid grid-cols-2 gap-2">
+              <div className="mt-4 grid grid-cols-3 gap-2">
                 <Stat
                   label="Mərc"
                   value={`${formatAura(session.bet)} Aura`}
+                />
+
+                <Stat
+                  label="Mina"
+                  value={`${session.mineCount}`}
                 />
 
                 <Stat
@@ -672,7 +779,8 @@ export default function MinesClient({
           </AnimatePresence>
 
           <p className="mt-5 border-t border-white/[0.06] pt-4 text-[9px] leading-5 text-white/25">
-            Hər təhlükəsiz xana çarpanı artırır. Mina açılarsa
+            Mina sayı artdıqca risk və potensial çarpan yüksəlir.
+            Təhlükəsiz xana açdıqca payout artır. Mina açılarsa
             raund bitir və mərc itirilir.
           </p>
         </section>

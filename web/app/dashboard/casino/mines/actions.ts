@@ -14,6 +14,8 @@ export type WebMinesSession = {
   usedTicket: boolean;
   revealed: number[];
   mines?: number[];
+  mineCount: number;
+  safeCount: number;
   multiplier: number;
   status: "active" | "won" | "lost" | "cancelled";
   balance?: number;
@@ -119,36 +121,95 @@ function validBet(value: unknown) {
   return amount;
 }
 
+const MINES_BOARD_SIZE = 25;
+const MIN_MINES = 1;
+const MAX_MINES = 12;
+const MINES_HOUSE_EDGE = 0.97;
+
 function numberArray(value: unknown): number[] {
   if (!Array.isArray(value)) {
     return [];
   }
 
-  return value
-    .map(Number)
-    .filter(
-      (item) =>
-        Number.isInteger(item) &&
-        item >= 0 &&
-        item <= 8
-    );
+  return [...new Set(
+    value
+      .map(Number)
+      .filter(
+        (item) =>
+          Number.isInteger(item) &&
+          item >= 0 &&
+          item < MINES_BOARD_SIZE
+      )
+  )].sort((a, b) => a - b);
 }
 
-function createMines(): number[] {
+function validMineCount(value: unknown) {
+  const count = Number(value);
+
+  if (
+    !Number.isInteger(count) ||
+    count < MIN_MINES ||
+    count > MAX_MINES
+  ) {
+    return 0;
+  }
+
+  return count;
+}
+
+function createMines(mineCount: number): number[] {
   const positions = new Set<number>();
 
-  // Same 3x3 concept as the Discord game.
-  // Three hidden mines gives the game enough actual risk.
-  while (positions.size < 3) {
-    positions.add(randomInt(0, 9));
+  while (positions.size < mineCount) {
+    positions.add(randomInt(0, MINES_BOARD_SIZE));
   }
 
   return [...positions].sort((a, b) => a - b);
 }
 
-function multiplierFor(revealedCount: number) {
+function multiplierFor(
+  revealedCount: number,
+  mineCount: number
+) {
+  if (revealedCount <= 0) {
+    return 1;
+  }
+
+  const safeCount =
+    MINES_BOARD_SIZE - mineCount;
+
+  if (
+    mineCount < MIN_MINES ||
+    mineCount > MAX_MINES ||
+    revealedCount > safeCount
+  ) {
+    return 1;
+  }
+
+  /*
+   * Probability of successfully revealing
+   * revealedCount safe tiles without hitting a mine.
+   */
+  let probability = 1;
+
+  for (
+    let index = 0;
+    index < revealedCount;
+    index += 1
+  ) {
+    probability *=
+      (safeCount - index) /
+      (MINES_BOARD_SIZE - index);
+  }
+
+  /*
+   * 97% RTP / 3% house edge.
+   */
   return Number(
-    (1 + Math.max(0, revealedCount) * 0.34).toFixed(2)
+    Math.max(
+      1,
+      MINES_HOUSE_EDGE / probability
+    ).toFixed(2)
   );
 }
 
@@ -156,17 +217,25 @@ function publicSession(
   row: MinesRow,
   revealMines = false
 ): WebMinesSession {
+  const mines = numberArray(row.mines);
+  const mineCount = mines.length;
+
   return {
     id: row.id,
     bet: Number(row.bet),
     cost: Number(row.cost),
-    ticketCover: Number(row.ticket_cover ?? 0),
+    ticketCover: Number(
+      row.ticket_cover ?? 0
+    ),
     usedTicket: Boolean(row.used_ticket),
     revealed: numberArray(row.revealed),
-    ...(revealMines
-      ? { mines: numberArray(row.mines) }
-      : {}),
-    multiplier: Number(row.multiplier ?? 1),
+    mineCount,
+    safeCount:
+      MINES_BOARD_SIZE - mineCount,
+    ...(revealMines ? { mines } : {}),
+    multiplier: Number(
+      row.multiplier ?? 1
+    ),
     status: row.status,
   };
 }
@@ -244,7 +313,8 @@ export async function getActiveMinesAction(): Promise<MinesResult> {
 }
 
 export async function startMinesAction(
-  rawBet: number
+  rawBet: number,
+  rawMineCount: number = 3
 ): Promise<MinesResult> {
   const userId = await currentUserId();
 
@@ -256,11 +326,21 @@ export async function startMinesAction(
   }
 
   const bet = validBet(rawBet);
+  const mineCount =
+    validMineCount(rawMineCount);
 
   if (!bet) {
     return {
       ok: false,
       message: "Düzgün mərc məbləği daxil et.",
+    };
+  }
+
+  if (!mineCount) {
+    return {
+      ok: false,
+      message:
+        "Mina sayı 1 ilə 12 arasında olmalıdır.",
     };
   }
 
@@ -323,7 +403,7 @@ export async function startMinesAction(
           cost: entry.cost,
           ticket_cover: entry.ticketCover,
           used_ticket: entry.usedTicket,
-          mines: createMines(),
+          mines: createMines(mineCount),
           revealed: [],
           multiplier: 1,
           status: "active",
@@ -388,7 +468,7 @@ export async function revealMinesTileAction(
   if (
     !Number.isInteger(tile) ||
     tile < 0 ||
-    tile > 8
+    tile >= MINES_BOARD_SIZE
   ) {
     return {
       ok: false,
@@ -510,15 +590,20 @@ void sendOctosonCasinoActivity({
       (a, b) => a - b
     );
 
+    const mineCount = mines.length;
+    const safeCount =
+      MINES_BOARD_SIZE - mineCount;
+
     const nextMultiplier = multiplierFor(
-      nextRevealed.length
+      nextRevealed.length,
+      mineCount
     );
 
     /*
-     * 3 mines = 6 safe tiles.
-     * If all six are found, automatically cash out.
+     * Automatically cash out after every
+     * safe tile has been revealed.
      */
-    if (nextRevealed.length >= 6) {
+    if (nextRevealed.length >= safeCount) {
       const economy = await getEconomyModule();
 
       const payout = Math.floor(
