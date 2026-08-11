@@ -2893,41 +2893,37 @@ function resetShopChestLimit(user, today = currentDayKey(), count = 0) {
 
 function casinoRestrictionForBet(user, bet) {
   /*
-   * Legacy profile-level admin restriction only.
+   * Legacy profile-level casino restriction.
    *
-   * IMPORTANT:
-   * Do NOT apply the old balance/bank/level based dynamic casino cap here.
-   *
-   * Casino limits are now controlled by:
-   *   1. global casino enabled/disabled
-   *   2. user_restrictions: casino / all_economy
-   *   3. user_restrictions: casino_max_bet
-   *   4. globalCasinoMaxBet (> 0 only)
-   *   5. actual wallet balance
-   *
-   * Therefore globalCasinoMaxBet === 0 really means unlimited.
+   * null / undefined / empty / 0 / negative = UNLIMITED.
+   * Only a positive numeric value is an actual max-bet restriction.
    */
-  const adminMaxBet = user.moderation?.casinoMaxBet;
+  const rawAdminMaxBet = user.moderation?.casinoMaxBet;
 
   if (
-    Number.isFinite(Number(adminMaxBet)) &&
-    Number(adminMaxBet) >= 0
+    rawAdminMaxBet === null ||
+    rawAdminMaxBet === undefined ||
+    rawAdminMaxBet === ''
   ) {
-    const maxBet = Number(adminMaxBet);
-
-    if (bet <= maxBet) {
-      return null;
-    }
-
-    return {
-      maxBet,
-      reason: user.moderation?.casinoReason ?? 'admin review',
-      restrictedAt: user.moderation?.casinoRestrictedAt ?? null,
-      restrictedBy: user.moderation?.casinoRestrictedBy ?? null
-    };
+    return null;
   }
 
-  return null;
+  const maxBet = Number(rawAdminMaxBet);
+
+  if (!Number.isFinite(maxBet) || maxBet <= 0) {
+    return null;
+  }
+
+  if (bet <= maxBet) {
+    return null;
+  }
+
+  return {
+    maxBet,
+    reason: user.moderation?.casinoReason ?? 'admin review',
+    restrictedAt: user.moderation?.casinoRestrictedAt ?? null,
+    restrictedBy: user.moderation?.casinoRestrictedBy ?? null
+  };
 }
 
 function safeModeAmount(store, amount) {
