@@ -1,9 +1,17 @@
+import { createPageMetadata } from "@/lib/metadata";
 import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
 import { getOctosonUser } from "@/lib/octoson";
 
 import CasinoClient from "./casino-client";
+
+
+export const metadata = createPageMetadata({
+  title: 'Casino',
+  description: 'Octoson Aura casino oyunlarını kəşf et.',
+  path: '/dashboard/casino',
+});
 
 export default async function CasinoPage() {
   const session = await auth();

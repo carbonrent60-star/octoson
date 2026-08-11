@@ -1,3 +1,4 @@
+import { createPageMetadata } from "@/lib/metadata";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import {
@@ -45,6 +46,13 @@ function catalog(
         : undefined,
   }));
 }
+
+
+export const metadata = createPageMetadata({
+  title: 'World',
+  description: 'Octoson World-də biznes, əmlak və progression imkanlarını kəşf et.',
+  path: '/dashboard/world',
+});
 
 export default async function WorldPage() {
   const session = await auth();

@@ -271,3 +271,87 @@ button:disabled {
     inset 0 1px 0 rgba(255, 255, 255, 0.025),
     0 22px 70px rgba(0, 0, 0, 0.16);
 }
+
+
+/* ==========================================================
+   OCTOSON — SAFARI / WEBKIT COMPATIBILITY
+   Keep Chrome design unchanged.
+   ========================================================== */
+
+/*
+ * Prevent Safari from automatically enlarging/reflowing text.
+ * This is especially important with large responsive hero typography.
+ */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/*
+ * Safari can calculate intrinsic widths differently inside Grid/Flex.
+ * Allow children to actually shrink to their grid tracks.
+ */
+main,
+main section,
+main header,
+main nav {
+  min-width: 0;
+}
+
+main .grid > *,
+main .flex > * {
+  min-width: 0;
+}
+
+/*
+ * More predictable rendering for transformed / animated surfaces.
+ */
+@supports (-webkit-touch-callout: none) {
+  .octo-shimmer,
+  .octo-float,
+  .octo-pulse-ring {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+
+  .octo-shimmer::after {
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+
+  /*
+   * Safari occasionally paints large blurred fixed layers outside
+   * their expected compositing layer.
+   */
+  main > .pointer-events-none.fixed {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    contain: paint;
+  }
+
+  /*
+   * Improve backdrop-filter consistency.
+   */
+  [class*="backdrop-blur"] {
+    -webkit-backdrop-filter: blur(24px);
+  }
+}
+
+/*
+ * Keep wide desktop layouts predictable.
+ */
+@media (min-width: 1024px) {
+  main section,
+  main header {
+    width: 100%;
+  }
+}
+
+/*
+ * Safari/iOS viewport fallback.
+ */
+@supports (height: 100svh) {
+  main.min-h-screen {
+    min-height: 100svh;
+  }
+}

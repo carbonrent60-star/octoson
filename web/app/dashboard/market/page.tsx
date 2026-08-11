@@ -1,3 +1,4 @@
+import { createPageMetadata } from "@/lib/metadata";
 import { redirect } from "next/navigation";
 import {
   ShoppingBag,
@@ -34,6 +35,13 @@ async function getShopItems() {
     })
   ) satisfies MarketItem[];
 }
+
+
+export const metadata = createPageMetadata({
+  title: 'Market',
+  description: 'Aura ilə Octoson market əşyalarını kəşf et və al.',
+  path: '/dashboard/market',
+});
 
 export default async function MarketPage() {
   const session = await auth();

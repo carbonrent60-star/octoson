@@ -1,3 +1,4 @@
+import { createPageMetadata } from "@/lib/metadata";
 import { redirect } from "next/navigation";
 import {
   Activity,
@@ -165,6 +166,13 @@ function transactionIcon(type: string) {
 
   return Activity;
 }
+
+
+export const metadata = createPageMetadata({
+  title: 'Profil',
+  description: 'Octoson profilinə, Aura statistikana, səviyyənə və progression məlumatlarına bax.',
+  path: '/dashboard/profile',
+});
 
 export default async function ProfilePage() {
   const session = await auth();

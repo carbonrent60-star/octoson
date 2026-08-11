@@ -1,3 +1,4 @@
+import { createPageMetadata } from "@/lib/metadata";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 
@@ -6,6 +7,13 @@ import SpecialGameClient from "../special-game-client";
 async function getEconomyModule() {
   return import("../../../../../src/economy.js");
 }
+
+
+export const metadata = createPageMetadata({
+  title: 'Slots',
+  description: 'Octoson Slots-da şansını sına və Aura mükafatları qazan.',
+  path: '/dashboard/casino/slots',
+});
 
 export default async function Page() {
   const session = await auth();

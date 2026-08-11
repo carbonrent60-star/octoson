@@ -1178,33 +1178,111 @@ export async function checkRestriction(userId, action) {
 export async function prepareCasinoEntry(userId, bet, game, { reserve = false } = {}) {
   return withStoreMutationLock(async () => {
     const { store, user } = await getStoreUser(userId);
-    const casinoBlock = (await checkRestriction(userId, 'casino'));
+
+    /*
+     * Casino hot path:
+     * We already have the current user/store here, so do NOT call
+     * checkRestriction() again. That function performs another store
+     * read/write and makes web casino actions unnecessarily slow.
+     */
+    pruneExpiredRestrictions(user);
+
+    const now = Date.now();
+    const restrictions = user.moderation?.restrictions || [];
+
+    const findRestriction = action =>
+      restrictions.find(r => {
+        if (r.expiresAt && r.expiresAt <= now) return false;
+
+        return (
+          r.type === action ||
+          r.type === 'all_economy'
+        );
+      }) || null;
+
+    const casinoBlock = findRestriction('casino');
+
     if (casinoBlock) {
-      return { ok: false, reason: 'casino_restricted', restriction: casinoBlock, cost: 0, ticketCover: 0, usedTicket: false, profile: structuredClone(user) };
+      return {
+        ok: false,
+        reason: 'casino_restricted',
+        restriction: casinoBlock,
+        cost: 0,
+        ticketCover: 0,
+        usedTicket: false,
+        profile: structuredClone(user)
+      };
     }
-    const casinoMaxR = await checkRestriction(userId, 'casino_max_bet');
-    if (casinoMaxR && casinoMaxR.meta && Number.isFinite(Number(casinoMaxR.meta.maxBet))) {
+
+    const casinoMaxR = findRestriction('casino_max_bet');
+
+    if (
+      casinoMaxR &&
+      casinoMaxR.meta &&
+      Number.isFinite(Number(casinoMaxR.meta.maxBet))
+    ) {
       const adminMaxBet = Number(casinoMaxR.meta.maxBet);
+
       if (bet > adminMaxBet) {
-        return { ok: false, reason: 'casino_max_bet', restriction: { maxBet: adminMaxBet, ...casinoMaxR }, cost: 0, ticketCover: 0, usedTicket: false, profile: structuredClone(user) };
+        return {
+          ok: false,
+          reason: 'casino_max_bet',
+          restriction: {
+            maxBet: adminMaxBet,
+            ...casinoMaxR
+          },
+          cost: 0,
+          ticketCover: 0,
+          usedTicket: false,
+          profile: structuredClone(user)
+        };
       }
     }
+
     const currentUser = store.users[userId];
-    const ticketCover = currentUser.inventory.tickets > 0 ? Math.min(bet, rewardTicketCover) : 0;
+
+    const ticketCover =
+      currentUser.inventory.tickets > 0
+        ? Math.min(bet, rewardTicketCover)
+        : 0;
+
     const cost = Math.max(0, bet - ticketCover);
-    const casinoRestriction = casinoRestrictionForBet(currentUser, bet);
+
+    const casinoRestriction =
+      casinoRestrictionForBet(currentUser, bet);
 
     if (casinoRestriction) {
-      return { ok: false, reason: 'casino_restricted', restriction: casinoRestriction, cost, ticketCover: 0, usedTicket: false, profile: structuredClone(currentUser) };
+      return {
+        ok: false,
+        reason: 'casino_restricted',
+        restriction: casinoRestriction,
+        cost,
+        ticketCover: 0,
+        usedTicket: false,
+        profile: structuredClone(currentUser)
+      };
     }
 
     if (currentUser.balance < cost) {
-      return { ok: false, cost, ticketCover: 0, usedTicket: false, profile: structuredClone(currentUser) };
+      return {
+        ok: false,
+        reason: 'insufficient',
+        cost,
+        ticketCover: 0,
+        usedTicket: false,
+        profile: structuredClone(currentUser)
+      };
     }
 
     if (ticketCover > 0) {
       currentUser.inventory.tickets -= 1;
-      addTransaction(currentUser, 0, 'ticket_used', `${game}:cover:${ticketCover}`);
+
+      addTransaction(
+        currentUser,
+        0,
+        'ticket_used',
+        `${game}:cover:${ticketCover}`
+      );
     }
 
     if (reserve && cost > 0) {
@@ -1212,7 +1290,14 @@ export async function prepareCasinoEntry(userId, bet, game, { reserve = false } 
       updateDerivedStats(currentUser);
     }
 
+    /*
+     * Mark cooldown in this SAME mutation/write instead of requiring
+     * markCasinoPlayed() to perform another complete read/write cycle.
+     */
+    currentUser.cooldowns.casino = now;
+
     await writeStore(store);
+
     return {
       ok: true,
       cost,

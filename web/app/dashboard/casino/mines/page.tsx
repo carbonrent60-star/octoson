@@ -1,9 +1,17 @@
+import { createPageMetadata } from "@/lib/metadata";
 import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
 import { getOctosonUser } from "@/lib/octoson";
 
 import MinesClient from "./mines-client";
+
+
+export const metadata = createPageMetadata({
+  title: 'Mines',
+  description: 'Minalardan yayın, multiplier-i artır və Aura qazan.',
+  path: '/dashboard/casino/mines',
+});
 
 export default async function MinesPage() {
   const session = await auth();

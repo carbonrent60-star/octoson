@@ -1,3 +1,4 @@
+import { createPageMetadata } from "@/lib/metadata";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 
@@ -6,6 +7,13 @@ import SpecialGameClient from "../special-game-client";
 async function getEconomyModule() {
   return import("../../../../../src/economy.js");
 }
+
+
+export const metadata = createPageMetadata({
+  title: 'Higher or Lower',
+  description: 'Növbəti nəticəni təxmin et və Octoson Aura qazan.',
+  path: '/dashboard/casino/higherlower',
+});
 
 export default async function Page() {
   const session = await auth();

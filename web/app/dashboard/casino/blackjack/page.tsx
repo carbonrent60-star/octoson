@@ -1,9 +1,17 @@
+import { createPageMetadata } from "@/lib/metadata";
 import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
 import { getOctosonUser } from "@/lib/octoson";
 
 import BlackjackClient from "./blackjack-client";
+
+
+export const metadata = createPageMetadata({
+  title: 'Blackjack',
+  description: 'Octoson Aura ilə Blackjack oyna.',
+  path: '/dashboard/casino/blackjack',
+});
 
 export default async function BlackjackPage() {
   const session = await auth();

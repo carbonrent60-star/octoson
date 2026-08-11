@@ -1,3 +1,4 @@
+import { createPageMetadata } from "@/lib/metadata";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import {
@@ -32,6 +33,13 @@ function cleanRank(rank: string) {
     ""
   );
 }
+
+
+export const metadata = createPageMetadata({
+  title: 'Leaderboard',
+  description: 'October community-də ən yüksək Aura, level və progression sıralamasına bax.',
+  path: '/dashboard/leaderboard',
+});
 
 export default async function LeaderboardPage() {
   const session = await auth();

@@ -1,3 +1,4 @@
+import { createPageMetadata } from "@/lib/metadata";
 import { redirect } from "next/navigation";
 import {
   Landmark,
@@ -17,6 +18,13 @@ function formatAura(value: unknown) {
 
   return Math.floor(amount).toLocaleString("en-US");
 }
+
+
+export const metadata = createPageMetadata({
+  title: 'Bank',
+  description: 'Aura vəsaitlərini wallet və bank arasında idarə et.',
+  path: '/dashboard/bank',
+});
 
 export default async function BankPage() {
   const session = await auth();

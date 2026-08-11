@@ -1,3 +1,4 @@
+import { createPageMetadata } from "@/lib/metadata";
 import GamesHub from "@/components/games/games-hub";
 import { getSupabaseServerClient } from "@/lib/supabase-server";
 
@@ -43,6 +44,13 @@ type OpenRoom = {
   maxPlayers: number;
   members: OpenRoomMember[];
 };
+
+
+export const metadata = createPageMetadata({
+  title: 'Games',
+  description: 'October community üzvləri ilə canlı multiplayer otaqlarına qoşul və oyun oyna.',
+  path: '/dashboard/games',
+});
 
 export default async function GamesPage() {
   const supabase =

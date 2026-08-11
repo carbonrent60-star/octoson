@@ -1,3 +1,4 @@
+import { createPageMetadata } from "@/lib/metadata";
 import { redirect } from "next/navigation";
 import {
   Backpack,
@@ -49,6 +50,13 @@ function chestEntries(value: unknown) {
     }))
     .filter((item) => item.count > 0);
 }
+
+
+export const metadata = createPageMetadata({
+  title: 'Inventory',
+  description: 'Chest, key, badge və digər Octoson əşyalarını idarə et.',
+  path: '/dashboard/inventory',
+});
 
 export default async function InventoryPage() {
   const session = await auth();

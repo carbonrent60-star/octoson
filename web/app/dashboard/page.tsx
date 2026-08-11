@@ -1,7 +1,15 @@
+import { createPageMetadata } from "@/lib/metadata";
 import { auth } from "@/auth";
 import DashboardHome from "@/components/dashboard/dashboard-home";
 import { getOctosonUser } from "@/lib/octoson";
 import { redirect } from "next/navigation";
+
+
+export const metadata = createPageMetadata({
+  title: 'Dashboard',
+  description: 'Aura balansını, bankını, səviyyəni və Octoson progression statistikanı idarə et.',
+  path: '/dashboard',
+});
 
 export default async function Dashboard() {
   const session = await auth();

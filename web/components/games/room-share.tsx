@@ -22,7 +22,7 @@ export default function RoomShare({
 
   async function copyLink() {
     const link =
-      `${window.location.origin}/dashboard/games/join/${code}`;
+      `${window.location.origin}/join/${code}`;
 
     await navigator.clipboard.writeText(
       link
