@@ -38,6 +38,10 @@ import {
   useOctosonAudio,
 } from "@/components/audio/octoson-audio";
 
+import CasinoResultToast, {
+  type CasinoToastData,
+} from "@/components/casino/casino-result-toast";
+
 function formatAura(value: number) {
   return Math.max(
     0,
@@ -358,6 +362,12 @@ export default function BlackjackClient({
     useState<string | null>(null);
 
   const [
+    toast,
+    setToast,
+  ] =
+    useState<CasinoToastData | null>(null);
+
+  const [
     outcome,
     setOutcome,
   ] = useState<
@@ -447,6 +457,17 @@ export default function BlackjackClient({
         setMessage(result.message);
         setOutcome(finalOutcome);
 
+        setToast({
+          id: Date.now(),
+          type:
+            finalOutcome === "win"
+              ? "win"
+              : finalOutcome === "lose"
+                ? "lose"
+                : "push",
+          message: result.message,
+        });
+
         if (
           nextSession.status ===
           "blackjack"
@@ -501,6 +522,7 @@ export default function BlackjackClient({
     }
 
     setMessage(null);
+    setToast(null);
     audio.play("bet");
 
     startTransition(
@@ -650,6 +672,19 @@ export default function BlackjackClient({
         setMessage(result.message);
         setOutcome(finalOutcome);
 
+        if (finalOutcome) {
+          setToast({
+          id: Date.now(),
+            type:
+              finalOutcome === "win"
+                ? "win"
+                : finalOutcome === "lose"
+                  ? "lose"
+                  : "push",
+            message: result.message,
+          });
+        }
+
         if (
           finalSession.status ===
           "blackjack"
@@ -689,11 +724,17 @@ export default function BlackjackClient({
     setSession(null);
     setMessage(null);
     setOutcome(null);
+    setToast(null);
     setCinematic(false);
   }
 
   return (
     <div>
+      <CasinoResultToast
+        toast={toast}
+        onClose={() => setToast(null)}
+      />
+
       <button
         type="button"
         onClick={() => {
