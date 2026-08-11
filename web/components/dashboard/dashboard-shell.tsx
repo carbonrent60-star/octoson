@@ -7,6 +7,7 @@ import AppSidebar from "@/components/app-sidebar";
 import { OctosonAudioProvider } from "@/components/audio/octoson-audio";
 import SoundControl from "@/components/audio/sound-control";
 import PresenceHeartbeat from "@/components/presence-heartbeat";
+import MobileNav from "@/components/dashboard/mobile-nav";
 
 type DashboardShellProps = {
   children: React.ReactNode;
@@ -90,13 +91,13 @@ export default function DashboardShell({
 
       {/* APP AREA */}
       <div className="relative min-h-screen lg:pl-[260px]">
-        <header className="fixed left-0 right-0 top-0 z-40 h-[72px] border-b border-white/[0.055] bg-[#050507]/75 backdrop-blur-2xl lg:left-[260px]">
-          <div className="flex h-full items-center justify-between px-4 sm:px-7 lg:px-9">
+        <header className="fixed left-0 right-0 top-0 z-40 h-[62px] border-b border-white/[0.055] bg-[#050507]/80 backdrop-blur-2xl sm:h-[72px] lg:left-[260px]">
+          <div className="flex h-full items-center justify-between px-3.5 sm:px-7 lg:px-9">
             <div className="flex items-center gap-3">
               <button
                 type="button"
                 onClick={() => setMobileOpen(true)}
-                className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.07] bg-white/[0.025] text-white/45 transition hover:bg-white/[0.06] hover:text-white lg:hidden"
+                className="flex h-9 w-9 items-center justify-center rounded-[12px] border border-white/[0.08] bg-white/[0.035] text-white/55 shadow-[inset_0_1px_0_rgba(255,255,255,.035)] transition active:scale-95 hover:bg-white/[0.06] hover:text-white lg:hidden"
               >
                 <Menu className="h-[17px] w-[17px]" />
               </button>
@@ -143,7 +144,7 @@ export default function DashboardShell({
               <form action={logout}>
                 <button
                   type="submit"
-                  className="ml-1 rounded-xl border border-white/[0.07] bg-white/[0.02] px-3 py-2 text-[10px] font-medium text-white/30 transition duration-200 hover:border-white/[0.12] hover:bg-white/[0.05] hover:text-white/70"
+                  className="ml-1 hidden rounded-xl border border-white/[0.07] bg-white/[0.02] px-3 py-2 text-[10px] font-medium text-white/30 transition duration-200 hover:border-white/[0.12] hover:bg-white/[0.05] hover:text-white/70 sm:block"
                 >
                   Çıxış
                 </button>
@@ -152,7 +153,7 @@ export default function DashboardShell({
           </div>
         </header>
 
-        <main className="min-h-screen pt-[72px]">
+        <main className="min-h-screen pt-[62px] sm:pt-[72px]">
           <motion.div
             initial={{ opacity: 0, y: 7 }}
             animate={{ opacity: 1, y: 0 }}
@@ -160,11 +161,13 @@ export default function DashboardShell({
               duration: 0.35,
               ease: [0.22, 1, 0.36, 1],
             }}
-            className="mx-auto w-full max-w-[1560px] px-4 py-7 sm:px-7 sm:py-9 lg:px-9 lg:py-10"
+            className="mx-auto w-full min-w-0 max-w-[1560px] overflow-x-hidden px-3.5 pb-[calc(108px+env(safe-area-inset-bottom))] pt-5 sm:px-7 sm:pb-[110px] sm:pt-9 lg:px-9 lg:pb-10 lg:pt-10"
           >
             {children}
           </motion.div>
         </main>
+
+        <MobileNav onMore={() => setMobileOpen(true)} />
       </div>
     </div>
     </OctosonAudioProvider>

@@ -57,3 +57,12 @@ web/data/canvas-debug/
 *.save
 *.reference
 *.bak
+
+# Local backups and Supabase temp files
+.octoson-backups/
+supabase/.temp/
+*.backup
+*.backup-*
+*.bak-*
+
+web/supabase/.temp/

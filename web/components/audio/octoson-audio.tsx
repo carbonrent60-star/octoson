@@ -10,10 +10,18 @@ import {
   useState,
 } from "react";
 
-type SoundName =
+export type SoundName =
   | "hover"
   | "click"
+  | "softClick"
   | "navigate"
+  | "open"
+  | "close"
+  | "toggle"
+  | "success"
+  | "notification"
+  | "deposit"
+  | "withdraw"
   | "bet"
   | "coin"
   | "dice"
@@ -32,18 +40,22 @@ type SoundName =
 type AudioContextValue = {
   muted: boolean;
   volume: number;
+  ready: boolean;
   setMuted: (value: boolean) => void;
   toggleMuted: () => void;
   setVolume: (value: number) => void;
   play: (sound: SoundName) => void;
 };
 
-const AudioContext = createContext<AudioContextValue | null>(
-  null
-);
+const OctosonAudioContext =
+  createContext<AudioContextValue | null>(null);
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
+}
+
+function volumeScale(volume: number) {
+  return Math.min(1.45, 0.16 + volume * 1.5);
 }
 
 export function OctosonAudioProvider({
@@ -51,23 +63,60 @@ export function OctosonAudioProvider({
 }: {
   children: React.ReactNode;
 }) {
+  /*
+   * Sound is ON by default.
+   *
+   * If a user explicitly mutes it, that preference is remembered.
+   */
   const [muted, setMutedState] = useState(false);
-  const [volume, setVolumeState] = useState(0.34);
+  const [volume, setVolumeState] = useState(0.42);
+  const [ready, setReady] = useState(false);
 
   const contextRef = useRef<AudioContext | null>(null);
 
+  const mutedRef = useRef(false);
+  const volumeRef = useRef(0.42);
+
+  const lastPlayedRef = useRef<
+    Partial<Record<SoundName, number>>
+  >({});
+
+  useEffect(() => {
+    mutedRef.current = muted;
+  }, [muted]);
+
+  useEffect(() => {
+    volumeRef.current = volume;
+  }, [volume]);
+
   useEffect(() => {
     try {
-      setMutedState(
-        localStorage.getItem("octoson-muted") === "1"
-      );
+      const savedMuted =
+        localStorage.getItem("octoson-muted");
 
-      const saved = Number(
-        localStorage.getItem("octoson-volume")
-      );
+      if (savedMuted === "1") {
+        setMutedState(true);
+        mutedRef.current = true;
+      } else {
+        /*
+         * No saved preference = sound enabled.
+         */
+        setMutedState(false);
+        mutedRef.current = false;
+      }
 
-      if (Number.isFinite(saved)) {
-        setVolumeState(clamp(saved, 0, 1));
+      const savedVolume =
+        localStorage.getItem("octoson-volume");
+
+      if (savedVolume !== null) {
+        const parsed = Number(savedVolume);
+
+        if (Number.isFinite(parsed)) {
+          const next = clamp(parsed, 0, 1);
+
+          setVolumeState(next);
+          volumeRef.current = next;
+        }
       }
     } catch {}
   }, []);
@@ -77,7 +126,9 @@ export function OctosonAudioProvider({
       return null;
     }
 
-    if (!contextRef.current) {
+    let context = contextRef.current;
+
+    if (!context || context.state === "closed") {
       const AudioCtor =
         window.AudioContext ||
         (
@@ -90,104 +141,152 @@ export function OctosonAudioProvider({
         return null;
       }
 
-      contextRef.current = new AudioCtor();
-    }
+      context = new AudioCtor({
+        latencyHint: "interactive",
+      });
 
-    const context = contextRef.current;
-
-    if (context.state === "suspended") {
-      void context.resume();
+      contextRef.current = context;
     }
 
     return context;
   }, []);
 
+  const unlock = useCallback(async () => {
+    const context = getContext();
+
+    if (!context) {
+      return false;
+    }
+
+    try {
+      if (context.state === "suspended") {
+        await context.resume();
+      }
+
+      if (context.state === "running") {
+        setReady(true);
+        return true;
+      }
+    } catch {}
+
+    return false;
+  }, [getContext]);
+
   /*
-   * Browsers can suspend WebAudio after navigation, tab changes,
-   * sleep/wake or before the first real user gesture.
+   * Safari / Chrome / mobile browsers require a user gesture.
    *
-   * pointerdown fires BEFORE click handlers, so the context has
-   * time to resume before casino sounds are scheduled.
+   * We resume on pointer, touch and keyboard interactions and again
+   * whenever the page becomes visible or focused.
    */
   useEffect(() => {
-    const unlockAudio = () => {
-      const context =
-        getContext();
-
-      if (
-        context &&
-        context.state ===
-          "suspended"
-      ) {
-        void context
-          .resume()
-          .catch(() => {});
-      }
+    const unlockFromGesture = () => {
+      void unlock();
     };
 
-    const resumeWhenVisible = () => {
-      if (
-        document.visibilityState ===
-        "visible"
-      ) {
-        unlockAudio();
+    const resumeVisible = () => {
+      if (document.visibilityState === "visible") {
+        void unlock();
       }
     };
 
     window.addEventListener(
       "pointerdown",
-      unlockAudio,
+      unlockFromGesture,
       { passive: true }
     );
 
     window.addEventListener(
       "touchstart",
-      unlockAudio,
+      unlockFromGesture,
       { passive: true }
     );
 
     window.addEventListener(
       "keydown",
-      unlockAudio
+      unlockFromGesture
     );
 
     window.addEventListener(
       "focus",
-      unlockAudio
+      unlockFromGesture
+    );
+
+    window.addEventListener(
+      "pageshow",
+      unlockFromGesture
     );
 
     document.addEventListener(
       "visibilitychange",
-      resumeWhenVisible
+      resumeVisible
     );
 
     return () => {
       window.removeEventListener(
         "pointerdown",
-        unlockAudio
+        unlockFromGesture
       );
 
       window.removeEventListener(
         "touchstart",
-        unlockAudio
+        unlockFromGesture
       );
 
       window.removeEventListener(
         "keydown",
-        unlockAudio
+        unlockFromGesture
       );
 
       window.removeEventListener(
         "focus",
-        unlockAudio
+        unlockFromGesture
+      );
+
+      window.removeEventListener(
+        "pageshow",
+        unlockFromGesture
       );
 
       document.removeEventListener(
         "visibilitychange",
-        resumeWhenVisible
+        resumeVisible
       );
     };
-  }, [getContext]);
+  }, [unlock]);
+
+  const makeGain = useCallback(
+    (
+      context: AudioContext,
+      amount: number,
+      start: number,
+      duration: number
+    ) => {
+      const gain = context.createGain();
+
+      const scaled =
+        Math.max(
+          0.0001,
+          amount * volumeScale(volumeRef.current)
+        );
+
+      gain.gain.setValueAtTime(0.0001, start);
+
+      gain.gain.exponentialRampToValueAtTime(
+        scaled,
+        start + Math.min(0.008, duration * 0.2)
+      );
+
+      gain.gain.exponentialRampToValueAtTime(
+        0.0001,
+        start + duration
+      );
+
+      gain.connect(context.destination);
+
+      return gain;
+    },
+    []
+  );
 
   const tone = useCallback(
     (
@@ -199,14 +298,23 @@ export function OctosonAudioProvider({
       delay = 0,
       endFrequency?: number
     ) => {
-      const start = context.currentTime + delay;
+      const start =
+        context.currentTime + 0.005 + delay;
 
-      const oscillator = context.createOscillator();
-      const gain = context.createGain();
+      const oscillator =
+        context.createOscillator();
+
+      const gain = makeGain(
+        context,
+        gainAmount,
+        start,
+        duration
+      );
 
       oscillator.type = type;
+
       oscillator.frequency.setValueAtTime(
-        frequency,
+        Math.max(20, frequency),
         start
       );
 
@@ -217,26 +325,12 @@ export function OctosonAudioProvider({
         );
       }
 
-      gain.gain.setValueAtTime(0.0001, start);
-      gain.gain.exponentialRampToValueAtTime(
-        Math.max(
-          0.0001,
-          gainAmount * Math.min(2.35, 0.12 + volume * 2.15)
-        ),
-        start + 0.008
-      );
-      gain.gain.exponentialRampToValueAtTime(
-        0.0001,
-        start + duration
-      );
-
       oscillator.connect(gain);
-      gain.connect(context.destination);
 
       oscillator.start(start);
-      oscillator.stop(start + duration + 0.02);
+      oscillator.stop(start + duration + 0.03);
     },
-    [volume]
+    [makeGain]
   );
 
   const noise = useCallback(
@@ -244,9 +338,11 @@ export function OctosonAudioProvider({
       context: AudioContext,
       duration: number,
       gainAmount: number,
-      delay = 0
+      delay = 0,
+      highpass = 700
     ) => {
       const sampleRate = context.sampleRate;
+
       const buffer = context.createBuffer(
         1,
         Math.max(
@@ -259,49 +355,750 @@ export function OctosonAudioProvider({
       const data = buffer.getChannelData(0);
 
       for (let i = 0; i < data.length; i += 1) {
+        const fade =
+          1 - i / Math.max(1, data.length);
+
         data[i] =
           (Math.random() * 2 - 1) *
-          (1 - i / data.length);
+          fade *
+          fade;
       }
 
-      const source = context.createBufferSource();
-      const filter = context.createBiquadFilter();
-      const gain = context.createGain();
+      const source =
+        context.createBufferSource();
+
+      const filter =
+        context.createBiquadFilter();
+
+      const start =
+        context.currentTime + 0.005 + delay;
+
+      const gain = makeGain(
+        context,
+        gainAmount,
+        start,
+        duration
+      );
 
       source.buffer = buffer;
 
       filter.type = "highpass";
-      filter.frequency.value = 700;
-
-      const start = context.currentTime + delay;
-
-      gain.gain.setValueAtTime(
-        Math.max(
-          0.0001,
-          gainAmount * Math.min(2.35, 0.12 + volume * 2.15)
-        ),
+      filter.frequency.setValueAtTime(
+        highpass,
         start
-      );
-
-      gain.gain.exponentialRampToValueAtTime(
-        0.0001,
-        start + duration
       );
 
       source.connect(filter);
       filter.connect(gain);
-      gain.connect(context.destination);
 
       source.start(start);
+      source.stop(start + duration + 0.02);
     },
-    [volume]
+    [makeGain]
+  );
+
+  const playNow = useCallback(
+    (
+      context: AudioContext,
+      sound: SoundName
+    ) => {
+      switch (sound) {
+        /*
+         * UI
+         */
+
+        case "hover":
+          tone(
+            context,
+            1050,
+            0.026,
+            0.012,
+            "sine"
+          );
+          break;
+
+        case "softClick":
+          noise(
+            context,
+            0.025,
+            0.018,
+            0,
+            1800
+          );
+
+          tone(
+            context,
+            520,
+            0.035,
+            0.022,
+            "sine"
+          );
+          break;
+
+        case "click":
+          noise(
+            context,
+            0.022,
+            0.025,
+            0,
+            1500
+          );
+
+          tone(
+            context,
+            390,
+            0.045,
+            0.035,
+            "triangle"
+          );
+
+          tone(
+            context,
+            760,
+            0.035,
+            0.021,
+            "sine",
+            0.012
+          );
+          break;
+
+        case "toggle":
+          tone(
+            context,
+            480,
+            0.045,
+            0.03,
+            "sine"
+          );
+
+          tone(
+            context,
+            720,
+            0.055,
+            0.025,
+            "sine",
+            0.025
+          );
+          break;
+
+        case "navigate":
+          noise(
+            context,
+            0.035,
+            0.012,
+            0,
+            2200
+          );
+
+          tone(
+            context,
+            310,
+            0.055,
+            0.03,
+            "sine"
+          );
+
+          tone(
+            context,
+            490,
+            0.065,
+            0.028,
+            "sine",
+            0.025
+          );
+
+          tone(
+            context,
+            740,
+            0.075,
+            0.018,
+            "sine",
+            0.052
+          );
+          break;
+
+        case "open":
+          tone(
+            context,
+            390,
+            0.055,
+            0.025,
+            "sine"
+          );
+
+          tone(
+            context,
+            610,
+            0.075,
+            0.025,
+            "sine",
+            0.025
+          );
+          break;
+
+        case "close":
+          tone(
+            context,
+            600,
+            0.05,
+            0.025,
+            "sine"
+          );
+
+          tone(
+            context,
+            380,
+            0.065,
+            0.022,
+            "sine",
+            0.022
+          );
+          break;
+
+        case "success":
+          tone(
+            context,
+            620,
+            0.08,
+            0.05,
+            "sine"
+          );
+
+          tone(
+            context,
+            930,
+            0.12,
+            0.045,
+            "sine",
+            0.055
+          );
+
+          tone(
+            context,
+            1240,
+            0.17,
+            0.026,
+            "sine",
+            0.11
+          );
+          break;
+
+        case "notification":
+          tone(
+            context,
+            880,
+            0.085,
+            0.038,
+            "sine"
+          );
+
+          tone(
+            context,
+            1320,
+            0.16,
+            0.03,
+            "sine",
+            0.065
+          );
+          break;
+
+        /*
+         * Economy
+         */
+
+        case "deposit":
+          noise(
+            context,
+            0.035,
+            0.025,
+            0,
+            1700
+          );
+
+          tone(
+            context,
+            420,
+            0.07,
+            0.045,
+            "triangle"
+          );
+
+          tone(
+            context,
+            660,
+            0.085,
+            0.04,
+            "sine",
+            0.045
+          );
+
+          tone(
+            context,
+            990,
+            0.13,
+            0.035,
+            "sine",
+            0.09
+          );
+          break;
+
+        case "withdraw":
+          tone(
+            context,
+            920,
+            0.055,
+            0.035,
+            "sine"
+          );
+
+          tone(
+            context,
+            610,
+            0.07,
+            0.035,
+            "sine",
+            0.04
+          );
+
+          tone(
+            context,
+            390,
+            0.1,
+            0.03,
+            "triangle",
+            0.08
+          );
+          break;
+
+        case "bet":
+          noise(
+            context,
+            0.035,
+            0.025,
+            0,
+            1100
+          );
+
+          tone(
+            context,
+            180,
+            0.075,
+            0.07,
+            "triangle",
+            0,
+            285
+          );
+          break;
+
+        case "coin":
+          tone(
+            context,
+            1420,
+            0.05,
+            0.065,
+            "sine"
+          );
+
+          tone(
+            context,
+            1980,
+            0.085,
+            0.04,
+            "sine",
+            0.035
+          );
+
+          tone(
+            context,
+            2450,
+            0.07,
+            0.02,
+            "sine",
+            0.07
+          );
+          break;
+
+        /*
+         * Games
+         */
+
+        case "dice":
+          noise(
+            context,
+            0.035,
+            0.055,
+            0,
+            850
+          );
+
+          noise(
+            context,
+            0.035,
+            0.045,
+            0.055,
+            900
+          );
+
+          noise(
+            context,
+            0.035,
+            0.04,
+            0.105,
+            950
+          );
+
+          noise(
+            context,
+            0.03,
+            0.035,
+            0.15,
+            1050
+          );
+          break;
+
+        case "roulette":
+          for (let i = 0; i < 9; i += 1) {
+            tone(
+              context,
+              570 + i * 18,
+              0.022,
+              0.02,
+              "square",
+              i * 0.048
+            );
+          }
+          break;
+
+        case "wheel":
+          for (let i = 0; i < 10; i += 1) {
+            tone(
+              context,
+              470 + i * 14,
+              0.022,
+              0.018,
+              "square",
+              i * 0.041
+            );
+          }
+          break;
+
+        case "card":
+          noise(
+            context,
+            0.075,
+            0.035,
+            0,
+            1250
+          );
+
+          tone(
+            context,
+            245,
+            0.055,
+            0.018,
+            "triangle"
+          );
+          break;
+
+        case "tick":
+          tone(
+            context,
+            980,
+            0.018,
+            0.032,
+            "sine"
+          );
+          break;
+
+        case "gem":
+          tone(
+            context,
+            900,
+            0.07,
+            0.06,
+            "sine"
+          );
+
+          tone(
+            context,
+            1370,
+            0.11,
+            0.038,
+            "sine",
+            0.035
+          );
+
+          tone(
+            context,
+            1840,
+            0.14,
+            0.022,
+            "sine",
+            0.075
+          );
+          break;
+
+        case "mine":
+          noise(
+            context,
+            0.28,
+            0.13,
+            0,
+            80
+          );
+
+          tone(
+            context,
+            135,
+            0.34,
+            0.15,
+            "sawtooth",
+            0,
+            48
+          );
+
+          tone(
+            context,
+            72,
+            0.38,
+            0.11,
+            "sine",
+            0.04,
+            35
+          );
+          break;
+
+        case "cashout":
+          tone(
+            context,
+            410,
+            0.075,
+            0.065,
+            "sine"
+          );
+
+          tone(
+            context,
+            620,
+            0.09,
+            0.065,
+            "sine",
+            0.045
+          );
+
+          tone(
+            context,
+            830,
+            0.12,
+            0.07,
+            "sine",
+            0.09
+          );
+
+          tone(
+            context,
+            1240,
+            0.2,
+            0.04,
+            "sine",
+            0.15
+          );
+          break;
+
+        case "win":
+          tone(
+            context,
+            523,
+            0.11,
+            0.075,
+            "sine"
+          );
+
+          tone(
+            context,
+            659,
+            0.13,
+            0.075,
+            "sine",
+            0.065
+          );
+
+          tone(
+            context,
+            784,
+            0.18,
+            0.08,
+            "sine",
+            0.13
+          );
+
+          tone(
+            context,
+            1047,
+            0.24,
+            0.035,
+            "sine",
+            0.2
+          );
+          break;
+
+        case "bigwin":
+          noise(
+            context,
+            0.08,
+            0.03,
+            0.18,
+            1600
+          );
+
+          tone(
+            context,
+            392,
+            0.13,
+            0.085,
+            "sine"
+          );
+
+          tone(
+            context,
+            523,
+            0.15,
+            0.09,
+            "sine",
+            0.065
+          );
+
+          tone(
+            context,
+            659,
+            0.18,
+            0.09,
+            "sine",
+            0.13
+          );
+
+          tone(
+            context,
+            784,
+            0.22,
+            0.09,
+            "sine",
+            0.195
+          );
+
+          tone(
+            context,
+            1047,
+            0.36,
+            0.07,
+            "sine",
+            0.27
+          );
+          break;
+
+        case "lose":
+          noise(
+            context,
+            0.1,
+            0.06,
+            0,
+            180
+          );
+
+          tone(
+            context,
+            300,
+            0.16,
+            0.09,
+            "triangle",
+            0,
+            185
+          );
+
+          tone(
+            context,
+            180,
+            0.24,
+            0.1,
+            "sawtooth",
+            0.05,
+            72
+          );
+
+          tone(
+            context,
+            92,
+            0.3,
+            0.085,
+            "sine",
+            0.085,
+            45
+          );
+          break;
+
+        case "error":
+          noise(
+            context,
+            0.025,
+            0.025,
+            0,
+            1200
+          );
+
+          tone(
+            context,
+            205,
+            0.085,
+            0.07,
+            "square"
+          );
+
+          tone(
+            context,
+            155,
+            0.11,
+            0.055,
+            "square",
+            0.065
+          );
+          break;
+      }
+    },
+    [noise, tone]
   );
 
   const play = useCallback(
     (sound: SoundName) => {
-      if (muted || volume <= 0) {
+      if (
+        mutedRef.current ||
+        volumeRef.current <= 0
+      ) {
         return;
       }
+
+      /*
+       * Prevent accidental audio machine-gunning.
+       *
+       * Tick/roulette/wheel/dice are intentionally exempt because
+       * repeated events are part of those effects.
+       */
+      const cooldown =
+        sound === "hover"
+          ? 180
+          : sound === "click" ||
+              sound === "softClick"
+            ? 28
+            : 0;
+
+      const now = performance.now();
+      const last =
+        lastPlayedRef.current[sound] ?? -Infinity;
+
+      if (cooldown && now - last < cooldown) {
+        return;
+      }
+
+      lastPlayedRef.current[sound] = now;
 
       const context = getContext();
 
@@ -309,305 +1106,241 @@ export function OctosonAudioProvider({
         return;
       }
 
-      switch (sound) {
-        case "hover":
-          tone(context, 720, 0.035, 0.014, "sine");
-          break;
-
-        case "click":
-          tone(context, 430, 0.055, 0.038, "sine");
-          tone(
-            context,
-            680,
-            0.04,
-            0.025,
-            "sine",
-            0.012
-          );
-          break;
-
-        case "navigate":
-          tone(context, 330, 0.07, 0.035, "sine");
-          tone(
-            context,
-            520,
-            0.09,
-            0.03,
-            "sine",
-            0.035
-          );
-          break;
-
-        case "bet":
-          tone(
-            context,
-            190,
-            0.08,
-            0.085,
-            "triangle",
-            0,
-            280
-          );
-          break;
-
-        case "coin":
-          tone(context, 1450, 0.06, 0.095, "sine");
-          tone(
-            context,
-            1900,
-            0.08,
-            0.045,
-            "sine",
-            0.045
-          );
-          break;
-
-        case "dice":
-          noise(context, 0.05, 0.07);
-          noise(context, 0.05, 0.055, 0.065);
-          noise(context, 0.04, 0.045, 0.13);
-          break;
-
-        case "roulette":
-          for (let i = 0; i < 7; i += 1) {
-            tone(
-              context,
-              620 + i * 25,
-              0.025,
-              0.025,
-              "square",
-              i * 0.055
-            );
-          }
-          break;
-
-        case "wheel":
-          for (let i = 0; i < 8; i += 1) {
-            tone(
-              context,
-              480 + i * 18,
-              0.025,
-              0.022,
-              "square",
-              i * 0.045
-            );
-          }
-          break;
-
-        case "card":
-          noise(context, 0.09, 0.045);
-          tone(
-            context,
-            260,
-            0.07,
-            0.025,
-            "triangle"
-          );
-          break;
-
-        case "tick":
-          tone(context, 900, 0.025, 0.042, "sine");
-          break;
-
-        case "gem":
-          tone(context, 880, 0.08, 0.085, "sine");
-          tone(
-            context,
-            1320,
-            0.12,
-            0.04,
-            "sine",
-            0.04
-          );
-          break;
-
-        case "mine":
-          noise(context, 0.32, 0.18);
-          tone(
-            context,
-            120,
-            0.38,
-            0.19,
-            "sawtooth",
-            0,
-            45
-          );
-          break;
-
-        case "cashout":
-          tone(
-            context,
-            440,
-            0.09,
-            0.09,
-            "sine"
-          );
-          tone(
-            context,
-            660,
-            0.11,
-            0.09,
-            "sine",
-            0.055
-          );
-          tone(
-            context,
-            880,
-            0.18,
-            0.10,
-            "sine",
-            0.11
-          );
-          break;
-
-        case "win":
-          tone(context, 523, 0.13, 0.10, "sine");
-          tone(
-            context,
-            659,
-            0.15,
-            0.10,
-            "sine",
-            0.07
-          );
-          tone(
-            context,
-            784,
-            0.22,
-            0.11,
-            "sine",
-            0.14
-          );
-          break;
-
-        case "bigwin":
-          tone(context, 392, 0.14, 0.11, "sine");
-          tone(
-            context,
-            523,
-            0.16,
-            0.11,
-            "sine",
-            0.07
-          );
-          tone(
-            context,
-            659,
-            0.20,
-            0.12,
-            "sine",
-            0.14
-          );
-          tone(
-            context,
-            1047,
-            0.38,
-            0.12,
-            "sine",
-            0.22
-          );
-          break;
-
-        case "lose":
-          // Heavy low loss impact. Intentionally louder than UI sounds.
-          noise(context, 0.12, 0.085);
-
-          tone(
-            context,
-            310,
-            0.18,
-            0.12,
-            "triangle",
-            0,
-            190
-          );
-
-          tone(
-            context,
-            190,
-            0.26,
-            0.14,
-            "sawtooth",
-            0.055,
-            78
-          );
-
-          tone(
-            context,
-            105,
-            0.32,
-            0.13,
-            "sine",
-            0.09,
-            52
-          );
-          break;
-
-        case "error":
-          tone(
-            context,
-            180,
-            0.11,
-            0.10,
-            "square"
-          );
-          tone(
-            context,
-            145,
-            0.14,
-            0.08,
-            "square",
-            0.08
-          );
-          break;
+      if (context.state === "running") {
+        playNow(context, sound);
+        return;
       }
+
+      /*
+       * If WebAudio got suspended between interactions, resume it
+       * and play immediately afterwards rather than dropping the SFX.
+       */
+      void context
+        .resume()
+        .then(() => {
+          if (
+            context.state === "running" &&
+            !mutedRef.current
+          ) {
+            setReady(true);
+            playNow(context, sound);
+          }
+        })
+        .catch(() => {});
     },
-    [getContext, muted, tone, noise, volume]
+    [getContext, playNow]
   );
 
-  const setMuted = useCallback((value: boolean) => {
-    setMutedState(value);
+  /*
+   * Global UI sound layer.
+   *
+   * This gives normal buttons/links satisfying feedback without
+   * adding play("click") manually to every component.
+   */
+  useEffect(() => {
+    let lastHoverElement: Element | null = null;
 
-    try {
-      localStorage.setItem(
-        "octoson-muted",
-        value ? "1" : "0"
+    const onPointerOver = (event: PointerEvent) => {
+      if (
+        event.pointerType &&
+        event.pointerType !== "mouse"
+      ) {
+        return;
+      }
+
+      const target =
+        event.target instanceof Element
+          ? event.target.closest(
+              'button:not(:disabled), a[href], [role="button"]:not([aria-disabled="true"])'
+            )
+          : null;
+
+      if (!target || target === lastHoverElement) {
+        return;
+      }
+
+      /*
+       * Entire sections can disable hover audio by placing:
+       *
+       * data-no-hover-sound="true"
+       *
+       * on themselves or any parent element.
+       *
+       * This is used by the sidebar/navbar so moving the mouse
+       * across navigation items does not machine-gun hover SFX.
+       */
+      if (
+        target.closest('[data-no-hover-sound="true"]')
+      ) {
+        lastHoverElement = target;
+        return;
+      }
+
+      lastHoverElement = target;
+
+      play("hover");
+    };
+
+    const onPointerOut = (event: PointerEvent) => {
+      const target =
+        event.target instanceof Element
+          ? event.target.closest(
+              'button, a[href], [role="button"]'
+            )
+          : null;
+
+      if (
+        target &&
+        target === lastHoverElement
+      ) {
+        lastHoverElement = null;
+      }
+    };
+
+    const onClick = (event: MouseEvent) => {
+      const target =
+        event.target instanceof Element
+          ? event.target.closest(
+              'button:not(:disabled), a[href], [role="button"]:not([aria-disabled="true"])'
+            )
+          : null;
+
+      if (!target) {
+        return;
+      }
+
+      /*
+       * Components can opt out:
+       * data-sound="none"
+       *
+       * Or choose an explicit sound:
+       * data-sound="success"
+       */
+      const requested =
+        target.getAttribute("data-sound");
+
+      if (requested === "none") {
+        return;
+      }
+
+      if (requested) {
+        play(requested as SoundName);
+        return;
+      }
+
+      if (
+        target instanceof HTMLAnchorElement &&
+        target.href
+      ) {
+        play("navigate");
+        return;
+      }
+
+      play("click");
+    };
+
+    document.addEventListener(
+      "pointerover",
+      onPointerOver,
+      true
+    );
+
+    document.addEventListener(
+      "pointerout",
+      onPointerOut,
+      true
+    );
+
+    document.addEventListener(
+      "click",
+      onClick,
+      true
+    );
+
+    return () => {
+      document.removeEventListener(
+        "pointerover",
+        onPointerOver,
+        true
       );
-    } catch {}
-  }, []);
 
-  const toggleMuted = useCallback(() => {
-    setMutedState((current) => {
-      const next = !current;
+      document.removeEventListener(
+        "pointerout",
+        onPointerOut,
+        true
+      );
+
+      document.removeEventListener(
+        "click",
+        onClick,
+        true
+      );
+    };
+  }, [play]);
+
+  const setMuted = useCallback(
+    (value: boolean) => {
+      mutedRef.current = value;
+      setMutedState(value);
 
       try {
         localStorage.setItem(
           "octoson-muted",
-          next ? "1" : "0"
+          value ? "1" : "0"
         );
       } catch {}
 
-      return next;
-    });
-  }, []);
+      if (!value) {
+        void unlock();
+      }
+    },
+    [unlock]
+  );
 
-  const setVolume = useCallback((value: number) => {
-    const next = clamp(value, 0, 1);
+  const toggleMuted = useCallback(() => {
+    const next = !mutedRef.current;
 
-    setVolumeState(next);
+    mutedRef.current = next;
+    setMutedState(next);
 
     try {
       localStorage.setItem(
-        "octoson-volume",
-        String(next)
+        "octoson-muted",
+        next ? "1" : "0"
       );
     } catch {}
-  }, []);
+
+    if (!next) {
+      void unlock();
+    }
+  }, [unlock]);
+
+  const setVolume = useCallback(
+    (value: number) => {
+      const next = clamp(value, 0, 1);
+
+      volumeRef.current = next;
+      setVolumeState(next);
+
+      try {
+        localStorage.setItem(
+          "octoson-volume",
+          String(next)
+        );
+      } catch {}
+
+      if (next > 0) {
+        void unlock();
+      }
+    },
+    [unlock]
+  );
 
   const value = useMemo(
     () => ({
       muted,
       volume,
+      ready,
       setMuted,
       toggleMuted,
       setVolume,
@@ -616,6 +1349,7 @@ export function OctosonAudioProvider({
     [
       muted,
       volume,
+      ready,
       setMuted,
       toggleMuted,
       setVolume,
@@ -624,14 +1358,16 @@ export function OctosonAudioProvider({
   );
 
   return (
-    <AudioContext.Provider value={value}>
+    <OctosonAudioContext.Provider value={value}>
       {children}
-    </AudioContext.Provider>
+    </OctosonAudioContext.Provider>
   );
 }
 
 export function useOctosonAudio() {
-  const value = useContext(AudioContext);
+  const value = useContext(
+    OctosonAudioContext
+  );
 
   if (!value) {
     throw new Error(

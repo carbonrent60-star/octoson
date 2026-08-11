@@ -14,7 +14,6 @@ export default function SoundControl() {
     volume,
     toggleMuted,
     setVolume,
-    play,
   } = useOctosonAudio();
 
   const [open, setOpen] = useState(false);
@@ -48,10 +47,6 @@ export default function SoundControl() {
         aria-expanded={open}
         onClick={() => {
           setOpen((value) => !value);
-
-          if (!open) {
-            play("click");
-          }
         }}
         className="flex h-10 w-10 touch-manipulation items-center justify-center rounded-xl border border-white/[0.07] bg-white/[0.025] text-white/40 transition active:scale-95 hover:border-white/[0.12] hover:bg-white/[0.055] hover:text-white/70"
       >
@@ -92,10 +87,6 @@ export default function SoundControl() {
               type="button"
               onClick={() => {
                 toggleMuted();
-
-                if (muted) {
-                  setTimeout(() => play("click"), 0);
-                }
               }}
               className="mt-2 flex h-9 w-full touch-manipulation items-center justify-center gap-2 rounded-xl border border-white/[0.07] bg-white/[0.035] text-[10px] font-medium text-white/50 transition active:scale-[0.98] hover:bg-white/[0.06] hover:text-white/80"
             >

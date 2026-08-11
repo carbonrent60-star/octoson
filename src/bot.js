@@ -113,6 +113,13 @@ import { requiredEnv } from './env.js';
 import { hashScore, pick, progressBar } from './utils.js';
 import { renderCasinoCard, renderLeaderboardImage, renderProfileCard, renderRobberyCard, renderTransactionCard, renderTransferCard } from './canvas-renderer.js';
 import { initPartyStore, getParty, getPartyByUser, createParty, joinParty, leaveParty, formatPartyEmbed } from './party.js';
+import {
+  getPartyBlackjackMatch,
+  startPartyBlackjack,
+  playPartyBlackjackAction,
+  cancelPartyBlackjack,
+  partyBlackjackEmbed,
+} from './party-blackjack.js';
 import { ensureSupabaseHealth } from './db/supabase.js';
 import {
   deleteAuraDrop as deleteAuraDropStore,
@@ -5969,6 +5976,496 @@ Host: <@${currentParty.hostId}>
     return;
   }
 
+
+  if (interaction.customId.startsWith('party_blackjack:')) {
+    const partyId =
+      interaction.customId.replace('party_blackjack:', '');
+
+    const party = getParty(partyId);
+
+    if (!party) {
+      await interaction.reply({
+        content: 'Bu party artıq mövcud deyil.',
+        ephemeral: true,
+      });
+      return;
+    }
+
+    if (!party.members.some(member => member.id === interaction.user.id)) {
+      await interaction.reply({
+        content: 'Blackjack başlatmaq üçün bu party daxilində olmalısan.',
+        ephemeral: true,
+      });
+      return;
+    }
+
+    if (party.hostId !== interaction.user.id) {
+      await interaction.reply({
+        content: 'Blackjack raundunu yalnız party host başlada bilər.',
+        ephemeral: true,
+      });
+      return;
+    }
+
+    await interaction.reply({
+      content:
+        'Mərc məbləğini yaz: məsələn `2500`.\n' +
+        '30 saniyə vaxtın var.',
+      ephemeral: true,
+    });
+
+    const filter = message =>
+      message.author.id === interaction.user.id;
+
+    const collected =
+      await interaction.channel
+        ?.awaitMessages({
+          filter,
+          max: 1,
+          time: 30_000,
+          errors: ['time'],
+        })
+        .catch(() => null);
+
+    const message =
+      collected?.first?.();
+
+    if (!message) {
+      await interaction.followUp({
+        content: 'Vaxt bitdi.',
+        ephemeral: true,
+      });
+      return;
+    }
+
+    const amount =
+      Number(
+        String(message.content)
+          .replaceAll(',', '')
+          .trim()
+      );
+
+    if (
+      !Number.isSafeInteger(amount) ||
+      amount <= 0 ||
+      amount > 1_000_000
+    ) {
+      await interaction.followUp({
+        content:
+          'Mərc 1 ilə 1,000,000 Aura arasında tam ədəd olmalıdır.',
+        ephemeral: true,
+      });
+      return;
+    }
+
+    try {
+      const supabaseModule =
+        await import('./db/supabase.js');
+
+      const getClient =
+        supabaseModule.getSupabaseClient ??
+        supabaseModule.supabase ??
+        supabaseModule.getClient;
+
+      if (!getClient) {
+        throw new Error(
+          'Supabase client export tapılmadı.'
+        );
+      }
+
+      const db =
+        typeof getClient === 'function'
+          ? getClient()
+          : getClient;
+
+      const roomCode =
+        `BJ${Math.random()
+          .toString(36)
+          .slice(2, 6)
+          .toUpperCase()}`;
+
+      const {
+        data: room,
+        error: roomError,
+      } = await db
+        .from('game_rooms')
+        .insert({
+          code: roomCode,
+          game: 'blackjack',
+          host_id: party.hostId,
+          max_players: party.maxPlayers ?? 8,
+          status: 'waiting',
+          is_public: false,
+        })
+        .select('*')
+        .single();
+
+      if (roomError) {
+        throw roomError;
+      }
+
+      const playerRows =
+        party.members.map(
+          (member, index) => ({
+            room_id: room.id,
+            user_id: member.id,
+            ready: true,
+            seat: index,
+            player_data: {
+              name: member.username,
+            },
+          })
+        );
+
+      const {
+        error: playersError,
+      } = await db
+        .from('game_room_players')
+        .insert(playerRows);
+
+      if (playersError) {
+        throw playersError;
+      }
+
+      const started =
+        await startPartyBlackjack({
+          roomId: room.id,
+          hostId: party.hostId,
+          amount,
+        });
+
+      const match =
+        await getPartyBlackjackMatch(
+          started.matchId
+        );
+
+      if (!match) {
+        throw new Error(
+          'Blackjack match yaradıldı, amma oxuna bilmədi.'
+        );
+      }
+
+      party.blackjackMatchId =
+        match.id;
+
+      party.status =
+        'blackjack';
+
+      const payload =
+        await partyBlackjackEmbed({
+          match,
+          party,
+          viewerId:
+            interaction.user.id,
+        });
+
+      await interaction.followUp({
+        ...payload,
+        ephemeral: false,
+      });
+    } catch (error) {
+      console.error(
+        '[PARTY BLACKJACK START]',
+        error
+      );
+
+      await interaction.followUp({
+        content:
+          `Blackjack başlatmaq mümkün olmadı: ${
+            error?.message ?? 'naməlum xəta'
+          }`,
+        ephemeral: true,
+      });
+    }
+
+    return;
+  }
+
+  if (interaction.customId.startsWith('party_bj_hit:')) {
+    const matchId =
+      interaction.customId.replace(
+        'party_bj_hit:',
+        ''
+      );
+
+    const party =
+      getPartyByUser(
+        interaction.user.id
+      );
+
+    if (!party) {
+      await interaction.reply({
+        content:
+          'Sən party daxilində deyilsən.',
+        ephemeral: true,
+      });
+      return;
+    }
+
+    try {
+      await interaction.deferUpdate();
+
+      await playPartyBlackjackAction({
+        matchId,
+        userId:
+          interaction.user.id,
+        action: 'hit',
+      });
+
+      const match =
+        await getPartyBlackjackMatch(
+          matchId
+        );
+
+      const payload =
+        await partyBlackjackEmbed({
+          match,
+          party,
+          viewerId:
+            interaction.user.id,
+        });
+
+      await interaction.editReply(
+        payload
+      );
+    } catch (error) {
+      console.error(
+        '[PARTY BLACKJACK HIT]',
+        error
+      );
+
+      if (
+        interaction.deferred ||
+        interaction.replied
+      ) {
+        await interaction.followUp({
+          content:
+            `Hit alınmadı: ${
+              error?.message ??
+              'naməlum xəta'
+            }`,
+          ephemeral: true,
+        });
+      } else {
+        await interaction.reply({
+          content:
+            `Hit alınmadı: ${
+              error?.message ??
+              'naməlum xəta'
+            }`,
+          ephemeral: true,
+        });
+      }
+    }
+
+    return;
+  }
+
+  if (interaction.customId.startsWith('party_bj_stand:')) {
+    const matchId =
+      interaction.customId.replace(
+        'party_bj_stand:',
+        ''
+      );
+
+    const party =
+      getPartyByUser(
+        interaction.user.id
+      );
+
+    if (!party) {
+      await interaction.reply({
+        content:
+          'Sən party daxilində deyilsən.',
+        ephemeral: true,
+      });
+      return;
+    }
+
+    try {
+      await interaction.deferUpdate();
+
+      await playPartyBlackjackAction({
+        matchId,
+        userId:
+          interaction.user.id,
+        action: 'stand',
+      });
+
+      const match =
+        await getPartyBlackjackMatch(
+          matchId
+        );
+
+      const payload =
+        await partyBlackjackEmbed({
+          match,
+          party,
+          viewerId:
+            interaction.user.id,
+        });
+
+      await interaction.editReply(
+        payload
+      );
+    } catch (error) {
+      console.error(
+        '[PARTY BLACKJACK STAND]',
+        error
+      );
+
+      await interaction.followUp({
+        content:
+          `Stand alınmadı: ${
+            error?.message ??
+            'naməlum xəta'
+          }`,
+        ephemeral: true,
+      });
+    }
+
+    return;
+  }
+
+  if (interaction.customId.startsWith('party_bj_refresh:')) {
+    const matchId =
+      interaction.customId.replace(
+        'party_bj_refresh:',
+        ''
+      );
+
+    const party =
+      getPartyByUser(
+        interaction.user.id
+      );
+
+    if (!party) {
+      await interaction.reply({
+        content:
+          'Sən party daxilində deyilsən.',
+        ephemeral: true,
+      });
+      return;
+    }
+
+    try {
+      await interaction.deferUpdate();
+
+      const match =
+        await getPartyBlackjackMatch(
+          matchId
+        );
+
+      if (!match) {
+        throw new Error(
+          'Match tapılmadı.'
+        );
+      }
+
+      const payload =
+        await partyBlackjackEmbed({
+          match,
+          party,
+          viewerId:
+            interaction.user.id,
+        });
+
+      await interaction.editReply(
+        payload
+      );
+    } catch (error) {
+      console.error(
+        '[PARTY BLACKJACK REFRESH]',
+        error
+      );
+    }
+
+    return;
+  }
+
+  if (interaction.customId.startsWith('party_bj_cancel:')) {
+    const matchId =
+      interaction.customId.replace(
+        'party_bj_cancel:',
+        ''
+      );
+
+    const party =
+      getPartyByUser(
+        interaction.user.id
+      );
+
+    if (!party) {
+      await interaction.reply({
+        content:
+          'Sən party daxilində deyilsən.',
+        ephemeral: true,
+      });
+      return;
+    }
+
+    if (
+      party.hostId !==
+      interaction.user.id
+    ) {
+      await interaction.reply({
+        content:
+          'Raundu yalnız host ləğv edə bilər.',
+        ephemeral: true,
+      });
+      return;
+    }
+
+    try {
+      await interaction.deferUpdate();
+
+      await cancelPartyBlackjack({
+        matchId,
+        userId:
+          interaction.user.id,
+      });
+
+      const match =
+        await getPartyBlackjackMatch(
+          matchId
+        );
+
+      party.status =
+        'waiting';
+
+      party.blackjackMatchId =
+        null;
+
+      const payload =
+        await partyBlackjackEmbed({
+          match,
+          party,
+          viewerId:
+            interaction.user.id,
+        });
+
+      await interaction.editReply(
+        payload
+      );
+    } catch (error) {
+      console.error(
+        '[PARTY BLACKJACK CANCEL]',
+        error
+      );
+
+      await interaction.followUp({
+        content:
+          `Raund ləğv edilə bilmədi: ${
+            error?.message ??
+            'naməlum xəta'
+          }`,
+        ephemeral: true,
+      });
+    }
+
+    return;
+  }
+
   if (interaction.customId.startsWith('party_leave:')) {
     await handlePartyButtonLeave(interaction);
     return;
@@ -9168,20 +9665,28 @@ function gameRows(userId = 'all') {
 }
 
 function partyRow(partyId) {
-  return new ActionRowBuilder().addComponents(
-    withUiEmoji(new ButtonBuilder()
-      .setCustomId(`party_join:${partyId}`)
-      .setLabel('Qoşul')
-      .setStyle(ButtonStyle.Success), 'join', '➕'),
-    withUiEmoji(new ButtonBuilder()
-      .setCustomId(`party_status:${partyId}`)
-      .setLabel('Status')
-      .setStyle(ButtonStyle.Primary), 'status', '📊'),
-    withUiEmoji(new ButtonBuilder()
-      .setCustomId(`party_leave:${partyId}`)
-      .setLabel('Çıx')
-      .setStyle(ButtonStyle.Secondary), 'leave', '🚪')
-  );
+  return new ActionRowBuilder()
+    .addComponents(
+      new ButtonBuilder()
+        .setCustomId(`party_join:${partyId}`)
+        .setLabel('Qoşul')
+        .setStyle(ButtonStyle.Success),
+
+      new ButtonBuilder()
+        .setCustomId(`party_status:${partyId}`)
+        .setLabel('Status')
+        .setStyle(ButtonStyle.Secondary),
+
+      new ButtonBuilder()
+        .setCustomId(`party_blackjack:${partyId}`)
+        .setLabel('Blackjack')
+        .setStyle(ButtonStyle.Primary),
+
+      new ButtonBuilder()
+        .setCustomId(`party_leave:${partyId}`)
+        .setLabel('Çıx')
+        .setStyle(ButtonStyle.Danger)
+    );
 }
 
 function duelRows(duelId) {

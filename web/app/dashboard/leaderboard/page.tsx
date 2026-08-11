@@ -41,7 +41,7 @@ export default async function LeaderboardPage() {
   }
 
   const [rows, currentUser] = await Promise.all([
-    getOctosonLeaderboard(1000),
+    getOctosonLeaderboard(250),
     getOctosonUser(session.user.discordId),
   ]);
 

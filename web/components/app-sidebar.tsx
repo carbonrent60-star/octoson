@@ -8,6 +8,7 @@ import {
   Boxes,
   ChevronRight,
   CircleUserRound,
+  Dices,
   Gamepad2,
   Globe2,
   Home,
@@ -20,6 +21,7 @@ import {
 const navigation = [
   { href: "/dashboard", label: "Ana səhifə", icon: Home },
   { href: "/dashboard/casino", label: "Casino", icon: Gamepad2 },
+  { href: "/dashboard/games", label: "Games", icon: Dices },
   { href: "/dashboard/bank", label: "Bank", icon: Banknote },
   { href: "/dashboard/market", label: "Market", icon: ShoppingBag },
   { href: "/dashboard/inventory", label: "İnventar", icon: Boxes },
@@ -109,6 +111,7 @@ export default function AppSidebar({
               <Link
                 key={item.href}
                 href={item.href}
+                data-no-hover-sound="true"
                 className={`group relative flex h-[44px] items-center gap-3 overflow-hidden rounded-[12px] px-3 text-[12px] font-medium transition-colors duration-100 ${
                   active
                     ? "text-white"

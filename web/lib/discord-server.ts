@@ -25,9 +25,25 @@ type CacheEntry = {
   expiresAt: number;
 };
 
-const CACHE_TTL = 5 * 60 * 1000;
+type GuildMemberCacheEntry = {
+  member: DiscordGuildMember | null;
+  expiresAt: number;
+};
 
-const memberCache = new Map<string, CacheEntry>();
+const CACHE_TTL = 5 * 60 * 1000;
+const NOT_MEMBER_CACHE_TTL = 60 * 1000;
+
+const memberCache =
+  new Map<string, CacheEntry>();
+
+const guildMemberCache =
+  new Map<string, GuildMemberCacheEntry>();
+
+const guildMemberInflight =
+  new Map<
+    string,
+    Promise<DiscordGuildMember | null>
+  >();
 
 function sleep(ms: number) {
   return new Promise<void>((resolve) =>
@@ -43,72 +59,144 @@ function discordAvatarUrl(
     return null;
   }
 
-  const extension = avatarHash.startsWith("a_")
-    ? "gif"
-    : "png";
+  const extension =
+    avatarHash.startsWith("a_")
+      ? "gif"
+      : "png";
 
   return `https://cdn.discordapp.com/avatars/${userId}/${avatarHash}.${extension}?size=128`;
 }
 
-async function requestGuildMember(
+async function fetchGuildMember(
   userId: string
 ): Promise<DiscordGuildMember | null> {
-  const guildId = process.env.OCTOSON_GUILD_ID;
-  const botToken = process.env.DISCORD_BOT_TOKEN;
+  const guildId =
+    process.env.OCTOSON_GUILD_ID;
+
+  const botToken =
+    process.env.DISCORD_BOT_TOKEN;
 
   if (!guildId) {
-    throw new Error("OCTOSON_GUILD_ID is missing");
+    throw new Error(
+      "OCTOSON_GUILD_ID is missing"
+    );
   }
 
   if (!botToken) {
-    throw new Error("DISCORD_BOT_TOKEN is missing");
+    throw new Error(
+      "DISCORD_BOT_TOKEN is missing"
+    );
   }
 
   const url =
     `https://discord.com/api/v10/guilds/${guildId}/members/${userId}`;
 
-  for (let attempt = 0; attempt < 10; attempt++) {
-    const response = await fetch(url, {
-      headers: {
-        Authorization: `Bot ${botToken}`,
-        "User-Agent": "DiscordBot (OctosonWeb, 1.0.0)",
-      },
-      cache: "no-store",
-    });
+  for (
+    let attempt = 0;
+    attempt < 4;
+    attempt++
+  ) {
+    let response: Response;
 
+    try {
+      response = await fetch(url, {
+        headers: {
+          Authorization:
+            `Bot ${botToken}`,
+          "User-Agent":
+            "DiscordBot (OctosonWeb, 1.0.0)",
+        },
+        cache: "no-store",
+      });
+    } catch (error) {
+      console.error(
+        `[OCTOSON WEB] Discord request failed for ${userId}:`,
+        error
+      );
+
+      throw new Error(
+        "Discord membership check unavailable"
+      );
+    }
+
+    /*
+     * 404 is the ONLY response that means
+     * the Discord user is not in the guild.
+     */
     if (response.status === 404) {
       return null;
     }
 
     if (response.status === 429) {
-      let retryAfter = 1;
+      let retryAfterMs = 1500;
 
       try {
-        const body = await response.json();
+        const body =
+          await response.json();
 
         if (
-          typeof body?.retry_after === "number" &&
-          Number.isFinite(body.retry_after)
+          typeof body?.retry_after ===
+            "number" &&
+          Number.isFinite(
+            body.retry_after
+          )
         ) {
-          retryAfter = body.retry_after;
+          /*
+           * Discord's retry_after is
+           * normally expressed in seconds.
+           */
+          retryAfterMs =
+            Math.ceil(
+              body.retry_after * 1000
+            ) + 250;
         }
       } catch {
-        // Fall back to one second.
+        const header =
+          response.headers.get(
+            "retry-after"
+          );
+
+        if (header) {
+          const seconds =
+            Number(header);
+
+          if (
+            Number.isFinite(seconds)
+          ) {
+            retryAfterMs =
+              Math.ceil(
+                seconds * 1000
+              ) + 250;
+          }
+        }
       }
 
-      const waitMs =
-        Math.ceil(retryAfter * 1000) + 500;
+      /*
+       * Don't let a web request sit around
+       * sleeping for a huge global Discord
+       * rate limit.
+       */
+      if (retryAfterMs > 5000) {
+        console.warn(
+          `[OCTOSON WEB] Discord rate limit for ${userId}: ${retryAfterMs}ms`
+        );
+
+        throw new Error(
+          "Discord membership check rate limited"
+        );
+      }
 
       console.warn(
-        `[OCTOSON WEB] Discord rate limit for ${userId}. Waiting ${waitMs}ms.`
+        `[OCTOSON WEB] Discord rate limit for ${userId}. Waiting ${retryAfterMs}ms.`
       );
 
-      await sleep(waitMs);
+      await sleep(retryAfterMs);
       continue;
     }
 
     if (!response.ok) {
-      const body = await response.text();
+      const body =
+        await response.text();
 
       console.error(
         `[OCTOSON WEB] Discord member ${userId} failed:`,
@@ -116,12 +204,25 @@ async function requestGuildMember(
         body
       );
 
-      return null;
+      /*
+       * IMPORTANT:
+       * 401 / 403 / 5xx etc. do NOT mean
+       * "not a server member".
+       */
+      throw new Error(
+        `Discord membership check failed (${response.status})`
+      );
     }
 
     const member =
       (await response.json()) as DiscordGuildMember;
 
+    /*
+     * pending=true means the member has not
+     * completed Discord membership screening.
+     * Keep your existing behavior and treat
+     * that as unavailable membership.
+     */
     if (member.pending) {
       return null;
     }
@@ -129,11 +230,64 @@ async function requestGuildMember(
     return member;
   }
 
-  console.error(
-    `[OCTOSON WEB] Discord member ${userId} exceeded retry limit`
+  throw new Error(
+    "Discord membership check exceeded retry limit"
+  );
+}
+
+async function requestGuildMember(
+  userId: string
+): Promise<DiscordGuildMember | null> {
+  const now = Date.now();
+
+  const cached =
+    guildMemberCache.get(userId);
+
+  if (
+    cached &&
+    cached.expiresAt > now
+  ) {
+    return cached.member;
+  }
+
+  /*
+   * If several Server Components request
+   * the same member simultaneously, reuse
+   * one Discord API request.
+   */
+  const existing =
+    guildMemberInflight.get(userId);
+
+  if (existing) {
+    return existing;
+  }
+
+  const request = (async () => {
+    const member =
+      await fetchGuildMember(userId);
+
+    guildMemberCache.set(userId, {
+      member,
+      expiresAt:
+        Date.now() +
+        (member
+          ? CACHE_TTL
+          : NOT_MEMBER_CACHE_TTL),
+    });
+
+    return member;
+  })();
+
+  guildMemberInflight.set(
+    userId,
+    request
   );
 
-  return null;
+  try {
+    return await request;
+  } finally {
+    guildMemberInflight.delete(userId);
+  }
 }
 
 export async function getOctosonGuildMember(
@@ -199,14 +353,37 @@ export async function getOctosonGuildMembers(
   > = {};
 
   /*
-   * IMPORTANT:
-   * Do not Promise.all these Discord requests.
-   *
-   * The individual guild-member endpoint works with the
-   * current bot permissions, but sending many requests at
-   * once triggers Discord's per-route rate limit.
+   * Resolve anything already in the public-member cache
+   * immediately. Cached leaderboard visits should have
+   * effectively zero artificial Discord delay.
    */
+  const missingIds: string[] = [];
+  const now = Date.now();
+
   for (const userId of uniqueIds) {
+    const cached = memberCache.get(userId);
+
+    if (cached && cached.expiresAt > now) {
+      if (cached.member) {
+        members[userId] = cached.member;
+      }
+
+      continue;
+    }
+
+    missingIds.push(userId);
+  }
+
+  /*
+   * Only cold-cache users need Discord requests.
+   *
+   * Keep these sequential so we do not burst Discord's
+   * guild-member endpoint. The delay is placed BETWEEN
+   * requests instead of after every leaderboard member.
+   */
+  for (let index = 0; index < missingIds.length; index++) {
+    const userId = missingIds[index];
+
     try {
       const member =
         await resolvePublicMember(userId);
@@ -214,23 +391,20 @@ export async function getOctosonGuildMembers(
       if (member) {
         members[userId] = member;
       }
-
-      /*
-       * Small spacing prevents us from bursting Discord's
-       * guild-member endpoint on a cold cache.
-       */
-      await sleep(350);
     } catch (error) {
       console.error(
         `[OCTOSON WEB] Could not resolve leaderboard member ${userId}:`,
         error
       );
     }
+
+    if (index < missingIds.length - 1) {
+      await sleep(175);
+    }
   }
 
   return members;
 }
-
 
 export type OctosonWorldActivity = {
   userId: string;
