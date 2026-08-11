@@ -22,6 +22,8 @@ import {
   setUserCasinoMaxBetAction,
 } from "./actions";
 
+import { getOctosonGuildMembers } from "@/lib/discord-server";
+
 export const dynamic =
   "force-dynamic";
 
@@ -212,6 +214,27 @@ export default async function AdminPage({
 
   const presence: WebPresenceRow[] =
     (presenceResult.data ?? []) as WebPresenceRow[];
+
+  // Discord data is visual enrichment only.
+  // The admin panel must still render when Discord is
+  // unavailable, rate-limited, or temporarily failing.
+  let discordMemberMap: Awaited<
+    ReturnType<typeof getOctosonGuildMembers>
+  > = {};
+
+  try {
+    discordMemberMap =
+      await getOctosonGuildMembers(
+        users.map((user) =>
+          String(user.user_id)
+        )
+      );
+  } catch (error) {
+    console.warn(
+      "[OCTOSON ADMIN] Discord member enrichment unavailable:",
+      error
+    );
+  }
 
   const economySettings =
     (settingsResult.data ??
@@ -597,8 +620,9 @@ export default async function AdminPage({
         </AdminActionForm>
       </section>
 
-      <section className="overflow-hidden rounded-[22px] border border-white/[0.065] bg-white/[0.018]">
-        <div className="flex items-center justify-between border-b border-white/[0.055] px-5 py-4">
+      <section className="relative overflow-hidden rounded-[26px] border border-white/[0.075] bg-[#0d0e10]/80 shadow-[0_24px_80px_rgba(0,0,0,0.28)] backdrop-blur-xl">
+        <div className="relative flex items-center justify-between border-b border-white/[0.055] bg-white/[0.012] px-5 py-5">
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.08] to-transparent" />
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/25">
               Economy users
@@ -610,7 +634,7 @@ export default async function AdminPage({
           </div>
         </div>
 
-        <div className="divide-y divide-white/[0.045]">
+        <div className="divide-y divide-white/[0.04]">
           {filtered.map(
             (user) => {
               const currentPresence =
@@ -636,7 +660,10 @@ export default async function AdminPage({
                   ? user.profile as Record<string, unknown>
                   : {};
 
-              const name =
+              const discordMember =
+                discordMemberMap[String(user.user_id)];
+
+              const fallbackName =
                 String(
                   profile.globalName ??
                     profile.displayName ??
@@ -645,6 +672,22 @@ export default async function AdminPage({
                     ""
                 );
 
+              const name =
+                discordMember?.name ||
+                fallbackName ||
+                String(user.user_id);
+
+              const username =
+                discordMember?.username ||
+                String(
+                  profile.username ??
+                    ""
+                );
+
+              const avatar =
+                discordMember?.avatar ??
+                null;
+
               return (
                 <details
                   key={
@@ -652,53 +695,158 @@ export default async function AdminPage({
                   }
                   className="group"
                 >
-                  <summary className="flex cursor-pointer list-none flex-col gap-4 px-5 py-5 transition hover:bg-white/[0.018] lg:flex-row lg:items-center lg:justify-between">
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`h-2 w-2 shrink-0 rounded-full ${
-                            online
-                              ? "bg-emerald-300"
-                              : "bg-white/15"
-                          }`}
-                        />
+                  <summary className="group/row relative cursor-pointer list-none px-4 py-3.5 outline-none transition duration-300 hover:bg-white/[0.022] sm:px-5 sm:py-4 [&::-webkit-details-marker]:hidden">
+                    <div className="pointer-events-none absolute inset-y-3 left-0 w-[2px] scale-y-0 rounded-full bg-cyan-200/60 opacity-0 transition duration-300 group-hover/row:scale-y-100 group-hover/row:opacity-100 group-open:scale-y-100 group-open:opacity-100" />
 
-                        <p className="truncate text-[13px] font-medium text-white/80">
-                          {name ||
-                            user.user_id}
-                        </p>
+                    <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+                      <div
+                        data-admin-discord-user="true"
+                        className="flex min-w-0 items-center gap-4"
+                      >
+                        <div className="relative shrink-0">
+                          <div className="relative h-[52px] w-[52px] overflow-hidden rounded-[17px] border border-white/[0.10] bg-white/[0.035] shadow-[0_10px_30px_rgba(0,0,0,0.28)] transition duration-300 group-hover/row:border-white/[0.16] group-hover/row:shadow-[0_12px_34px_rgba(0,0,0,0.36)]">
+                            {avatar ? (
+                              <img
+                                src={avatar}
+                                alt={name}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-white/[0.07] to-white/[0.015] text-[15px] font-semibold text-white/55">
+                                {name
+                                  .trim()
+                                  .charAt(0)
+                                  .toUpperCase() ||
+                                  "?"}
+                              </div>
+                            )}
+
+                            <div className="pointer-events-none absolute inset-0 rounded-[17px] ring-1 ring-inset ring-white/[0.035]" />
+                          </div>
+
+                          <span
+                            className={`absolute -bottom-0.5 -right-0.5 flex h-[14px] w-[14px] items-center justify-center rounded-full border-[3px] border-[#101113] ${
+                              online
+                                ? "bg-emerald-400"
+                                : "bg-[#55585d]"
+                            }`}
+                          >
+                            {online ? (
+                              <span className="absolute h-full w-full animate-ping rounded-full bg-emerald-400/30" />
+                            ) : null}
+                          </span>
+                        </div>
+
+                        <div className="min-w-0">
+                          <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+                            <p className="max-w-[300px] truncate text-[14px] font-semibold tracking-[-0.015em] text-white/[0.92]">
+                              {name}
+                            </p>
+
+                            {online ? (
+                              <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-emerald-300/[0.10] bg-emerald-300/[0.055] px-2 py-[3px] text-[8px] font-semibold uppercase tracking-[0.10em] text-emerald-200/65">
+                                <span className="h-1 w-1 rounded-full bg-emerald-300" />
+                                Saytda
+                              </span>
+                            ) : (
+                              <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-white/[0.055] bg-white/[0.025] px-2 py-[3px] text-[8px] font-semibold uppercase tracking-[0.10em] text-white/25">
+                                Offline
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="mt-1 flex min-w-0 flex-wrap items-center gap-x-2 text-[10px]">
+                            {username ? (
+                              <span className="truncate font-medium text-white/38">
+                                @{username}
+                              </span>
+                            ) : null}
+
+                            {username ? (
+                              <span className="text-white/12">
+                                •
+                              </span>
+                            ) : null}
+
+                            <span className="truncate font-mono text-[9px] tracking-[-0.01em] text-white/20">
+                              {user.user_id}
+                            </span>
+                          </div>
+
+                          <div className="mt-1.5 flex min-w-0 items-center gap-2">
+                            {online && currentPresence?.path ? (
+                              <div className="flex min-w-0 items-center gap-2">
+                                <span className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-emerald-300/[0.08] bg-emerald-300/[0.045] px-2 py-1 text-[8px] font-semibold uppercase tracking-[0.12em] text-emerald-200/55">
+                                  <span className="h-1 w-1 rounded-full bg-emerald-300" />
+                                  Saytda
+                                </span>
+
+                                <span className="max-w-[300px] truncate font-mono text-[9px] text-white/25">
+                                  {currentPresence.path}
+                                </span>
+                              </div>
+                            ) : (
+                              <span className="text-[9px] text-white/18">
+                                Hazırda saytda deyil
+                              </span>
+                            )}
+                          </div>
+                        </div>
                       </div>
 
-                      <p className="mt-1 font-mono text-[10px] text-white/20">
-                        {user.user_id}
-                      </p>
+                      <div className="flex items-stretch gap-1.5 sm:gap-2 lg:justify-end">
+                        <div className="min-w-[112px] rounded-[14px] border border-white/[0.055] bg-black/20 px-3.5 py-2.5 transition duration-300 group-hover/row:border-white/[0.08] group-hover/row:bg-white/[0.025]">
+                          <p className="text-[8px] font-semibold uppercase tracking-[0.14em] text-white/22">
+                            Aura
+                          </p>
 
-                      {online ? (
-                        <p className="mt-1 text-[9px] text-emerald-200/40">
-                          Aktiv • {currentPresence?.path}
-                        </p>
-                      ) : null}
-                    </div>
+                          <div className="mt-1 flex items-baseline gap-1.5">
+                            <p className="text-[14px] font-semibold tabular-nums tracking-[-0.025em] text-white/[0.86]">
+                              {format(user.balance)}
+                            </p>
 
-                    <div className="grid grid-cols-3 gap-5 lg:min-w-[390px]">
-                      <Mini
-                        label="Aura"
-                        value={format(
-                          user.balance
-                        )}
-                      />
+                            <span className="text-[8px] font-medium uppercase tracking-[0.08em] text-cyan-100/25">
+                              A
+                            </span>
+                          </div>
+                        </div>
 
-                      <Mini
-                        label="Level"
-                        value={`Lv.${user.level}`}
-                      />
+                        <div className="min-w-[84px] rounded-[14px] border border-white/[0.045] bg-white/[0.018] px-3 py-2.5">
+                          <p className="text-[8px] font-semibold uppercase tracking-[0.14em] text-white/20">
+                            Level
+                          </p>
 
-                      <Mini
-                        label="XP"
-                        value={format(
-                          user.xp
-                        )}
-                      />
+                          <p className="mt-1 text-[13px] font-semibold tabular-nums text-white/65">
+                            Lv.{user.level}
+                          </p>
+                        </div>
+
+                        <div className="min-w-[84px] rounded-[14px] border border-white/[0.045] bg-white/[0.018] px-3 py-2.5">
+                          <p className="text-[8px] font-semibold uppercase tracking-[0.14em] text-white/20">
+                            XP
+                          </p>
+
+                          <p className="mt-1 text-[13px] font-semibold tabular-nums text-white/65">
+                            {format(user.xp)}
+                          </p>
+                        </div>
+
+                        <div className="flex w-9 shrink-0 items-center justify-center rounded-[14px] border border-white/[0.045] bg-white/[0.015] text-white/20 transition duration-300 group-hover/row:border-white/[0.08] group-hover/row:text-white/45 group-open:bg-white/[0.035] group-open:text-white/55">
+                          <svg
+                            viewBox="0 0 20 20"
+                            fill="none"
+                            className="h-3.5 w-3.5 transition-transform duration-300 group-open:rotate-180"
+                          >
+                            <path
+                              d="M5.75 7.75 10 12l4.25-4.25"
+                              stroke="currentColor"
+                              strokeWidth="1.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        </div>
+                      </div>
                     </div>
                   </summary>
 
