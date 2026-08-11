@@ -2,8 +2,6 @@ import {
   Activity,
   Banknote,
   CircleDollarSign,
-  Gauge,
-  Power,
   Search,
   ShieldCheck,
   Users,
@@ -16,10 +14,6 @@ import { getSupabaseServerClient } from "@/lib/supabase-server";
 import {
   editUserAction,
   giveAuraAction,
-  removeUserCasinoMaxBetAction,
-  setGlobalCasinoAction,
-  setGlobalCasinoMaxBetAction,
-  setUserCasinoMaxBetAction,
 } from "./actions";
 
 export const dynamic =
@@ -52,26 +46,6 @@ type WebPresenceRow = {
   user_id: string;
   path: string;
   last_seen: number;
-};
-
-type EconomySettingsRow = {
-  id: number;
-  casino_enabled: boolean;
-  global_casino_max_bet: number;
-  casino_updated_at: number | null;
-  casino_updated_by: string | null;
-  safe_mode_enabled: boolean;
-  chests_enabled: boolean;
-};
-
-type UserRestrictionRow = {
-  id: string;
-  user_id: string;
-  type: string;
-  reason: string | null;
-  meta: Record<string, unknown> | null;
-  created_at: number;
-  expires_at: number | null;
 };
 
 function num(
@@ -123,8 +97,6 @@ export default async function AdminPage({
   const [
     usersResult,
     presenceResult,
-    settingsResult,
-    restrictionsResult,
   ] =
     await Promise.all([
       supabase
@@ -156,31 +128,6 @@ export default async function AdminPage({
           }
         )
         .limit(500),
-
-      supabase
-        .from(
-          "economy_settings"
-        )
-        .select(
-          "id,casino_enabled,global_casino_max_bet,casino_updated_at,casino_updated_by,safe_mode_enabled,chests_enabled"
-        )
-        .eq(
-          "id",
-          1
-        )
-        .maybeSingle(),
-
-      supabase
-        .from(
-          "user_restrictions"
-        )
-        .select(
-          "id,user_id,type,reason,meta,created_at,expires_at"
-        )
-        .eq(
-          "type",
-          "casino_max_bet"
-        ),
     ]);
 
   if (
@@ -189,57 +136,11 @@ export default async function AdminPage({
     throw usersResult.error;
   }
 
-  if (
-    presenceResult.error
-  ) {
-    throw presenceResult.error;
-  }
-
-  if (
-    settingsResult.error
-  ) {
-    throw settingsResult.error;
-  }
-
-  if (
-    restrictionsResult.error
-  ) {
-    throw restrictionsResult.error;
-  }
-
   const users: EconomyUserRow[] =
     (usersResult.data ?? []) as EconomyUserRow[];
 
   const presence: WebPresenceRow[] =
     (presenceResult.data ?? []) as WebPresenceRow[];
-
-  const economySettings =
-    (settingsResult.data ??
-      {
-        id: 1,
-        casino_enabled: true,
-        global_casino_max_bet: 100000,
-        casino_updated_at: null,
-        casino_updated_by: null,
-        safe_mode_enabled: false,
-        chests_enabled: true,
-      }) as EconomySettingsRow;
-
-  const restrictions =
-    (restrictionsResult.data ??
-      []) as UserRestrictionRow[];
-
-  const casinoRestrictionMap =
-    new Map(
-      restrictions.map(
-        (restriction) => [
-          String(
-            restriction.user_id
-          ),
-          restriction,
-        ]
-      )
-    );
 
   const presenceMap =
     new Map(
@@ -406,161 +307,6 @@ export default async function AdminPage({
           )}
         />
       </div>
-
-      <section className="overflow-hidden rounded-[22px] border border-cyan-100/[0.09] bg-gradient-to-b from-cyan-100/[0.035] to-white/[0.015]">
-        <div className="flex flex-col gap-4 border-b border-white/[0.055] px-5 py-5 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-cyan-100/40">
-              <Gauge className="h-4 w-4" />
-              Casino Control Center
-            </div>
-
-            <h2 className="mt-2 text-[19px] font-semibold tracking-[-0.025em] text-white/90">
-              Global casino idarəsi
-            </h2>
-
-            <p className="mt-1 max-w-2xl text-[11px] leading-5 text-white/30">
-              Bu dəyişikliklər Discord və web casino üçün eyni Supabase economy settings-dən istifadə edir.
-            </p>
-          </div>
-
-          <div
-            className={`inline-flex h-9 items-center gap-2 self-start rounded-full border px-3 text-[10px] font-semibold ${
-              economySettings.casino_enabled
-                ? "border-emerald-300/15 bg-emerald-300/[0.06] text-emerald-200/70"
-                : "border-red-300/15 bg-red-300/[0.06] text-red-200/70"
-            }`}
-          >
-            <span
-              className={`h-2 w-2 rounded-full ${
-                economySettings.casino_enabled
-                  ? "bg-emerald-300"
-                  : "bg-red-300"
-              }`}
-            />
-
-            {economySettings.casino_enabled
-              ? "CASINO AKTİV"
-              : "CASINO BAĞLI"}
-          </div>
-        </div>
-
-        <div className="grid gap-4 p-5 xl:grid-cols-2">
-          <div className="rounded-[18px] border border-white/[0.055] bg-black/15 p-4">
-            <div className="flex items-start gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.06] bg-white/[0.025] text-white/35">
-                <Power className="h-4 w-4" />
-              </div>
-
-              <div>
-                <p className="text-[12px] font-medium text-white/75">
-                  Casino status
-                </p>
-
-                <p className="mt-1 text-[10px] leading-5 text-white/25">
-                  Bütün casino oyunlarını dərhal aç və ya bağla.
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-4 grid grid-cols-2 gap-2">
-              <AdminActionForm
-                action={
-                  setGlobalCasinoAction
-                }
-              >
-                <input
-                  type="hidden"
-                  name="enabled"
-                  value="true"
-                />
-
-                <button
-                  type="submit"
-                  className="h-10 w-full rounded-xl border border-emerald-300/10 bg-emerald-300/[0.055] text-[11px] font-medium text-emerald-100/70 transition hover:bg-emerald-300/[0.09]"
-                >
-                  Casino aç
-                </button>
-              </AdminActionForm>
-
-              <AdminActionForm
-                action={
-                  setGlobalCasinoAction
-                }
-              >
-                <input
-                  type="hidden"
-                  name="enabled"
-                  value="false"
-                />
-
-                <button
-                  type="submit"
-                  className="h-10 w-full rounded-xl border border-red-300/10 bg-red-300/[0.045] text-[11px] font-medium text-red-100/65 transition hover:bg-red-300/[0.08]"
-                >
-                  Casino bağla
-                </button>
-              </AdminActionForm>
-            </div>
-          </div>
-
-          <div className="rounded-[18px] border border-white/[0.055] bg-black/15 p-4">
-            <div>
-              <p className="text-[12px] font-medium text-white/75">
-                Global maximum bet
-              </p>
-
-              <p className="mt-1 text-[10px] leading-5 text-white/25">
-                Hazırda:{" "}
-                <span className="text-white/55">
-                  {num(
-                    economySettings.global_casino_max_bet
-                  ) > 0
-                    ? `${format(
-                        economySettings.global_casino_max_bet
-                      )} Aura`
-                    : "Limitsiz"}
-                </span>
-              </p>
-            </div>
-
-            <AdminActionForm
-              action={
-                setGlobalCasinoMaxBetAction
-              }
-              className="mt-4"
-            >
-              <div className="flex gap-2">
-                <input
-                  type="number"
-                  min={0}
-                  max={1000000}
-                  required
-                  name="maxBet"
-                  defaultValue={
-                    num(
-                      economySettings.global_casino_max_bet
-                    )
-                  }
-                  placeholder="100000"
-                  className={inputClass()}
-                />
-
-                <button
-                  type="submit"
-                  className="h-10 shrink-0 rounded-xl border border-cyan-100/10 bg-cyan-100/[0.055] px-4 text-[11px] font-medium text-cyan-50/65 transition hover:bg-cyan-100/[0.09]"
-                >
-                  Yadda saxla
-                </button>
-              </div>
-
-              <p className="mt-2 text-[9px] text-white/18">
-                0 = global limit yoxdur.
-              </p>
-            </AdminActionForm>
-          </div>
-        </div>
-      </section>
 
       <section className="rounded-[22px] border border-white/[0.065] bg-white/[0.022] p-5">
         <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/25">
@@ -790,156 +536,6 @@ export default async function AdminPage({
                         />
                       </div>
                     </AdminActionForm>
-
-                    <div className="mt-5 border-t border-white/[0.045] pt-5">
-                      {(() => {
-                        const casinoRestriction =
-                          casinoRestrictionMap.get(
-                            String(
-                              user.user_id
-                            )
-                          );
-
-                        const casinoMaxBet =
-                          casinoRestriction?.meta &&
-                          Number.isFinite(
-                            Number(
-                              casinoRestriction.meta.maxBet
-                            )
-                          )
-                            ? Number(
-                                casinoRestriction.meta.maxBet
-                              )
-                            : null;
-
-                        return (
-                          <>
-                            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                              <div>
-                                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/25">
-                                  Casino moderation
-                                </p>
-
-                                <p className="mt-1 text-[11px] text-white/35">
-                                  {casinoMaxBet !== null
-                                    ? `Aktiv max bet: ${format(
-                                        casinoMaxBet
-                                      )} Aura`
-                                    : "Fərdi casino limiti yoxdur"}
-                                </p>
-
-                                {casinoRestriction?.reason ? (
-                                  <p className="mt-1 text-[9px] text-white/20">
-                                    {casinoRestriction.reason}
-                                  </p>
-                                ) : null}
-                              </div>
-                            </div>
-
-                            <div className="mt-3 grid gap-3 xl:grid-cols-[1fr_1fr_auto]">
-                              <AdminActionForm
-                                action={
-                                  setUserCasinoMaxBetAction
-                                }
-                              >
-                                <input
-                                  type="hidden"
-                                  name="userId"
-                                  value={
-                                    user.user_id
-                                  }
-                                />
-
-                                <input
-                                  type="number"
-                                  min={0}
-                                  max={1000000}
-                                  required
-                                  name="maxBet"
-                                  defaultValue={
-                                    casinoMaxBet ??
-                                    100000
-                                  }
-                                  placeholder="Max bet"
-                                  className={inputClass()}
-                                />
-
-                                <input
-                                  name="reason"
-                                  maxLength={500}
-                                  placeholder="Səbəb"
-                                  defaultValue={
-                                    casinoRestriction?.reason ??
-                                    ""
-                                  }
-                                  className={`${inputClass()} mt-2`}
-                                />
-
-                                <button
-                                  type="submit"
-                                  className="mt-2 h-10 w-full rounded-xl border border-cyan-100/10 bg-cyan-100/[0.05] px-4 text-[11px] text-cyan-50/65"
-                                >
-                                  Casino limitini saxla
-                                </button>
-                              </AdminActionForm>
-
-                              <div className="rounded-xl border border-white/[0.055] bg-black/15 p-3">
-                                <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-white/20">
-                                  Effective limits
-                                </p>
-
-                                <p className="mt-2 text-[10px] leading-5 text-white/35">
-                                  User:{" "}
-                                  <span className="text-white/60">
-                                    {casinoMaxBet !== null
-                                      ? `${format(
-                                          casinoMaxBet
-                                        )} Aura`
-                                      : "yoxdur"}
-                                  </span>
-                                  <br />
-                                  Global:{" "}
-                                  <span className="text-white/60">
-                                    {num(
-                                      economySettings.global_casino_max_bet
-                                    ) > 0
-                                      ? `${format(
-                                          economySettings.global_casino_max_bet
-                                        )} Aura`
-                                      : "limitsiz"}
-                                  </span>
-                                </p>
-                              </div>
-
-                              {casinoRestriction ? (
-                                <AdminActionForm
-                                  action={
-                                    removeUserCasinoMaxBetAction
-                                  }
-                                >
-                                  <input
-                                    type="hidden"
-                                    name="userId"
-                                    value={
-                                      user.user_id
-                                    }
-                                  />
-
-                                  <button
-                                    type="submit"
-                                    className="h-10 rounded-xl border border-red-300/10 bg-red-300/[0.04] px-4 text-[10px] text-red-100/60"
-                                  >
-                                    Limiti sil
-                                  </button>
-                                </AdminActionForm>
-                              ) : (
-                                <div />
-                              )}
-                            </div>
-                          </>
-                        );
-                      })()}
-                    </div>
                   </div>
                 </details>
               );

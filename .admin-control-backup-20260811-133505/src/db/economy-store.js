@@ -44,11 +44,7 @@ function defaultEconomySettings() {
     chestsUpdatedBy: null,
     safeModeEnabled: false,
     safeModeUpdatedAt: null,
-    safeModeUpdatedBy: null,
-    casinoEnabled: true,
-    globalCasinoMaxBet: 100000,
-    casinoUpdatedAt: null,
-    casinoUpdatedBy: null
+    safeModeUpdatedBy: null
   };
 }
 
@@ -127,13 +123,7 @@ export async function loadEconomyStore(userIds = null) {
     chestsUpdatedBy: settingsResult.data.chests_updated_by ?? null,
     safeModeEnabled: settingsResult.data.safe_mode_enabled ?? false,
     safeModeUpdatedAt: settingsResult.data.safe_mode_updated_at ?? null,
-    safeModeUpdatedBy: settingsResult.data.safe_mode_updated_by ?? null,
-    casinoEnabled: settingsResult.data.casino_enabled ?? true,
-    globalCasinoMaxBet: toNumber(settingsResult.data.global_casino_max_bet, 100000),
-    casinoUpdatedAt: settingsResult.data.casino_updated_at == null
-      ? null
-      : toEpochMs(settingsResult.data.casino_updated_at, null),
-    casinoUpdatedBy: settingsResult.data.casino_updated_by ?? null
+    safeModeUpdatedBy: settingsResult.data.safe_mode_updated_by ?? null
   } : defaultEconomySettings();
 
   const restrictionsQueryIds = normalizedIds ?? Object.keys(store.users);
@@ -231,11 +221,7 @@ export async function saveEconomyStore(store) {
       chests_updated_by: store.settings.chestsUpdatedBy ?? null,
       safe_mode_enabled: Boolean(store.settings.safeModeEnabled),
       safe_mode_updated_at: store.settings.safeModeUpdatedAt == null ? null : toEpochMs(store.settings.safeModeUpdatedAt, null),
-      safe_mode_updated_by: store.settings.safeModeUpdatedBy ?? null,
-      casino_enabled: store.settings.casinoEnabled !== false,
-      global_casino_max_bet: Math.max(0, toNumber(store.settings.globalCasinoMaxBet, 100000)),
-      casino_updated_at: store.settings.casinoUpdatedAt == null ? null : toEpochMs(store.settings.casinoUpdatedAt, null),
-      casino_updated_by: store.settings.casinoUpdatedBy ?? null
+      safe_mode_updated_by: store.settings.safeModeUpdatedBy ?? null
     };
 
     const settingsResult = await client.from('economy_settings').upsert(settingsPayload, { onConflict: 'id' });
@@ -580,11 +566,7 @@ export async function loadEconomySettings() {
     chestsUpdatedBy: data.chests_updated_by ?? null,
     safeModeEnabled: data.safe_mode_enabled ?? false,
     safeModeUpdatedAt: data.safe_mode_updated_at == null ? null : toEpochMs(data.safe_mode_updated_at, null),
-    safeModeUpdatedBy: data.safe_mode_updated_by ?? null,
-    casinoEnabled: data.casino_enabled ?? true,
-    globalCasinoMaxBet: toNumber(data.global_casino_max_bet, 100000),
-    casinoUpdatedAt: data.casino_updated_at == null ? null : toEpochMs(data.casino_updated_at, null),
-    casinoUpdatedBy: data.casino_updated_by ?? null
+    safeModeUpdatedBy: data.safe_mode_updated_by ?? null
   } : defaultEconomySettings();
 }
 
@@ -595,11 +577,7 @@ export async function saveEconomySettings(settings) {
     chestsUpdatedBy: settings?.chestsUpdatedBy ?? null,
     safeModeEnabled: Boolean(settings?.safeModeEnabled),
     safeModeUpdatedAt: settings?.safeModeUpdatedAt == null ? null : toEpochMs(settings.safeModeUpdatedAt, null),
-    safeModeUpdatedBy: settings?.safeModeUpdatedBy ?? null,
-    casinoEnabled: settings?.casinoEnabled !== false,
-    globalCasinoMaxBet: Math.max(0, toNumber(settings?.globalCasinoMaxBet, 100000)),
-    casinoUpdatedAt: settings?.casinoUpdatedAt == null ? null : toEpochMs(settings.casinoUpdatedAt, null),
-    casinoUpdatedBy: settings?.casinoUpdatedBy ?? null
+    safeModeUpdatedBy: settings?.safeModeUpdatedBy ?? null
   };
 
   if (isMemoryStorageEnabled()) {
@@ -615,11 +593,7 @@ export async function saveEconomySettings(settings) {
     chests_updated_by: next.chestsUpdatedBy,
     safe_mode_enabled: next.safeModeEnabled,
     safe_mode_updated_at: next.safeModeUpdatedAt,
-    safe_mode_updated_by: next.safeModeUpdatedBy,
-    casino_enabled: next.casinoEnabled,
-    global_casino_max_bet: next.globalCasinoMaxBet,
-    casino_updated_at: next.casinoUpdatedAt,
-    casino_updated_by: next.casinoUpdatedBy
+    safe_mode_updated_by: next.safeModeUpdatedBy
   }, { onConflict: 'id' });
   if (error) throw error;
   return next;

@@ -553,22 +553,6 @@ const adminCommand = new SlashCommandBuilder()
   .addSubcommand(subcommand => subcommand.setName('item').setDescription('Üzvə item, key, ticket və ya sandıq ver.').addUserOption(userOption).addStringOption(adminItemOption).addIntegerOption(adminCountOption))
   .addSubcommand(subcommand => subcommand.setName('casinorestrict').setDescription('Üzv üçün casino mərc limitini təyin et.').addUserOption(userOption).addIntegerOption(adminCasinoMaxBetOption).addStringOption(option => option.setName('reason').setDescription('Səbəb').setMaxLength(80).setRequired(false)))
   .addSubcommand(subcommand => subcommand.setName('chests').setDescription('Sandıq/açar alma və açma sistemini aç-bağla.').addBooleanOption(option => option.setName('enabled').setDescription('Aktiv olsun?').setRequired(true)))
-  .addSubcommand(subcommand => subcommand
-    .setName('casino')
-    .setDescription('Bütün casino sistemini aç və ya bağla.')
-    .addBooleanOption(option => option
-      .setName('enabled')
-      .setDescription('Casino aktiv olsun?')
-      .setRequired(true)))
-  .addSubcommand(subcommand => subcommand
-    .setName('casinomax')
-    .setDescription('Bütün server üçün maksimum casino mərcini təyin et.')
-    .addIntegerOption(option => option
-      .setName('maxbet')
-      .setDescription('Global maksimum mərc. 0 = limitsiz.')
-      .setMinValue(0)
-      .setMaxValue(1000000)
-      .setRequired(true)))
   .addSubcommand(subcommand => subcommand.setName('safemode').setDescription('Economy safe mode-u aç-bağla.').addBooleanOption(option => option.setName('enabled').setDescription('Aktiv olsun?').setRequired(true)))
   .addSubcommand(subcommand => subcommand
     .setName('cleanup')

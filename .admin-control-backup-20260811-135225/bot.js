@@ -40,8 +40,6 @@ import {
   adminSetBalance,
   adminSetChestAccess,
   adminSetCasinoRestriction,
-  adminSetGlobalCasinoEnabled,
-  adminSetGlobalCasinoMaxBet,
   adminSetSafeMode,
   adminSetLevel,
   adminTakeAura,
@@ -2120,103 +2118,6 @@ async function handleAdminCommand(interaction) {
       ],
       ephemeral: true
     });
-    return;
-  }
-
-  if (subcommand === 'casino') {
-    const enabled = interaction.options.getBoolean('enabled', true);
-
-    const settings = await adminSetGlobalCasinoEnabled(
-      enabled,
-      interaction.user.id
-    );
-
-    await interaction.reply({
-      embeds: [
-        gameEmbed()
-          .setTitle(
-            settings.casinoEnabled
-              ? 'Casino sistemi açıldı'
-              : 'Casino sistemi bağlandı'
-          )
-          .setDescription(
-            settings.casinoEnabled
-              ? 'Bütün istifadəçilər casino oyunlarından yenidən istifadə edə bilər.'
-              : 'Bütün Octoson casino girişləri administrator tərəfindən müvəqqəti bağlandı.'
-          )
-          .addFields(
-            {
-              name: 'Casino',
-              value: settings.casinoEnabled
-                ? '🟢 Aktiv'
-                : '🔴 Bağlı',
-              inline: true
-            },
-            {
-              name: 'Global max bet',
-              value:
-                Number(settings.globalCasinoMaxBet) > 0
-                  ? `${formatNumber(settings.globalCasinoMaxBet)} ${gameCopy.currency}`
-                  : 'Limitsiz',
-              inline: true
-            },
-            {
-              name: 'Admin',
-              value: `<@${interaction.user.id}>`,
-              inline: true
-            }
-          )
-      ],
-      ephemeral: true
-    });
-
-    return;
-  }
-
-  if (subcommand === 'casinomax') {
-    const maxBet = interaction.options.getInteger('maxbet', true);
-
-    const settings = await adminSetGlobalCasinoMaxBet(
-      maxBet,
-      interaction.user.id
-    );
-
-    await interaction.reply({
-      embeds: [
-        gameEmbed()
-          .setTitle('Global casino limiti yeniləndi')
-          .setDescription(
-            settings.globalCasinoMaxBet > 0
-              ? `Bütün istifadəçilər üçün maksimum casino mərci **${formatNumber(settings.globalCasinoMaxBet)} ${gameCopy.currency}** oldu.`
-              : 'Global casino mərc limiti söndürüldü. İndi yalnız istifadəçi və economy əsaslı limitlər tətbiq olunur.'
-          )
-          .addFields(
-            {
-              name: 'Global max bet',
-              value:
-                settings.globalCasinoMaxBet > 0
-                  ? `${formatNumber(settings.globalCasinoMaxBet)} ${gameCopy.currency}`
-                  : 'Limitsiz',
-              inline: true
-            },
-            {
-              name: 'Casino',
-              value:
-                settings.casinoEnabled === false
-                  ? '🔴 Bağlı'
-                  : '🟢 Aktiv',
-              inline: true
-            },
-            {
-              name: 'Admin',
-              value: `<@${interaction.user.id}>`,
-              inline: true
-            }
-          )
-      ],
-      ephemeral: true
-    });
-
     return;
   }
 

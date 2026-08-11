@@ -341,44 +341,6 @@ export async function adminSetSafeMode(enabled, adminId) {
   return structuredClone(store.settings);
 }
 
-export async function adminSetGlobalCasinoEnabled(enabled, adminId) {
-  const store = await readStore();
-  ensureStoreSettings(store);
-
-  store.settings.casinoEnabled = Boolean(enabled);
-  store.settings.casinoUpdatedAt = new Date().toISOString();
-  store.settings.casinoUpdatedBy = adminId;
-
-  await writeStore(store);
-
-  return structuredClone(store.settings);
-}
-
-export async function adminSetGlobalCasinoMaxBet(maxBet, adminId) {
-  const store = await readStore();
-  ensureStoreSettings(store);
-
-  const parsed = Number(maxBet);
-
-  if (!Number.isFinite(parsed)) {
-    throw new Error('Invalid global casino maximum bet');
-  }
-
-  // 0 = global cap yoxdur.
-  store.settings.globalCasinoMaxBet = clamp(
-    Math.trunc(parsed),
-    0,
-    1000000
-  );
-
-  store.settings.casinoUpdatedAt = new Date().toISOString();
-  store.settings.casinoUpdatedBy = adminId;
-
-  await writeStore(store);
-
-  return structuredClone(store.settings);
-}
-
 export async function adminGrantBadge(userId, badge, adminId) {
   const { store, user } = await getStoreUser(userId);
   const cleanBadge = badge.trim().slice(0, 40);
@@ -1228,33 +1190,6 @@ export async function prepareCasinoEntry(userId, bet, game, { reserve = false } 
     const now = Date.now();
     const restrictions = user.moderation?.restrictions || [];
 
-    /*
-     * Global casino controls.
-     * Stored in economy_settings so Discord and Web share
-     * the same casino policy.
-     */
-    const globalSettings = store.settings ?? {};
-
-    if (globalSettings.casinoEnabled === false) {
-      console.log('[casino-debug] prepareCasinoEntry blocked: global casino disabled', {
-        userId, game, bet, storeSettings: globalSettings
-      });
-
-      return {
-        ok: false,
-        reason: 'casino_restricted',
-        restriction: {
-          type: 'casino',
-          reason: 'Casino administrator tərəfindən müvəqqəti bağlanıb.',
-          global: true
-        },
-        cost: 0,
-        ticketCover: 0,
-        usedTicket: false,
-        profile: structuredClone(user)
-      };
-    }
-
     const findRestriction = action =>
       restrictions.find(r => {
         if (r.expiresAt && r.expiresAt <= now) return false;
@@ -1306,37 +1241,6 @@ export async function prepareCasinoEntry(userId, bet, game, { reserve = false } 
 
     const currentUser = store.users[userId];
 
-    /*
-     * Global maximum bet.
-     * A value <= 0 means no global cap.
-     */
-    const globalMaxBet = Number(globalSettings.globalCasinoMaxBet);
-
-    if (
-      Number.isFinite(globalMaxBet) &&
-      globalMaxBet > 0 &&
-      bet > globalMaxBet
-    ) {
-      console.log('[casino-debug] prepareCasinoEntry blocked: global max bet exceeded', {
-        userId, bet, globalMaxBet
-      });
-
-      return {
-        ok: false,
-        reason: 'casino_max_bet',
-        restriction: {
-          type: 'casino_max_bet',
-          maxBet: globalMaxBet,
-          reason: 'Octoson global casino limiti',
-          global: true
-        },
-        cost: 0,
-        ticketCover: 0,
-        usedTicket: false,
-        profile: structuredClone(user)
-      };
-    }
-
     const ticketCover =
       currentUser.inventory.tickets > 0
         ? Math.min(bet, rewardTicketCover)
@@ -1348,10 +1252,6 @@ export async function prepareCasinoEntry(userId, bet, game, { reserve = false } 
       casinoRestrictionForBet(currentUser, bet);
 
     if (casinoRestriction) {
-      console.log('[casino-debug] prepareCasinoEntry blocked by casinoRestriction', {
-        userId, bet, casinoRestriction, adminCasinoMaxBet: currentUser.moderation?.casinoMaxBet
-      });
-
       return {
         ok: false,
         reason: 'casino_restricted',
@@ -1364,10 +1264,6 @@ export async function prepareCasinoEntry(userId, bet, game, { reserve = false } 
     }
 
     if (currentUser.balance < cost) {
-      console.log('[casino-debug] prepareCasinoEntry insufficient balance', {
-        userId, bet, cost, balance: currentUser.balance, ticketCover
-      });
-
       return {
         ok: false,
         reason: 'insufficient',
@@ -2892,42 +2788,31 @@ function resetShopChestLimit(user, today = currentDayKey(), count = 0) {
 }
 
 function casinoRestrictionForBet(user, bet) {
-  /*
-   * Legacy profile-level admin restriction only.
-   *
-   * IMPORTANT:
-   * Do NOT apply the old balance/bank/level based dynamic casino cap here.
-   *
-   * Casino limits are now controlled by:
-   *   1. global casino enabled/disabled
-   *   2. user_restrictions: casino / all_economy
-   *   3. user_restrictions: casino_max_bet
-   *   4. globalCasinoMaxBet (> 0 only)
-   *   5. actual wallet balance
-   *
-   * Therefore globalCasinoMaxBet === 0 really means unlimited.
-   */
   const adminMaxBet = user.moderation?.casinoMaxBet;
-
-  if (
-    Number.isFinite(Number(adminMaxBet)) &&
-    Number(adminMaxBet) >= 0
-  ) {
-    const maxBet = Number(adminMaxBet);
-
-    if (bet <= maxBet) {
+  if (Number.isInteger(adminMaxBet)) {
+    if (bet <= adminMaxBet) {
       return null;
     }
 
     return {
-      maxBet,
+      maxBet: adminMaxBet,
       reason: user.moderation?.casinoReason ?? 'admin review',
       restrictedAt: user.moderation?.casinoRestrictedAt ?? null,
       restrictedBy: user.moderation?.casinoRestrictedBy ?? null
     };
   }
 
-  return null;
+  const maxBet = casinoBetLimit(user);
+  if (bet <= maxBet) {
+    return null;
+  }
+
+  return {
+    maxBet,
+    reason: 'balance and bank based limit',
+    restrictedAt: null,
+    restrictedBy: null
+  };
 }
 
 function safeModeAmount(store, amount) {
