@@ -75,6 +75,7 @@ export type OctosonLeaderboardEntry = {
   prestige: number;
   rank: string;
   primeActive: boolean;
+  verified: boolean;
   wins: number;
 };
 
@@ -98,6 +99,75 @@ function readRecord(
   }
 
   return {};
+}
+
+export function isOctosonVerified(
+  profileValue: unknown
+): boolean {
+  const profile = readRecord(profileValue);
+  const identity = readRecord(profile.identity);
+
+  return (
+    identity.verified === true ||
+    profile.verified === true
+  );
+}
+
+export function getOctosonAppearance(
+  profileValue: unknown
+): {
+  gradient: string;
+  bannerAnimation: string;
+  primaryColor: string;
+  secondaryColor: string;
+  glowIntensity: number;
+} {
+  const profile = readRecord(profileValue);
+  const appearance = readRecord(profile.appearance);
+
+  const validHex = (
+    value: unknown,
+    fallback: string
+  ) =>
+    typeof value === "string" &&
+    /^#[0-9a-fA-F]{6}$/.test(value)
+      ? value
+      : fallback;
+
+  const rawGlow =
+    Number(appearance.glowIntensity);
+
+  return {
+    gradient:
+      typeof appearance.gradient === "string"
+        ? appearance.gradient
+        : "cyan",
+
+    bannerAnimation:
+      typeof appearance.bannerAnimation === "string"
+        ? appearance.bannerAnimation
+        : "aurora",
+
+    primaryColor:
+      validHex(
+        appearance.primaryColor,
+        "#67e8f9"
+      ),
+
+    secondaryColor:
+      validHex(
+        appearance.secondaryColor,
+        "#6366f1"
+      ),
+
+    glowIntensity:
+      Number.isFinite(rawGlow)
+        ? Math.min(
+            100,
+            Math.max(0, rawGlow)
+          )
+        : 55,
+  };
 }
 
 export async function getOctosonLeaderboard(
@@ -151,6 +221,7 @@ export async function getOctosonLeaderboard(
           profile.rank ?? "Yeni başlayan"
         ),
         primeActive,
+        verified: isOctosonVerified(profile),
         wins: readNumber(
           stats.gamesWon ??
             stats.wins ??
@@ -197,6 +268,7 @@ export type OctosonPublicProfile = {
   gamesWon: number;
   gamesLost: number;
   primeActive: boolean;
+  verified: boolean;
   badges: unknown[];
   achievements: unknown[];
   rawProfile: OctosonProfile;
@@ -343,6 +415,7 @@ export async function getOctosonPublicProfile(
       prime.active === true ||
       profile.primeActive === true ||
       primeUntil > Date.now(),
+    verified: isOctosonVerified(profile),
     badges: Array.isArray(profile.badges)
       ? profile.badges
       : [],

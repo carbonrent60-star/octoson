@@ -1,5 +1,4 @@
 "use client";
-import VerifiedBadge from "@/components/profile/verified-badge";
 
 import Link from "next/link";
 
@@ -43,7 +42,6 @@ type ActivityTransaction = {
 type Member = {
   name?: string;
   avatar?: string | null;
-  verified?: boolean;
 };
 
 type ActivityFeedProps = {
@@ -586,18 +584,9 @@ export default function ActivityFeed({
                 />
 
                 <div className="min-w-0">
-                  <div className="flex min-w-0 items-center gap-1.5">
-                    <p className="truncate text-[12px] font-medium text-white/65">
-                      {name}
-                    </p>
-
-                    {member?.verified ? (
-                      <VerifiedBadge
-                        size="xs"
-                        className="shrink-0"
-                      />
-                    ) : null}
-                  </div>
+                  <p className="truncate text-[12px] font-medium text-white/65">
+                    {name}
+                  </p>
 
                   <div className="mt-1 flex items-center gap-1.5 text-[9px] text-white/20">
                     <Clock3 className="h-3 w-3" />
@@ -715,13 +704,6 @@ export default function ActivityFeed({
                     >
                       {name}
                     </Link>
-
-                    {member?.verified ? (
-                      <VerifiedBadge
-                        size="xs"
-                        className="shrink-0"
-                      />
-                    ) : null}
 
                     <span className="shrink-0 rounded-full border border-cyan-200/[0.08] bg-cyan-200/[0.035] px-2 py-0.5 text-[7px] font-semibold uppercase tracking-[0.12em] text-cyan-100/45">
                       SESSION

@@ -13,7 +13,6 @@ import { createPageMetadata } from "@/lib/metadata";
 
 import {
   getOctosonPublicActivity,
-  getOctosonPublicProfile,
   getOctosonUser,
 } from "@/lib/octoson";
 
@@ -176,38 +175,6 @@ export default async function ActivityPage() {
 
   const members = await getOctosonGuildMembers(userIds);
 
-  const verifiedEntries = await Promise.all(
-    userIds.map(async (userId) => {
-      try {
-        const profile =
-          await getOctosonPublicProfile(userId);
-
-        return [
-          userId,
-          profile?.verified === true,
-        ] as const;
-      } catch {
-        return [userId, false] as const;
-      }
-    })
-  );
-
-  const verifiedByUser: Record<string, boolean> =
-    Object.fromEntries(verifiedEntries);
-
-  const activityMembers = Object.fromEntries(
-    Object.entries(members).map(
-      ([userId, member]) => [
-        userId,
-        {
-          ...member,
-          verified:
-            verifiedByUser[userId] === true,
-        },
-      ]
-    )
-  );
-
   const casinoCount = transactions.filter((transaction) =>
     casinoTypes.has(transaction.type)
   ).length;
@@ -277,7 +244,7 @@ export default async function ActivityPage() {
         {transactions.length ? (
           <ActivityFeed
             transactions={transactions}
-            members={activityMembers}
+            members={members}
           />
         ) : (
           <div className="px-6 py-16 text-center text-[12px] text-white/25">

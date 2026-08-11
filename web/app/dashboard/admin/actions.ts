@@ -61,6 +61,10 @@ function refreshAdmin() {
   revalidatePath(
     "/dashboard/leaderboard"
   );
+
+  revalidatePath(
+    "/dashboard/activity"
+  );
 }
 
 async function getUser(
@@ -316,6 +320,106 @@ export async function giveAuraAction(
       )} Aura`,
   };
 }
+
+
+export async function setUserVerificationAction(
+  formData: FormData
+): Promise<AdminResult> {
+  const { userId: adminId } =
+    await requireOctosonAdmin();
+
+  const targetId =
+    text(
+      formData.get(
+        "userId"
+      )
+    );
+
+  const verified =
+    text(
+      formData.get(
+        "verified"
+      )
+    ) === "true";
+
+  if (
+    !/^\d{10,25}$/.test(
+      targetId
+    )
+  ) {
+    return {
+      ok: false,
+      message:
+        "Düzgün Discord user ID daxil et.",
+    };
+  }
+
+  const row =
+    await getUser(
+      targetId
+    );
+
+  if (!row) {
+    return {
+      ok: false,
+      message:
+        "İstifadəçi tapılmadı.",
+    };
+  }
+
+  const oldProfile =
+    row.profile &&
+    typeof row.profile ===
+      "object"
+      ? row.profile as Record<string, unknown>
+      : {};
+
+  const oldIdentity =
+    oldProfile.identity &&
+    typeof oldProfile.identity === "object" &&
+    !Array.isArray(oldProfile.identity)
+      ? oldProfile.identity as Record<string, unknown>
+      : {};
+
+  const result =
+    await saveProfilePatch(
+      targetId,
+      {
+        identity: {
+          ...oldIdentity,
+          verified,
+          verifiedAt:
+            verified
+              ? Date.now()
+              : null,
+          verifiedBy:
+            verified
+              ? adminId
+              : null,
+        },
+      },
+      adminId
+    );
+
+  if (!result.ok) {
+    return result;
+  }
+
+  refreshAdmin();
+
+  revalidatePath(
+    `/dashboard/users/${targetId}`
+  );
+
+  return {
+    ok: true,
+    message:
+      verified
+        ? "İstifadəçi Octoson Verified edildi."
+        : "Verified statusu silindi.",
+  };
+}
+
 
 export async function editUserAction(
   formData: FormData

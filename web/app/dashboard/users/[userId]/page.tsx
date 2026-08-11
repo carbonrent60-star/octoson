@@ -1,5 +1,7 @@
+import type { CSSProperties } from "react";
 import Link from "next/link";
 import AvatarAmbient from "@/components/profile/avatar-ambient";
+import VerifiedBadge from "@/components/profile/verified-badge";
 import { auth } from "@/auth";
 import { notFound, redirect } from "next/navigation";
 import {
@@ -19,6 +21,7 @@ import {
   getOctosonPublicActivity,
   getOctosonPublicProfile,
   getOctosonUser,
+  getOctosonAppearance,
 } from "@/lib/octoson";
 
 import {
@@ -107,6 +110,16 @@ export default async function PublicUserPage({
   const displayName =
     member?.name ?? `İstifadəçi ${userId.slice(-4)}`;
 
+  const {
+    gradient: profileGradient,
+    bannerAnimation,
+    primaryColor,
+    secondaryColor,
+    glowIntensity,
+  } = getOctosonAppearance(
+    profile.rawProfile
+  );
+
   const casinoTransactions = transactions.filter(
     (transaction) => casinoTypes.has(transaction.type)
   );
@@ -147,12 +160,117 @@ export default async function PublicUserPage({
         Fəaliyyətə qayıt
       </Link>
 
-      <section className="relative overflow-hidden rounded-[22px] border border-cyan-100/[0.08] bg-cyan-100/[0.018] p-5 sm:p-7">
-        {member?.avatar ? (
-          <AvatarAmbient avatar={member.avatar} />
-        ) : (
-          <div className="pointer-events-none absolute -right-24 -top-28 h-72 w-72 rounded-full bg-cyan-200/[0.045] blur-[90px]" />
-        )}
+      <section
+        data-verified={profile.verified ? "true" : "false"}
+        data-profile-gradient={profileGradient}
+        data-banner-animation={bannerAnimation}
+        className={`relative overflow-hidden rounded-[26px] bg-[#09090c] p-5 sm:p-7 ${
+          profile.verified
+            ? "border border-cyan-100/[0.14] shadow-[0_30px_100px_rgba(34,211,238,.055)]"
+            : "border border-white/[0.07]"
+        }`}
+        style={
+          {
+            "--profile-primary": primaryColor,
+            "--profile-secondary": secondaryColor,
+            "--profile-glow": String(glowIntensity / 100),
+          } as CSSProperties
+        }
+      >
+        {profile.verified ? (
+          <>
+            <div
+              className="pointer-events-none absolute inset-0"
+              style={{
+                background: `
+                  radial-gradient(
+                    circle at 78% 15%,
+                    color-mix(
+                      in srgb,
+                      var(--profile-primary)
+                      calc(var(--profile-glow) * 18%),
+                      transparent
+                    ),
+                    transparent 35%
+                  ),
+                  radial-gradient(
+                    circle at 18% 90%,
+                    color-mix(
+                      in srgb,
+                      var(--profile-secondary)
+                      calc(var(--profile-glow) * 12%),
+                      transparent
+                    ),
+                    transparent 34%
+                  ),
+                  linear-gradient(
+                    135deg,
+                    color-mix(
+                      in srgb,
+                      var(--profile-primary) 4%,
+                      transparent
+                    ),
+                    transparent 46%,
+                    color-mix(
+                      in srgb,
+                      var(--profile-secondary) 3%,
+                      transparent
+                    )
+                  )
+                `,
+              }}
+            />
+
+            {bannerAnimation !== "none" ? (
+              <div
+                className="pointer-events-none absolute -right-20 -top-32 h-[390px] w-[390px] rounded-full blur-[110px]"
+                style={{
+                  background:
+                    "color-mix(in srgb, var(--profile-primary) calc(var(--profile-glow) * 13%), transparent)",
+                  animation:
+                    bannerAnimation === "glow"
+                      ? "pulse 3.8s ease-in-out infinite"
+                      : bannerAnimation === "float"
+                        ? "pulse 5.5s ease-in-out infinite"
+                        : "pulse 7s ease-in-out infinite",
+                }}
+              />
+            ) : null}
+
+            <div
+              className="pointer-events-none absolute -bottom-44 left-[18%] h-[340px] w-[340px] rounded-full blur-[100px]"
+              style={{
+                background:
+                  "color-mix(in srgb, var(--profile-secondary) calc(var(--profile-glow) * 10%), transparent)",
+              }}
+            />
+
+            <div
+              className="pointer-events-none absolute inset-x-0 top-0 h-px"
+              style={{
+                background:
+                  "linear-gradient(90deg, transparent, color-mix(in srgb, var(--profile-primary) 42%, transparent), transparent)",
+              }}
+            />
+
+            <div
+              className="pointer-events-none absolute inset-0 opacity-[0.025]"
+              style={{
+                backgroundImage:
+                  "radial-gradient(circle at 80% 20%, rgba(255,255,255,.8) 1px, transparent 1px)",
+                backgroundSize: "24px 24px",
+              }}
+            />
+          </>
+        ) : null}
+
+        {!profile.verified ? (
+          member?.avatar ? (
+            <AvatarAmbient avatar={member.avatar} />
+          ) : (
+            <div className="pointer-events-none absolute -right-24 -top-28 h-72 w-72 rounded-full bg-cyan-200/[0.045] blur-[90px]" />
+          )
+        ) : null}
 
         <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex min-w-0 items-center gap-4">
@@ -173,6 +291,10 @@ export default async function PublicUserPage({
                 <h1 className="truncate text-[26px] font-semibold tracking-[-0.04em] text-white sm:text-[32px]">
                   {displayName}
                 </h1>
+
+                {profile.verified ? (
+                  <VerifiedBadge size="lg" />
+                ) : null}
 
                 {profile.primeActive && (
                   <span className="rounded-full border border-cyan-100/[0.1] bg-cyan-100/[0.035] px-2 py-1 text-[8px] font-bold uppercase tracking-[0.12em] text-cyan-100/60">

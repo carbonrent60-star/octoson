@@ -1,7 +1,6 @@
 import type { CSSProperties } from "react";
 import { createPageMetadata } from "@/lib/metadata";
 import VerifiedBadge from "@/components/profile/verified-badge";
-import ProfileStudio from "@/components/profile/profile-studio";
 import { saveVerifiedAppearanceAction } from "./actions";
 import { redirect } from "next/navigation";
 import {
@@ -567,20 +566,321 @@ export default async function ProfilePage() {
       </section>
 
       {verified ? (
-        <ProfileStudio
-          displayName={displayName}
-          username={username}
-          image={image}
-          netWorth={netWorth}
-          level={level}
-          xpProgress={xpProgress}
-          initialGradient={profileGradient}
-          initialPrimaryColor={primaryColor}
-          initialSecondaryColor={secondaryColor}
-          initialBannerAnimation={bannerAnimation}
-          initialGlowIntensity={glowIntensity}
-          action={saveVerifiedAppearanceAction}
-        />
+        <section
+          className="relative mt-4 overflow-hidden rounded-[24px] border border-white/[0.075] bg-[#0a0b0e]"
+          style={{
+            boxShadow:
+              "0 28px 90px color-mix(in srgb, var(--profile-primary) 5%, transparent)",
+          }}
+        >
+          <div
+            className="pointer-events-none absolute inset-0 opacity-70"
+            style={{
+              background: `
+                radial-gradient(circle at 8% 0%, color-mix(in srgb, ${primaryColor} 10%, transparent), transparent 32%),
+                radial-gradient(circle at 92% 100%, color-mix(in srgb, ${secondaryColor} 8%, transparent), transparent 34%)
+              `,
+            }}
+          />
+
+          <div className="relative border-b border-white/[0.055] px-5 py-5 sm:px-6">
+            <div className="flex items-center gap-2">
+              <VerifiedBadge size="sm" />
+
+              <p className="text-[9px] font-semibold uppercase tracking-[0.18em] text-cyan-100/60">
+                Verified Profile Studio
+              </p>
+            </div>
+
+            <div className="mt-2 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <h3 className="text-[17px] font-semibold tracking-[-0.025em] text-white/85">
+                  Profil görünüşü
+                </h3>
+
+                <p className="mt-1 max-w-xl text-[11px] leading-5 text-white/28">
+                  Profilinin rənglərini, atmosferini və hərəkət effektini fərdiləşdir.
+                  Seçdiyin görünüş public profilində də göstərilir.
+                </p>
+              </div>
+
+              <span className="mt-2 text-[8px] font-semibold uppercase tracking-[0.16em] text-white/18 sm:mt-0">
+                OCTOSON VERIFIED
+              </span>
+            </div>
+          </div>
+
+          <form
+            action={saveVerifiedAppearanceAction}
+            className="relative grid gap-5 p-5 lg:grid-cols-[1fr_0.9fr] sm:p-6"
+          >
+            <div className="space-y-5">
+              <div>
+                <p className="text-[8px] font-semibold uppercase tracking-[0.16em] text-white/25">
+                  Theme preset
+                </p>
+
+                <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-6">
+                  {[
+                    ["cyan", "#67e8f9", "#3b82f6", "Cyan"],
+                    ["ocean", "#38bdf8", "#6366f1", "Ocean"],
+                    ["violet", "#c4b5fd", "#8b5cf6", "Violet"],
+                    ["rose", "#fb7185", "#f472b6", "Rose"],
+                    ["emerald", "#6ee7b7", "#22d3ee", "Emerald"],
+                    ["mono", "#e5e7eb", "#64748b", "Mono"],
+                  ].map(([value, first, second, label]) => (
+                    <label
+                      key={value}
+                      className="group relative cursor-pointer"
+                    >
+                      <input
+                        type="radio"
+                        name="gradient"
+                        value={value}
+                        defaultChecked={profileGradient === value}
+                        className="peer sr-only"
+                      />
+
+                      <span className="block rounded-[14px] border border-white/[0.065] bg-white/[0.018] p-2 transition duration-200 hover:border-white/[0.12] peer-checked:border-white/[0.22] peer-checked:bg-white/[0.055]">
+                        <span
+                          className="block h-8 rounded-[9px] border border-white/[0.08]"
+                          style={{
+                            background: `linear-gradient(135deg, ${first}, ${second})`,
+                            boxShadow: `0 8px 25px ${first}18`,
+                          }}
+                        />
+
+                        <span className="mt-2 block text-center text-[8px] font-medium text-white/35 transition group-hover:text-white/55 peer-checked:text-white/75">
+                          {label}
+                        </span>
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label className="rounded-[16px] border border-white/[0.06] bg-white/[0.018] p-4">
+                  <span className="text-[8px] font-semibold uppercase tracking-[0.15em] text-white/22">
+                    Primary color
+                  </span>
+
+                  <div className="mt-3 flex items-center gap-3">
+                    <input
+                      type="color"
+                      name="primaryColor"
+                      defaultValue={primaryColor}
+                      className="h-10 w-12 cursor-pointer rounded-lg border-0 bg-transparent p-0"
+                    />
+
+                    <div>
+                      <p className="font-mono text-[11px] uppercase text-white/65">
+                        {primaryColor}
+                      </p>
+                      <p className="mt-0.5 text-[8px] text-white/18">
+                        Əsas işıq və accent
+                      </p>
+                    </div>
+                  </div>
+                </label>
+
+                <label className="rounded-[16px] border border-white/[0.06] bg-white/[0.018] p-4">
+                  <span className="text-[8px] font-semibold uppercase tracking-[0.15em] text-white/22">
+                    Secondary color
+                  </span>
+
+                  <div className="mt-3 flex items-center gap-3">
+                    <input
+                      type="color"
+                      name="secondaryColor"
+                      defaultValue={secondaryColor}
+                      className="h-10 w-12 cursor-pointer rounded-lg border-0 bg-transparent p-0"
+                    />
+
+                    <div>
+                      <p className="font-mono text-[11px] uppercase text-white/65">
+                        {secondaryColor}
+                      </p>
+                      <p className="mt-0.5 text-[8px] text-white/18">
+                        İkinci glow və dərinlik
+                      </p>
+                    </div>
+                  </div>
+                </label>
+              </div>
+
+              <div>
+                <p className="text-[8px] font-semibold uppercase tracking-[0.16em] text-white/25">
+                  Banner animation
+                </p>
+
+                <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                  {[
+                    ["aurora", "Aurora", "Yavaş atmosfer"],
+                    ["glow", "Pulse", "Canlı glow"],
+                    ["float", "Ambient", "Yumşaq hərəkət"],
+                    ["none", "Static", "Effektsiz"],
+                  ].map(([value, label, description]) => (
+                    <label
+                      key={value}
+                      className="cursor-pointer"
+                    >
+                      <input
+                        type="radio"
+                        name="bannerAnimation"
+                        value={value}
+                        defaultChecked={bannerAnimation === value}
+                        className="peer sr-only"
+                      />
+
+                      <span className="block rounded-[14px] border border-white/[0.06] bg-white/[0.018] px-3 py-3 transition hover:border-white/[0.11] peer-checked:border-cyan-100/[0.2] peer-checked:bg-cyan-100/[0.045]">
+                        <span className="block text-[10px] font-semibold text-white/55 peer-checked:text-white/85">
+                          {label}
+                        </span>
+
+                        <span className="mt-1 block text-[8px] text-white/18">
+                          {description}
+                        </span>
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <label className="block rounded-[16px] border border-white/[0.06] bg-white/[0.018] p-4">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <span className="text-[8px] font-semibold uppercase tracking-[0.15em] text-white/22">
+                      Glow intensity
+                    </span>
+
+                    <p className="mt-1 text-[9px] text-white/18">
+                      Profil ətrafındakı rəngli işığın gücü.
+                    </p>
+                  </div>
+
+                  <span className="text-[10px] font-semibold text-white/45">
+                    {Math.round(glowIntensity)}%
+                  </span>
+                </div>
+
+                <input
+                  type="range"
+                  name="glowIntensity"
+                  min="0"
+                  max="100"
+                  step="5"
+                  defaultValue={glowIntensity}
+                  className="mt-4 w-full accent-cyan-200"
+                />
+              </label>
+            </div>
+
+            <div className="lg:sticky lg:top-6 lg:self-start">
+              <p className="text-[8px] font-semibold uppercase tracking-[0.16em] text-white/25">
+                Preview
+              </p>
+
+              <div
+                className="relative mt-3 min-h-[290px] overflow-hidden rounded-[20px] border border-white/[0.08] bg-[#08090c] p-5 shadow-2xl"
+                style={{
+                  background: `
+                    radial-gradient(circle at 82% 12%, ${primaryColor}24, transparent 38%),
+                    radial-gradient(circle at 8% 100%, ${secondaryColor}18, transparent 42%),
+                    #08090c
+                  `,
+                  boxShadow: `0 24px 70px ${primaryColor}12`,
+                }}
+              >
+                <div
+                  className="pointer-events-none absolute -right-12 -top-14 h-44 w-44 rounded-full blur-[55px]"
+                  style={{
+                    backgroundColor: `${primaryColor}24`,
+                  }}
+                />
+
+                <div className="relative">
+                  <div className="flex items-center gap-3">
+                    {image ? (
+                      <img
+                        src={image}
+                        alt=""
+                        className="h-14 w-14 rounded-[16px] border border-white/[0.12] object-cover shadow-xl"
+                      />
+                    ) : (
+                      <div className="flex h-14 w-14 items-center justify-center rounded-[16px] border border-white/[0.08] bg-white/[0.04]">
+                        <CircleUserRound className="h-6 w-6 text-white/25" />
+                      </div>
+                    )}
+
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <p className="truncate text-[15px] font-semibold text-white/90">
+                          {displayName}
+                        </p>
+
+                        <VerifiedBadge size="sm" />
+                      </div>
+
+                      <p className="mt-0.5 text-[9px] text-white/28">
+                        @{username}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 grid grid-cols-2 gap-2">
+                    <div className="rounded-[13px] border border-white/[0.06] bg-black/20 p-3 backdrop-blur-xl">
+                      <p className="text-[7px] uppercase tracking-[0.13em] text-white/20">
+                        Net Worth
+                      </p>
+                      <p className="mt-1.5 text-[13px] font-semibold text-white/75">
+                        {formatAura(netWorth)}
+                      </p>
+                    </div>
+
+                    <div className="rounded-[13px] border border-white/[0.06] bg-black/20 p-3 backdrop-blur-xl">
+                      <p className="text-[7px] uppercase tracking-[0.13em] text-white/20">
+                        Level
+                      </p>
+                      <p className="mt-1.5 text-[13px] font-semibold text-white/75">
+                        {level}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-5">
+                    <div className="flex items-center justify-between text-[8px] text-white/25">
+                      <span>{rank}</span>
+                      <span>{xpProgress.toFixed(0)}%</span>
+                    </div>
+
+                    <div className="mt-2 h-1 overflow-hidden rounded-full bg-white/[0.06]">
+                      <div
+                        className="h-full rounded-full"
+                        style={{
+                          width: `${xpProgress}%`,
+                          background: `linear-gradient(90deg, ${primaryColor}, ${secondaryColor})`,
+                          boxShadow: `0 0 16px ${primaryColor}70`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                className="mt-3 inline-flex h-11 w-full items-center justify-center rounded-[14px] border border-white/[0.1] bg-white/[0.07] px-4 text-[10px] font-semibold text-white/75 shadow-lg transition duration-200 hover:border-white/[0.16] hover:bg-white/[0.11] hover:text-white"
+              >
+                Görünüşü saxla
+              </button>
+
+              <p className="mt-2 text-center text-[8px] text-white/15">
+                Dəyişikliklər public profilində avtomatik görünəcək.
+              </p>
+            </div>
+          </form>
+        </section>
       ) : null}
 
       {/* CORE STATS */}

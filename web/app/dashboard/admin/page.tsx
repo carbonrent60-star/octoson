@@ -1,5 +1,6 @@
 import {
   Activity,
+  BadgeCheck,
   Banknote,
   CircleDollarSign,
   Gauge,
@@ -10,6 +11,7 @@ import {
 } from "lucide-react";
 
 import AdminActionForm from "@/components/admin/admin-action-form";
+import VerifiedBadge from "@/components/profile/verified-badge";
 import { requireOctosonAdmin } from "@/lib/admin";
 import { getSupabaseServerClient } from "@/lib/supabase-server";
 
@@ -20,6 +22,7 @@ import {
   setGlobalCasinoAction,
   setGlobalCasinoMaxBetAction,
   setUserCasinoMaxBetAction,
+  setUserVerificationAction,
 } from "./actions";
 
 import { getOctosonGuildMembers } from "@/lib/discord-server";
@@ -688,6 +691,17 @@ export default async function AdminPage({
                 discordMember?.avatar ??
                 null;
 
+              const identity =
+                profile.identity &&
+                typeof profile.identity === "object" &&
+                !Array.isArray(profile.identity)
+                  ? profile.identity as Record<string, unknown>
+                  : {};
+
+              const verified =
+                identity.verified === true ||
+                profile.verified === true;
+
               return (
                 <details
                   key={
@@ -742,6 +756,10 @@ export default async function AdminPage({
                             <p className="max-w-[300px] truncate text-[14px] font-semibold tracking-[-0.015em] text-white/[0.92]">
                               {name}
                             </p>
+
+                            {verified ? (
+                              <VerifiedBadge size="sm" />
+                            ) : null}
 
                             {online ? (
                               <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-emerald-300/[0.10] bg-emerald-300/[0.055] px-2 py-[3px] text-[8px] font-semibold uppercase tracking-[0.10em] text-emerald-200/65">
@@ -938,6 +956,68 @@ export default async function AdminPage({
                         />
                       </div>
                     </AdminActionForm>
+
+                    <div className="mt-5 rounded-[16px] border border-white/[0.055] bg-white/[0.018] p-4">
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            <BadgeCheck
+                              className={`h-4 w-4 ${
+                                verified
+                                  ? "fill-cyan-200/10 text-cyan-200"
+                                  : "text-white/20"
+                              }`}
+                            />
+
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/40">
+                              Octoson Verified
+                            </p>
+                          </div>
+
+                          <p className="mt-1.5 text-[10px] leading-5 text-white/25">
+                            {verified
+                              ? "Bu istifadəçi platformada Verified badge və premium profil imkanlarına sahibdir."
+                              : "Verified statusu profil, leaderboard, activity və digər identity sahələrində görünəcək."}
+                          </p>
+                        </div>
+
+                        <AdminActionForm
+                          action={
+                            setUserVerificationAction
+                          }
+                          className="shrink-0"
+                        >
+                          <input
+                            type="hidden"
+                            name="userId"
+                            value={user.user_id}
+                          />
+
+                          <input
+                            type="hidden"
+                            name="verified"
+                            value={
+                              verified
+                                ? "false"
+                                : "true"
+                            }
+                          />
+
+                          <button
+                            type="submit"
+                            className={`mt-0 inline-flex h-9 items-center justify-center rounded-[11px] border px-3.5 text-[9px] font-semibold transition ${
+                              verified
+                                ? "border-rose-300/10 bg-rose-300/[0.04] text-rose-100/60 hover:bg-rose-300/[0.08]"
+                                : "border-cyan-200/15 bg-cyan-200/[0.06] text-cyan-50/75 hover:bg-cyan-200/[0.11]"
+                            }`}
+                          >
+                            {verified
+                              ? "Verified sil"
+                              : "Verify et"}
+                          </button>
+                        </AdminActionForm>
+                      </div>
+                    </div>
 
                     <div className="mt-5 border-t border-white/[0.045] pt-5">
                       {(() => {

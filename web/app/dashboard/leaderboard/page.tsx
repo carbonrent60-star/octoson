@@ -1,4 +1,5 @@
 import { createPageMetadata } from "@/lib/metadata";
+import VerifiedBadge from "@/components/profile/verified-badge";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import {
@@ -253,6 +254,10 @@ export default async function LeaderboardPage() {
                           {displayName}
                         </p>
 
+                        {entry.verified ? (
+                          <VerifiedBadge size="xs" />
+                        ) : null}
+
                         {current && (
                           <span className="rounded-full border border-cyan-100/[0.08] bg-cyan-100/[0.025] px-1.5 py-0.5 text-[7px] font-semibold text-cyan-100/50">
                             SƏN
@@ -402,6 +407,10 @@ function PodiumCard({
           <p className="truncate text-[13px] font-semibold text-white/65">
             {name}
           </p>
+
+          {entry.verified ? (
+            <VerifiedBadge size="sm" />
+          ) : null}
 
           {current && (
             <span className="rounded-full border border-cyan-100/[0.08] bg-cyan-100/[0.025] px-1.5 py-0.5 text-[7px] font-semibold text-cyan-100/50">
