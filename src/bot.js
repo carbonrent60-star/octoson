@@ -9405,6 +9405,10 @@ function shopBuyDescription(result, missingText) {
 }
 
 function chestOpenTitle(result) {
+  if (result.reason === 'daily_chest_open_limit') {
+    return 'Gündəlik sandıq limiti';
+  }
+
   if (result.ok) return 'Sandıq açıldı';
   if (result.reason === 'chests_disabled') return 'Sandıq sistemi bağlıdır';
   if (result.reason === 'debt_locked') return 'Balans mənfidir';
@@ -9412,6 +9416,10 @@ function chestOpenTitle(result) {
 }
 
 function chestOpenDescription(result, rich) {
+  if (result.reason === 'daily_chest_open_limit') {
+    return `Bu gün maksimum **${result.limit ?? 5} sandıq** aça bilərsən. Gündəlik limitin dolub. Sabah yenidən aça bilərsən.`;
+  }
+
   if (result.ok) {
     const separator = rich ? '\n' : ' ';
     const collectible = rich ? `**${result.collectible}**` : result.collectible;
