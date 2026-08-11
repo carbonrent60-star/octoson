@@ -86,28 +86,20 @@ button:disabled {
 /* Octoson interactive surfaces */
 .octo-game-grid {
   background-image:
-    linear-gradient(
-      rgba(255, 255, 255, 0.018) 1px,
-      transparent 1px
-    ),
-    linear-gradient(
-      90deg,
-      rgba(255, 255, 255, 0.018) 1px,
-      transparent 1px
-    );
+    linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
   background-size: 32px 32px;
 }
 
 .octo-glass {
-  background:
-    linear-gradient(
-      145deg,
-      rgba(255, 255, 255, 0.045),
-      rgba(255, 255, 255, 0.012)
-    );
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.045),
+    rgba(255, 255, 255, 0.012)
+  );
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.035),
-    0 24px 70px rgba(0,0,0,.22);
+    inset 0 1px 0 rgba(255, 255, 255, 0.035),
+    0 24px 70px rgba(0, 0, 0, 0.22);
 }
 
 .octo-shimmer {
@@ -131,17 +123,20 @@ button:disabled {
 }
 
 @keyframes octo-shimmer {
-  0%, 55% {
+  0%,
+  55% {
     transform: translateX(-130%);
   }
 
-  85%, 100% {
+  85%,
+  100% {
     transform: translateX(130%);
   }
 }
 
 @keyframes octo-float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
 
@@ -152,8 +147,8 @@ button:disabled {
 
 @keyframes octo-pulse-ring {
   0% {
-    transform: scale(.8);
-    opacity: .28;
+    transform: scale(0.8);
+    opacity: 0.28;
   }
 
   100% {
@@ -170,7 +165,6 @@ button:disabled {
   animation: octo-pulse-ring 1.8s ease-out infinite;
 }
 
-
 /* ==========================================================
    OCTOSON REALISTIC 3D COIN
    ========================================================== */
@@ -178,8 +172,7 @@ button:disabled {
 .octo-coin-scene {
   perspective: 1200px;
   transform-style: preserve-3d;
-  filter:
-    drop-shadow(0 28px 28px rgba(0, 0, 0, 0.42))
+  filter: drop-shadow(0 28px 28px rgba(0, 0, 0, 0.42))
     drop-shadow(0 4px 10px rgba(165, 243, 252, 0.08));
 }
 
@@ -192,14 +185,13 @@ button:disabled {
 
   border: 1px solid rgba(255, 255, 255, 0.58);
 
-  background:
-    radial-gradient(
-      circle at 33% 25%,
-      rgba(255, 255, 255, 0.9),
-      rgba(220, 245, 247, 0.78) 20%,
-      rgba(152, 192, 198, 0.92) 61%,
-      rgba(75, 101, 108, 0.98) 100%
-    );
+  background: radial-gradient(
+    circle at 33% 25%,
+    rgba(255, 255, 255, 0.9),
+    rgba(220, 245, 247, 0.78) 20%,
+    rgba(152, 192, 198, 0.92) 61%,
+    rgba(75, 101, 108, 0.98) 100%
+  );
 
   box-shadow:
     inset 0 0 0 2px rgba(0, 0, 0, 0.08),
@@ -218,14 +210,13 @@ button:disabled {
 
 .octo-coin-edge {
   transform: translateZ(0);
-  background:
-    repeating-linear-gradient(
-      90deg,
-      rgba(38, 58, 63, 1) 0px,
-      rgba(174, 214, 220, 1) 2px,
-      rgba(68, 92, 98, 1) 4px,
-      rgba(215, 239, 242, 1) 6px
-    );
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(38, 58, 63, 1) 0px,
+    rgba(174, 214, 220, 1) 2px,
+    rgba(68, 92, 98, 1) 4px,
+    rgba(215, 239, 242, 1) 6px
+  );
 
   box-shadow:
     0 0 0 8px rgba(89, 120, 126, 0.95),
@@ -234,8 +225,7 @@ button:disabled {
 }
 
 .octo-coin-ring {
-  border:
-    2px solid rgba(5, 18, 21, 0.19);
+  border: 2px solid rgba(5, 18, 21, 0.19);
 
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.42),
@@ -245,33 +235,29 @@ button:disabled {
 .octo-coin-shine {
   pointer-events: none;
 
-  background:
-    linear-gradient(
-      118deg,
-      rgba(255, 255, 255, 0) 15%,
-      rgba(255, 255, 255, 0.34) 35%,
-      rgba(255, 255, 255, 0.06) 47%,
-      rgba(255, 255, 255, 0) 62%
-    );
+  background: linear-gradient(
+    118deg,
+    rgba(255, 255, 255, 0) 15%,
+    rgba(255, 255, 255, 0.34) 35%,
+    rgba(255, 255, 255, 0.06) 47%,
+    rgba(255, 255, 255, 0) 62%
+  );
 
   mix-blend-mode: screen;
 }
 
-
 /* slightly stronger visual clarity across functional pages */
 .octo-panel {
   border: 1px solid rgba(255, 255, 255, 0.08);
-  background:
-    linear-gradient(
-      145deg,
-      rgba(255, 255, 255, 0.032),
-      rgba(255, 255, 255, 0.014)
-    );
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.032),
+    rgba(255, 255, 255, 0.014)
+  );
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.025),
     0 22px 70px rgba(0, 0, 0, 0.16);
 }
-
 
 /* ==========================================================
    OCTOSON — SAFARI / WEBKIT COMPATIBILITY
@@ -330,11 +316,10 @@ main .flex > * {
   }
 
   /*
-   * Improve backdrop-filter consistency.
+   * Do not globally override Tailwind backdrop blur strength.
+   * A blanket 24px WebKit backdrop filter is extremely costly
+   * on fixed mobile surfaces and overrides smaller blur utilities.
    */
-  [class*="backdrop-blur"] {
-    -webkit-backdrop-filter: blur(24px);
-  }
 }
 
 /*
@@ -355,7 +340,6 @@ main .flex > * {
     min-height: 100svh;
   }
 }
-
 
 /* ==========================================================
    OCTOSON CASINO — PREMIUM CROSS-BROWSER CARDS
@@ -386,8 +370,8 @@ main .flex > * {
   background:
     linear-gradient(
       145deg,
-      rgba(255,255,255,.018),
-      rgba(255,255,255,.004) 48%,
+      rgba(255, 255, 255, 0.018),
+      rgba(255, 255, 255, 0.004) 48%,
       transparent 75%
     ),
     #0b0d0f;
@@ -401,12 +385,11 @@ main .flex > * {
   pointer-events: none;
   border-radius: inherit;
 
-  background:
-    radial-gradient(
-      500px 180px at 0% 0%,
-      rgba(255,255,255,.025),
-      transparent 58%
-    );
+  background: radial-gradient(
+    500px 180px at 0% 0%,
+    rgba(255, 255, 255, 0.025),
+    transparent 58%
+  );
 }
 
 .casino-game-card::after {
@@ -418,13 +401,13 @@ main .flex > * {
   border-radius: inherit;
 
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.025),
-    inset 0 -1px 0 rgba(0,0,0,.3);
+    inset 0 1px 0 rgba(255, 255, 255, 0.025),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.3);
 }
 
 .casino-game-tint {
   z-index: 0;
-  opacity: .42;
+  opacity: 0.42;
   border-radius: inherit;
 }
 
@@ -436,18 +419,11 @@ main .flex > * {
 
 .casino-card-grid {
   z-index: 0;
-  opacity: .022;
+  opacity: 0.022;
 
   background-image:
-    linear-gradient(
-      rgba(255,255,255,.22) 1px,
-      transparent 1px
-    ),
-    linear-gradient(
-      90deg,
-      rgba(255,255,255,.22) 1px,
-      transparent 1px
-    );
+    linear-gradient(rgba(255, 255, 255, 0.22) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.22) 1px, transparent 1px);
 
   background-size: 30px 30px;
 
@@ -459,18 +435,19 @@ main .flex > * {
 }
 
 /* Keep actual card content above decorative surfaces. */
-.casino-game-card > :not(.casino-game-tint):not(.casino-game-glow):not(.casino-card-grid) {
+.casino-game-card
+  > :not(.casino-game-tint):not(.casino-game-glow):not(.casino-card-grid) {
   z-index: 1;
 }
 
 /* Desktop hover without moving the clipping container itself. */
 @media (hover: hover) {
   .casino-game-card:hover {
-    border-color: rgba(255,255,255,.125);
+    border-color: rgba(255, 255, 255, 0.125);
   }
 
   .casino-game-card:hover .casino-card-grid {
-    opacity: .035;
+    opacity: 0.035;
   }
 }
 
@@ -507,14 +484,67 @@ main .flex > * {
      */
     filter: blur(26px);
     -webkit-filter: blur(26px);
-    opacity: .16;
+    opacity: 0.16;
   }
 
   .casino-game-tint {
-    opacity: .34;
+    opacity: 0.34;
   }
 
   .casino-card-grid {
-    opacity: .018;
+    opacity: 0.018;
+  }
+}
+
+/* ==========================================================
+   OCTOSON MOBILE PERFORMANCE
+   Keep the visual language while avoiding expensive live
+   compositing on touch/mobile devices.
+   ========================================================== */
+
+@media (max-width: 1023px) {
+  /*
+   * Large live backdrop filters are one of the most expensive
+   * effects in mobile Safari. Mobile Octoson surfaces already
+   * have nearly opaque backgrounds, so disabling the live filter
+   * has almost no visual cost.
+   */
+  [class*="backdrop-blur"] {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+
+  /*
+   * Fixed navigation/header surfaces should be isolated from
+   * page repainting.
+   */
+  .octo-mobile-fixed {
+    contain: layout paint;
+    isolation: isolate;
+  }
+
+  /*
+   * Large decorative blurred blobs are expensive to rasterize
+   * on mobile. Hide only decorations explicitly marked as such.
+   */
+  .octo-mobile-heavy-decoration {
+    display: none !important;
+  }
+
+  /*
+   * Avoid continuously repainting decorative pulse effects.
+   */
+  .octo-mobile-static-pulse {
+    animation: none !important;
+  }
+}
+
+/*
+ * Respect OS reduced-motion without changing normal animation
+ * behavior for everybody else.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .octo-mobile-static-pulse {
+    animation: none !important;
   }
 }

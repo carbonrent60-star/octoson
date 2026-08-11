@@ -207,7 +207,7 @@ export default function MobileNav({ onMore }: MobileNavProps) {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.22 }}
               onClick={() => setPlayOpen(false)}
-              className="absolute inset-0 bg-black/75 backdrop-blur-[5px]"
+              className="absolute inset-0 bg-black/80"
             />
 
             <motion.div
@@ -236,8 +236,8 @@ export default function MobileNav({ onMore }: MobileNavProps) {
             >
               <div className="mx-auto max-w-[560px] px-2.5 pb-[max(8px,env(safe-area-inset-bottom))]">
                 <div className="relative max-h-[min(76vh,680px)] overflow-hidden rounded-[30px] border border-white/[0.1] bg-[#09090c]/[0.98] shadow-[0_-30px_100px_rgba(0,0,0,.72),0_0_70px_rgba(103,232,249,.045)]">
-                  <div className="pointer-events-none absolute -left-20 -top-28 h-72 w-72 rounded-full bg-cyan-300/[0.07] blur-[100px]" />
-                  <div className="pointer-events-none absolute -right-20 top-24 h-60 w-60 rounded-full bg-blue-500/[0.045] blur-[100px]" />
+                  <div className="octo-mobile-heavy-decoration pointer-events-none absolute -left-20 -top-28 h-72 w-72 rounded-full bg-cyan-300/[0.07] blur-[100px]" />
+                  <div className="octo-mobile-heavy-decoration pointer-events-none absolute -right-20 top-24 h-60 w-60 rounded-full bg-blue-500/[0.045] blur-[100px]" />
 
                   <div className="relative max-h-[min(76vh,680px)] overflow-y-auto overscroll-contain px-4 pb-5 pt-3">
                     <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-white/10" />
@@ -427,11 +427,11 @@ export default function MobileNav({ onMore }: MobileNavProps) {
         )}
       </AnimatePresence>
 
-      <div className="fixed inset-x-0 bottom-0 z-[60] px-2.5 pb-[max(8px,env(safe-area-inset-bottom))] lg:hidden">
+      <div className="octo-mobile-fixed fixed inset-x-0 bottom-0 z-[60] px-2.5 pb-[max(8px,env(safe-area-inset-bottom))] lg:hidden">
         <div className="relative mx-auto max-w-[540px]">
-          <div className="pointer-events-none absolute left-1/2 top-[-26px] h-16 w-28 -translate-x-1/2 rounded-full bg-cyan-300/[0.075] blur-2xl" />
+          <div className="octo-mobile-heavy-decoration pointer-events-none absolute left-1/2 top-[-26px] h-16 w-28 -translate-x-1/2 rounded-full bg-cyan-300/[0.075] blur-2xl" />
 
-          <div className="relative flex h-[70px] items-center rounded-[23px] border border-white/[0.09] bg-[#0a0a0d]/95 px-1.5 shadow-[0_-12px_50px_rgba(0,0,0,.42),0_20px_60px_rgba(0,0,0,.62)] backdrop-blur-xl">
+          <div className="relative flex h-[70px] items-center rounded-[23px] border border-white/[0.09] bg-[#0a0a0d]/[0.98] px-1.5 shadow-[0_-10px_35px_rgba(0,0,0,.38),0_16px_42px_rgba(0,0,0,.52)]">
             <div className="flex min-w-0 flex-1 items-center">
               {leftItems.map((item) => (
                 <NavItem key={item.href} item={item} />
