@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { signIn } from "next-auth/react";
 import { useEffect, useState } from "react";
 
 type Props = {
@@ -81,8 +82,22 @@ export default function LandingClient({
     requestAnimationFrame(() => setReady(true));
   }, []);
 
-  const enterHref =
-    "/api/auth/signin/discord?callbackUrl=/dashboard";
+  const [loginLoading, setLoginLoading] = useState(false);
+
+  async function loginWithDiscord() {
+    if (loginLoading) return;
+
+    setLoginLoading(true);
+
+    try {
+      await signIn("discord", {
+        callbackUrl: "/dashboard",
+      });
+    } catch (error) {
+      console.error("Discord login failed:", error);
+      setLoginLoading(false);
+    }
+  }
 
   function discover() {
     document.getElementById("platform")?.scrollIntoView({
@@ -150,13 +165,15 @@ export default function LandingClient({
                 <Arrow />
               </Link>
             ) : (
-              <a
-                href={enterHref}
-                className="flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-black transition hover:bg-cyan-100"
+              <button
+                type="button"
+                onClick={loginWithDiscord}
+                disabled={loginLoading}
+                className="flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-black transition hover:bg-cyan-100 disabled:cursor-wait disabled:opacity-60"
               >
                 <DiscordIcon />
-                Discord ilə daxil ol
-              </a>
+                {loginLoading ? "Discord açılır..." : "Discord ilə daxil ol"}
+              </button>
             )}
           </div>
         </nav>
@@ -200,13 +217,15 @@ export default function LandingClient({
                 <Arrow />
               </Link>
             ) : (
-              <a
-                href={enterHref}
-                className="flex min-w-[205px] items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 text-sm font-semibold text-black transition hover:bg-cyan-100"
+              <button
+                type="button"
+                onClick={loginWithDiscord}
+                disabled={loginLoading}
+                className="flex min-w-[205px] items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 text-sm font-semibold text-black transition hover:bg-cyan-100 disabled:cursor-wait disabled:opacity-60"
               >
                 <DiscordIcon />
-                Discord ilə daxil ol
-              </a>
+                {loginLoading ? "Discord açılır..." : "Discord ilə daxil ol"}
+              </button>
             )}
 
             <button
@@ -312,7 +331,13 @@ export default function LandingClient({
             {features.map((feature) => (
               <Link
                 key={feature.title}
-                href={loggedIn ? feature.href : enterHref}
+                href={loggedIn ? feature.href : "#"}
+                onClick={(event) => {
+                  if (!loggedIn) {
+                    event.preventDefault();
+                    void loginWithDiscord();
+                  }
+                }}
                 className="group min-h-[220px] border-b border-white/[0.06] p-7 transition duration-300 hover:bg-white/[0.025] sm:border-l"
               >
                 <div className="flex justify-between">
