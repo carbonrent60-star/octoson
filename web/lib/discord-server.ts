@@ -38,90 +38,67 @@ type GuildMemberCacheEntry = {
 const CACHE_TTL = 30 * 60 * 1000;
 const NOT_MEMBER_CACHE_TTL = 60 * 1000;
 
-const memberCache =
-  new Map<string, CacheEntry>();
+const memberCache = new Map<string, CacheEntry>();
 
-const guildMemberCache =
-  new Map<string, GuildMemberCacheEntry>();
+const guildMemberCache = new Map<string, GuildMemberCacheEntry>();
 
-const guildMemberInflight =
-  new Map<
-    string,
-    Promise<DiscordGuildMember | null>
-  >();
+const guildMemberInflight = new Map<
+  string,
+  Promise<DiscordGuildMember | null>
+>();
 
 function sleep(ms: number) {
-  return new Promise<void>((resolve) =>
-    setTimeout(resolve, ms)
-  );
+  return new Promise<void>((resolve) => setTimeout(resolve, ms));
 }
 
 function discordAvatarUrl(
   userId: string,
-  avatarHash?: string | null
+  avatarHash?: string | null,
 ): string | null {
   if (!avatarHash) {
     return null;
   }
 
-  const extension =
-    avatarHash.startsWith("a_")
-      ? "gif"
-      : "png";
+  const extension = avatarHash.startsWith("a_") ? "gif" : "png";
 
   return `https://cdn.discordapp.com/avatars/${userId}/${avatarHash}.${extension}?size=128`;
 }
 
 async function fetchGuildMember(
-  userId: string
+  userId: string,
 ): Promise<DiscordGuildMember | null> {
-  const guildId =
-    process.env.OCTOSON_GUILD_ID;
+  const guildId = process.env.OCTOSON_GUILD_ID;
 
-  const botToken =
-    process.env.DISCORD_BOT_TOKEN;
+  const botToken = process.env.DISCORD_BOT_TOKEN;
 
   if (!guildId) {
-    throw new Error(
-      "OCTOSON_GUILD_ID is missing"
-    );
+    throw new Error("OCTOSON_GUILD_ID is missing");
   }
 
   if (!botToken) {
-    throw new Error(
-      "DISCORD_BOT_TOKEN is missing"
-    );
+    throw new Error("DISCORD_BOT_TOKEN is missing");
   }
 
-  const url =
-    `https://discord.com/api/v10/guilds/${guildId}/members/${userId}`;
+  const url = `https://discord.com/api/v10/guilds/${guildId}/members/${userId}`;
 
-  for (
-    let attempt = 0;
-    attempt < 2;
-    attempt++
-  ) {
+  for (let attempt = 0; attempt < 2; attempt++) {
     let response: Response;
 
     try {
       response = await fetch(url, {
         headers: {
-          Authorization:
-            `Bot ${botToken}`,
-          "User-Agent":
-            "DiscordBot (OctosonWeb, 1.0.0)",
+          Authorization: `Bot ${botToken}`,
+          "User-Agent": "DiscordBot (OctosonWeb, 1.0.0)",
         },
         cache: "no-store",
       });
     } catch (error) {
       console.error(
         `[OCTOSON WEB] Discord request failed for ${userId}:`,
-        error
+        error,
       );
 
-      throw new Error(
-        "Discord membership check unavailable"
-      );
+      throw new Error("Discord membership check unavailable");
     }
 
     /*
@@ -136,42 +113,26 @@ async function fetchGuildMember(
       let retryAfterMs = 1500;
 
       try {
-        const body =
-          await response.json();
+        const body = await response.json();
 
         if (
-          typeof body?.retry_after ===
-            "number" &&
-          Number.isFinite(
-            body.retry_after
-          )
+          typeof body?.retry_after === "number" &&
+          Number.isFinite(body.retry_after)
         ) {
           /*
            * Discord's retry_after is
            * normally expressed in seconds.
            */
-          retryAfterMs =
-            Math.ceil(
-              body.retry_after * 1000
-            ) + 250;
+          retryAfterMs = Math.ceil(body.retry_after * 1000) + 250;
         }
       } catch {
-        const header =
-          response.headers.get(
-            "retry-after"
-          );
+        const header = response.headers.get("retry-after");
 
         if (header) {
-          const seconds =
-            Number(header);
+          const seconds = Number(header);
 
-          if (
-            Number.isFinite(seconds)
-          ) {
-            retryAfterMs =
-              Math.ceil(
-                seconds * 1000
-              ) + 250;
+          if (Number.isFinite(seconds)) {
+            retryAfterMs = Math.ceil(seconds * 1000) + 250;
           }
         }
       }
@@ -183,16 +144,14 @@ async function fetchGuildMember(
        */
       if (retryAfterMs > 1200) {
         console.warn(
-          `[OCTOSON WEB] Discord rate limit for ${userId}: ${retryAfterMs}ms`
+          `[OCTOSON WEB] Discord rate limit for ${userId}: ${retryAfterMs}ms`,
         );
 
-        throw new Error(
-          "Discord membership check rate limited"
-        );
+        throw new Error("Discord membership check rate limited");
       }
 
       console.warn(
-        `[OCTOSON WEB] Discord rate limit for ${userId}. Waiting ${retryAfterMs}ms.`
+        `[OCTOSON WEB] Discord rate limit for ${userId}. Waiting ${retryAfterMs}ms.`,
       );
 
       await sleep(retryAfterMs);
@@ -200,13 +159,12 @@ async function fetchGuildMember(
     }
 
     if (!response.ok) {
-      const body =
-        await response.text();
+      const body = await response.text();
 
       console.error(
         `[OCTOSON WEB] Discord member ${userId} failed:`,
         response.status,
-        body
+        body,
       );
 
       /*
@@ -214,13 +172,10 @@ async function fetchGuildMember(
        * 401 / 403 / 5xx etc. do NOT mean
        * "not a server member".
        */
-      throw new Error(
-        `Discord membership check failed (${response.status})`
-      );
+      throw new Error(`Discord membership check failed (${response.status})`);
     }
 
-    const member =
-      (await response.json()) as DiscordGuildMember;
+    const member = (await response.json()) as DiscordGuildMember;
 
     /*
      * pending=true means the member has not
@@ -235,23 +190,17 @@ async function fetchGuildMember(
     return member;
   }
 
-  throw new Error(
-    "Discord membership check exceeded retry limit"
-  );
+  throw new Error("Discord membership check exceeded retry limit");
 }
 
 async function requestGuildMember(
-  userId: string
+  userId: string,
 ): Promise<DiscordGuildMember | null> {
   const now = Date.now();
 
-  const cached =
-    guildMemberCache.get(userId);
+  const cached = guildMemberCache.get(userId);
 
-  if (
-    cached &&
-    cached.expiresAt > now
-  ) {
+  if (cached && cached.expiresAt > now) {
     return cached.member;
   }
 
@@ -260,33 +209,24 @@ async function requestGuildMember(
    * the same member simultaneously, reuse
    * one Discord API request.
    */
-  const existing =
-    guildMemberInflight.get(userId);
+  const existing = guildMemberInflight.get(userId);
 
   if (existing) {
     return existing;
   }
 
   const request = (async () => {
-    const member =
-      await fetchGuildMember(userId);
+    const member = await fetchGuildMember(userId);
 
     guildMemberCache.set(userId, {
       member,
-      expiresAt:
-        Date.now() +
-        (member
-          ? CACHE_TTL
-          : NOT_MEMBER_CACHE_TTL),
+      expiresAt: Date.now() + (member ? CACHE_TTL : NOT_MEMBER_CACHE_TTL),
     });
 
     return member;
   })();
 
-  guildMemberInflight.set(
-    userId,
-    request
-  );
+  guildMemberInflight.set(userId, request);
 
   try {
     return await request;
@@ -296,13 +236,13 @@ async function requestGuildMember(
 }
 
 export async function getOctosonGuildMember(
-  userId: string
+  userId: string,
 ): Promise<DiscordGuildMember | null> {
   return requestGuildMember(userId);
 }
 
 async function resolvePublicMember(
-  userId: string
+  userId: string,
 ): Promise<OctosonPublicMember | null> {
   const cached = memberCache.get(userId);
 
@@ -331,10 +271,7 @@ async function resolvePublicMember(
       user.username ||
       `İstifadəçi ${userId.slice(-4)}`,
     username: user.username,
-    avatar: discordAvatarUrl(
-      user.id,
-      user.avatar
-    ),
+    avatar: discordAvatarUrl(user.id, user.avatar),
   };
 
   memberCache.set(userId, {
@@ -346,16 +283,11 @@ async function resolvePublicMember(
 }
 
 export async function getOctosonGuildMembers(
-  userIds: string[]
+  userIds: string[],
 ): Promise<Record<string, OctosonPublicMember>> {
-  const uniqueIds = [
-    ...new Set(userIds.filter(Boolean)),
-  ];
+  const uniqueIds = [...new Set(userIds.filter(Boolean))];
 
-  const members: Record<
-    string,
-    OctosonPublicMember
-  > = {};
+  const members: Record<string, OctosonPublicMember> = {};
 
   /*
    * Resolve anything already in the public-member cache
@@ -380,31 +312,42 @@ export async function getOctosonGuildMembers(
   }
 
   /*
-   * Only cold-cache users need Discord requests.
+   * Resolve cold-cache leaderboard members concurrently
+   * in small batches.
    *
-   * Keep these sequential so we do not burst Discord's
-   * guild-member endpoint. The delay is placed BETWEEN
-   * requests instead of after every leaderboard member.
+   * The old implementation intentionally waited 175ms
+   * after every Discord member. With 25 users that could
+   * add more than 4 seconds of artificial navigation
+   * latency to /dashboard/leaderboard.
+   *
+   * A small concurrency window keeps the request burst
+   * controlled while making the page dramatically faster.
    */
-  for (let index = 0; index < missingIds.length; index++) {
-    const userId = missingIds[index];
+  const CONCURRENCY = 5;
 
-    try {
-      const member =
-        await resolvePublicMember(userId);
+  for (let start = 0; start < missingIds.length; start += CONCURRENCY) {
+    const batch = missingIds.slice(start, start + CONCURRENCY);
 
-      if (member) {
-        members[userId] = member;
+    const resolved = await Promise.allSettled(
+      batch.map(async (userId) => ({
+        userId,
+        member: await resolvePublicMember(userId),
+      })),
+    );
+
+    for (const item of resolved) {
+      if (item.status === "fulfilled") {
+        if (item.value.member) {
+          members[item.value.userId] = item.value.member;
+        }
+
+        continue;
       }
-    } catch (error) {
-      console.error(
-        `[OCTOSON WEB] Could not resolve leaderboard member ${userId}:`,
-        error
-      );
-    }
 
-    if (index < missingIds.length - 1) {
-      await sleep(175);
+      console.error(
+        "[OCTOSON WEB] Could not resolve leaderboard member:",
+        item.reason,
+      );
     }
   }
 
@@ -455,7 +398,7 @@ function worldCanvasNumber(value: number) {
 
 function worldActivityMeta(
   kind?: OctosonWorldActivity["kind"],
-  amount?: number
+  amount?: number,
 ) {
   switch (kind) {
     case "mission":
@@ -534,40 +477,28 @@ function buildWorldCanvasSvg(input: {
   const width = 1200;
   const height = 630;
 
-  const meta = worldActivityMeta(
-    input.kind,
-    input.amount
-  );
+  const meta = worldActivityMeta(input.kind, input.amount);
 
   const name = worldCanvasEscape(
-    worldCanvasPlainText(input.displayName).slice(0, 42)
+    worldCanvasPlainText(input.displayName).slice(0, 42),
   );
 
   const title = worldCanvasEscape(
-    worldCanvasPlainText(input.title).slice(0, 58)
+    worldCanvasPlainText(input.title).slice(0, 58),
   );
 
   const description = worldCanvasEscape(
-    worldCanvasPlainText(input.description).slice(0, 120)
+    worldCanvasPlainText(input.description).slice(0, 120),
   );
 
   const hasAmount =
-    typeof input.amount === "number" &&
-    Number.isFinite(input.amount);
+    typeof input.amount === "number" && Number.isFinite(input.amount);
 
-  const amount = hasAmount
-    ? Number(input.amount)
-    : 0;
+  const amount = hasAmount ? Number(input.amount) : 0;
 
-  const signedAmount =
-    `${amount > 0 ? "+" : ""}${worldCanvasNumber(amount)}`;
+  const signedAmount = `${amount > 0 ? "+" : ""}${worldCanvasNumber(amount)}`;
 
-  const amountLabel =
-    amount > 0
-      ? "QAZANC"
-      : amount < 0
-        ? "XƏRC"
-        : "AURA";
+  const amountLabel = amount > 0 ? "QAZANC" : amount < 0 ? "XƏRC" : "AURA";
 
   return `
 <svg
@@ -920,49 +851,42 @@ async function renderWorldCanvasPng(input: {
 }): Promise<Buffer> {
   const svg = buildWorldCanvasSvg(input);
 
-  const { Resvg } =
-    await import("@resvg/resvg-js");
+  const { Resvg } = await import("@resvg/resvg-js");
 
-  const renderer =
-    new Resvg(svg, {
-      fitTo: {
-        mode: "width",
-        value: 1200,
-      },
-      font: {
-        fontFiles: [
-          process.cwd() + "/../assets/fonts/Inter_24pt-Regular.ttf",
-          process.cwd() + "/../assets/fonts/Inter_24pt-Medium.ttf",
-          process.cwd() + "/../assets/fonts/Inter_24pt-SemiBold.ttf",
-          process.cwd() + "/../assets/fonts/Inter_24pt-Bold.ttf",
-          process.cwd() + "/../assets/fonts/Inter_24pt-ExtraBold.ttf",
-          process.cwd() + "/../assets/fonts/Inter_24pt-Black.ttf",
-        ],
-        loadSystemFonts: false,
-        defaultFontFamily: "Inter",
-      },
-    });
+  const renderer = new Resvg(svg, {
+    fitTo: {
+      mode: "width",
+      value: 1200,
+    },
+    font: {
+      fontFiles: [
+        process.cwd() + "/../assets/fonts/Inter_24pt-Regular.ttf",
+        process.cwd() + "/../assets/fonts/Inter_24pt-Medium.ttf",
+        process.cwd() + "/../assets/fonts/Inter_24pt-SemiBold.ttf",
+        process.cwd() + "/../assets/fonts/Inter_24pt-Bold.ttf",
+        process.cwd() + "/../assets/fonts/Inter_24pt-ExtraBold.ttf",
+        process.cwd() + "/../assets/fonts/Inter_24pt-Black.ttf",
+      ],
+      loadSystemFonts: false,
+      defaultFontFamily: "Inter",
+    },
+  });
 
-  return Buffer.from(
-    renderer.render().asPng()
-  );
+  return Buffer.from(renderer.render().asPng());
 }
 
 export async function sendOctosonWorldActivity(
-  activity: OctosonWorldActivity
+  activity: OctosonWorldActivity,
 ): Promise<boolean> {
   const token = process.env.DISCORD_BOT_TOKEN;
 
   if (!token) {
-    console.error(
-      "[OCTOSON WORLD CANVAS] DISCORD_BOT_TOKEN is missing"
-    );
+    console.error("[OCTOSON WORLD CANVAS] DISCORD_BOT_TOKEN is missing");
     return false;
   }
 
   try {
-    const member =
-      await resolvePublicMember(activity.userId);
+    const member = await resolvePublicMember(activity.userId);
 
     const displayName =
       member?.name ||
@@ -970,22 +894,18 @@ export async function sendOctosonWorldActivity(
       `İstifadəçi ${activity.userId.slice(-4)}`;
 
     const siteBase =
-      process.env.NEXT_PUBLIC_SITE_URL?.replace(
-        /\/+$/,
-        ""
-      ) || "https://octoson.bakhishov.com";
+      process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "") ||
+      "https://octoson.bakhishov.com";
 
-    const worldUrl =
-      `${siteBase}/dashboard/world`;
+    const worldUrl = `${siteBase}/dashboard/world`;
 
-    const png =
-      await renderWorldCanvasPng({
-        displayName,
-        title: activity.title,
-        description: activity.description,
-        amount: activity.amount,
-        kind: activity.kind,
-      });
+    const png = await renderWorldCanvasPng({
+      displayName,
+      title: activity.title,
+      description: activity.description,
+      amount: activity.amount,
+      kind: activity.kind,
+    });
 
     const payload = {
       allowed_mentions: {
@@ -995,11 +915,8 @@ export async function sendOctosonWorldActivity(
       embeds: [
         {
           color: parseInt(
-            worldActivityMeta(
-              activity.kind,
-              activity.amount
-            ).accent.slice(1),
-            16
+            worldActivityMeta(activity.kind, activity.amount).accent.slice(1),
+            16,
           ),
 
           image: {
@@ -1035,28 +952,21 @@ export async function sendOctosonWorldActivity(
         {
           id: 0,
           filename: "world-activity.png",
-          description:
-            `${displayName} • ${worldCanvasPlainText(activity.title)}`,
+          description: `${displayName} • ${worldCanvasPlainText(activity.title)}`,
         },
       ],
     };
 
     const form = new FormData();
 
-    form.append(
-      "payload_json",
-      JSON.stringify(payload)
-    );
+    form.append("payload_json", JSON.stringify(payload));
 
     form.append(
       "files[0]",
-      new Blob(
-        [new Uint8Array(png)],
-        {
-          type: "image/png",
-        }
-      ),
-      "world-activity.png"
+      new Blob([new Uint8Array(png)], {
+        type: "image/png",
+      }),
+      "world-activity.png",
     );
 
     const response = await fetch(
@@ -1066,42 +976,36 @@ export async function sendOctosonWorldActivity(
 
         headers: {
           Authorization: `Bot ${token}`,
-          "User-Agent":
-            "DiscordBot (OctosonWeb, 1.0.0)",
+          "User-Agent": "DiscordBot (OctosonWeb, 1.0.0)",
         },
 
         body: form,
 
         cache: "no-store",
-      }
+      },
     );
 
     if (!response.ok) {
-      const text =
-        await response.text();
+      const text = await response.text();
 
       console.error(
         "[OCTOSON WORLD CANVAS] Discord send failed:",
         response.status,
-        text
+        text,
       );
 
       return false;
     }
 
-    const message =
-      await response.json();
+    const message = await response.json();
 
     console.log(
-      `[OCTOSON WORLD CANVAS] Sent ${activity.kind ?? "activity"} → ${message.id}`
+      `[OCTOSON WORLD CANVAS] Sent ${activity.kind ?? "activity"} → ${message.id}`,
     );
 
     return true;
   } catch (error) {
-    console.error(
-      "[OCTOSON WORLD CANVAS] Unexpected error:",
-      error
-    );
+    console.error("[OCTOSON WORLD CANVAS] Unexpected error:", error);
 
     return false;
   }
@@ -1188,14 +1092,11 @@ function casinoGameMeta(game: string) {
 
   return (
     games[normalized] ?? {
-      name:
-        normalized.charAt(0).toUpperCase() +
-        normalized.slice(1),
+      name: normalized.charAt(0).toUpperCase() + normalized.slice(1),
       emoji: "🎲",
     }
   );
 }
-
 
 function escapeSvgText(value: unknown) {
   return String(value ?? "")
@@ -1207,9 +1108,7 @@ function escapeSvgText(value: unknown) {
 }
 
 function casinoCanvasNumber(value: number) {
-  return Math.floor(
-    Number(value) || 0
-  ).toLocaleString("en-US");
+  return Math.floor(Number(value) || 0).toLocaleString("en-US");
 }
 
 function buildCasinoCanvasSvg(input: {
@@ -1231,58 +1130,37 @@ function buildCasinoCanvasSvg(input: {
   const won = net > 0;
   const lost = net < 0;
 
-  const state = won
-    ? "QAZANC"
-    : lost
-      ? "MƏĞLUBİYYƏT"
-      : "HEÇ-HEÇƏ";
+  const state = won ? "QAZANC" : lost ? "MƏĞLUBİYYƏT" : "HEÇ-HEÇƏ";
 
-  const accent = won
-    ? "#6EE7B7"
-    : lost
-      ? "#FB7185"
-      : "#67E8F9";
+  const accent = won ? "#6EE7B7" : lost ? "#FB7185" : "#67E8F9";
 
-  const glow = won
-    ? "#34D399"
-    : lost
-      ? "#F43F5E"
-      : "#22D3EE";
+  const glow = won ? "#34D399" : lost ? "#F43F5E" : "#22D3EE";
 
-  const signedNet =
-    `${net > 0 ? "+" : ""}${casinoCanvasNumber(net)}`;
+  const signedNet = `${net > 0 ? "+" : ""}${casinoCanvasNumber(net)}`;
 
-  const name =
-    escapeSvgText(input.displayName);
+  const name = escapeSvgText(input.displayName);
 
-  const game =
-    escapeSvgText(input.gameName);
+  const game = escapeSvgText(input.gameName);
 
-  const result =
-    escapeSvgText(
-      input.result ||
-        (
-          won
-            ? "Raund qazanc ilə tamamlandı."
-            : lost
-              ? "Bu raund məğlubiyyətlə bitdi."
-              : "Balans dəyişmədi."
-        )
-    ).slice(0, 100);
+  const result = escapeSvgText(
+    input.result ||
+      (won
+        ? "Raund qazanc ilə tamamlandı."
+        : lost
+          ? "Bu raund məğlubiyyətlə bitdi."
+          : "Balans dəyişmədi."),
+  ).slice(0, 100);
 
   const balance =
     typeof input.balance === "number"
       ? `${casinoCanvasNumber(input.balance)} Aura`
       : "—";
 
-  const bet =
-    `${casinoCanvasNumber(input.bet)} Aura`;
+  const bet = `${casinoCanvasNumber(input.bet)} Aura`;
 
-  const payout =
-    `${casinoCanvasNumber(input.payout)} Aura`;
+  const payout = `${casinoCanvasNumber(input.payout)} Aura`;
 
-  const multiplier =
-    `${Number(input.multiplier || 0).toFixed(2)}×`;
+  const multiplier = `${Number(input.multiplier || 0).toFixed(2)}×`;
 
   /*
    * Deliberately no emoji glyphs inside this SVG.
@@ -1582,7 +1460,9 @@ function buildCasinoCanvasSvg(input: {
     ["ƏMSAL", multiplier, 330],
     ["ÖDƏNİŞ", payout, 616],
     ["NET", `${signedNet} Aura`, 902],
-  ].map(([label, value, x]) => `
+  ]
+    .map(
+      ([label, value, x]) => `
     <rect
       x="${x}"
       y="471"
@@ -1608,21 +1488,15 @@ function buildCasinoCanvasSvg(input: {
     <text
       x="${Number(x) + 24}"
       y="544"
-      fill="${
-        label === "NET"
-          ? accent
-          : "#FFFFFF"
-      }"
-      fill-opacity="${
-        label === "NET"
-          ? "0.95"
-          : "0.88"
-      }"
+      fill="${label === "NET" ? accent : "#FFFFFF"}"
+      fill-opacity="${label === "NET" ? "0.95" : "0.88"}"
       font-size="21"
       font-family="Inter, Arial, sans-serif"
       font-weight="750"
     >${escapeSvgText(String(value))}</text>
-  `).join("")}
+  `,
+    )
+    .join("")}
 
   <!-- FOOTER -->
   <circle
@@ -1669,56 +1543,48 @@ async function renderCasinoCanvasPng(input: {
   balance?: number | null;
   result?: string;
 }): Promise<Buffer> {
-  const svg =
-    buildCasinoCanvasSvg(input);
+  const svg = buildCasinoCanvasSvg(input);
 
   /*
    * @resvg/resvg-js is a server-side SVG renderer.
    * No browser, Puppeteer or screenshot process is needed.
    */
-  const { Resvg } =
-    await import("@resvg/resvg-js");
+  const { Resvg } = await import("@resvg/resvg-js");
 
-  const renderer =
-    new Resvg(svg, {
-      fitTo: {
-        mode: "width",
-        value: 1200,
-      },
-      font: {
-        fontFiles: [
-          process.cwd() + "/../assets/fonts/Inter_24pt-Regular.ttf",
-          process.cwd() + "/../assets/fonts/Inter_24pt-Medium.ttf",
-          process.cwd() + "/../assets/fonts/Inter_24pt-SemiBold.ttf",
-          process.cwd() + "/../assets/fonts/Inter_24pt-Bold.ttf",
-          process.cwd() + "/../assets/fonts/Inter_24pt-ExtraBold.ttf",
-          process.cwd() + "/../assets/fonts/Inter_24pt-Black.ttf",
-        ],
-        loadSystemFonts: false,
-        defaultFontFamily: "Inter",
-      },
-    });
+  const renderer = new Resvg(svg, {
+    fitTo: {
+      mode: "width",
+      value: 1200,
+    },
+    font: {
+      fontFiles: [
+        process.cwd() + "/../assets/fonts/Inter_24pt-Regular.ttf",
+        process.cwd() + "/../assets/fonts/Inter_24pt-Medium.ttf",
+        process.cwd() + "/../assets/fonts/Inter_24pt-SemiBold.ttf",
+        process.cwd() + "/../assets/fonts/Inter_24pt-Bold.ttf",
+        process.cwd() + "/../assets/fonts/Inter_24pt-ExtraBold.ttf",
+        process.cwd() + "/../assets/fonts/Inter_24pt-Black.ttf",
+      ],
+      loadSystemFonts: false,
+      defaultFontFamily: "Inter",
+    },
+  });
 
-  return Buffer.from(
-    renderer.render().asPng()
-  );
+  return Buffer.from(renderer.render().asPng());
 }
 
 export async function sendOctosonCasinoActivity(
-  activity: OctosonCasinoActivity
+  activity: OctosonCasinoActivity,
 ): Promise<boolean> {
   const token = process.env.DISCORD_BOT_TOKEN;
 
   if (!token) {
-    console.error(
-      "[OCTOSON CASINO ACTIVITY] DISCORD_BOT_TOKEN is missing"
-    );
+    console.error("[OCTOSON CASINO ACTIVITY] DISCORD_BOT_TOKEN is missing");
     return false;
   }
 
   try {
-    const member =
-      await resolvePublicMember(activity.userId);
+    const member = await resolvePublicMember(activity.userId);
 
     const displayName =
       member?.name ||
@@ -1726,37 +1592,26 @@ export async function sendOctosonCasinoActivity(
       `İstifadəçi ${activity.userId.slice(-4)}`;
 
     const siteBase =
-      process.env.NEXT_PUBLIC_SITE_URL?.replace(
-        /\/+$/,
-        ""
-      ) || "https://octoson.bakhishov.com";
+      process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "") ||
+      "https://octoson.bakhishov.com";
 
-    const gameMeta =
-      casinoGameMeta(activity.game);
+    const gameMeta = casinoGameMeta(activity.game);
 
-    const gameUrl =
-      `${siteBase}/dashboard/casino/${activity.game}`;
+    const gameUrl = `${siteBase}/dashboard/casino/${activity.game}`;
 
-    const net =
-      Number(activity.net ?? 0);
+    const net = Number(activity.net ?? 0);
 
-    const png =
-      await renderCasinoCanvasPng({
-        displayName,
-        gameName: gameMeta.name,
-        gameEmoji: gameMeta.emoji,
-        bet: Number(activity.bet ?? 0),
-        payout: Number(activity.payout ?? 0),
-        net,
-        multiplier: Number(
-          activity.multiplier ?? 0
-        ),
-        balance:
-          typeof activity.balance === "number"
-            ? activity.balance
-            : null,
-        result: activity.result,
-      });
+    const png = await renderCasinoCanvasPng({
+      displayName,
+      gameName: gameMeta.name,
+      gameEmoji: gameMeta.emoji,
+      bet: Number(activity.bet ?? 0),
+      payout: Number(activity.payout ?? 0),
+      net,
+      multiplier: Number(activity.multiplier ?? 0),
+      balance: typeof activity.balance === "number" ? activity.balance : null,
+      result: activity.result,
+    });
 
     /*
      * Discord multipart upload:
@@ -1774,25 +1629,17 @@ export async function sendOctosonCasinoActivity(
 
       embeds: [
         {
-          color:
-            net > 0
-              ? 0x22c55e
-              : net < 0
-                ? 0xef4444
-                : 0x67e8f9,
+          color: net > 0 ? 0x22c55e : net < 0 ? 0xef4444 : 0x67e8f9,
 
           image: {
-            url:
-              "attachment://casino-result.png",
+            url: "attachment://casino-result.png",
           },
 
           footer: {
-            text:
-              "Octoson • Web activity",
+            text: "Octoson • Web activity",
           },
 
-          timestamp:
-            new Date().toISOString(),
+          timestamp: new Date().toISOString(),
         },
       ],
 
@@ -1816,31 +1663,22 @@ export async function sendOctosonCasinoActivity(
       attachments: [
         {
           id: 0,
-          filename:
-            "casino-result.png",
-          description:
-            `${displayName} • ${gameMeta.name} casino nəticəsi`,
+          filename: "casino-result.png",
+          description: `${displayName} • ${gameMeta.name} casino nəticəsi`,
         },
       ],
     };
 
-    const form =
-      new FormData();
+    const form = new FormData();
 
-    form.append(
-      "payload_json",
-      JSON.stringify(payload)
-    );
+    form.append("payload_json", JSON.stringify(payload));
 
     form.append(
       "files[0]",
-      new Blob(
-        [new Uint8Array(png)],
-        {
-          type: "image/png",
-        }
-      ),
-      "casino-result.png"
+      new Blob([new Uint8Array(png)], {
+        type: "image/png",
+      }),
+      "casino-result.png",
     );
 
     const response = await fetch(
@@ -1849,47 +1687,39 @@ export async function sendOctosonCasinoActivity(
         method: "POST",
 
         headers: {
-          Authorization:
-            `Bot ${token}`,
+          Authorization: `Bot ${token}`,
 
-          "User-Agent":
-            "DiscordBot (OctosonWeb, 1.0.0)",
+          "User-Agent": "DiscordBot (OctosonWeb, 1.0.0)",
         },
 
         body: form,
 
         cache: "no-store",
-      }
+      },
     );
 
     if (!response.ok) {
-      const text =
-        await response.text();
+      const text = await response.text();
 
       console.error(
         "[OCTOSON CASINO CANVAS] Discord send failed:",
         response.status,
-        text
+        text,
       );
 
       return false;
     }
 
-    const message =
-      await response.json();
+    const message = await response.json();
 
     console.log(
-      `[OCTOSON CASINO CANVAS] Sent ${activity.game} → ${message.id}`
+      `[OCTOSON CASINO CANVAS] Sent ${activity.game} → ${message.id}`,
     );
 
     return true;
   } catch (error) {
-    console.error(
-      "[OCTOSON CASINO CANVAS] Unexpected error:",
-      error
-    );
+    console.error("[OCTOSON CASINO CANVAS] Unexpected error:", error);
 
     return false;
   }
 }
-

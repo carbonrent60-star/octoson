@@ -108,10 +108,23 @@ const quickGames = [
 export default function MobileNav({ onMore }: MobileNavProps) {
   const pathname = usePathname();
   const [playOpen, setPlayOpen] = useState(false);
+  const [optimisticPath, setOptimisticPath] = useState(pathname);
 
   useEffect(() => {
+    setOptimisticPath(pathname);
     setPlayOpen(false);
   }, [pathname]);
+
+  function beginNavigation(href: string) {
+    setOptimisticPath(href);
+
+    /*
+     * Remove the launcher immediately instead of waiting for
+     * AnimatePresence's exit animation or the server response.
+     * This makes the destination clickable immediately.
+     */
+    setPlayOpen(false);
+  }
 
   useEffect(() => {
     if (!playOpen) return;
@@ -146,25 +159,19 @@ export default function MobileNav({ onMore }: MobileNavProps) {
 
     const active =
       item.href === "/dashboard"
-        ? pathname === "/dashboard"
-        : pathname.startsWith(item.href);
+        ? optimisticPath === "/dashboard"
+        : optimisticPath.startsWith(item.href);
 
     return (
       <Link
         href={item.href}
         data-no-hover-sound="true"
-        className="relative flex h-[58px] min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-[17px]"
+        onPointerDown={() => setOptimisticPath(item.href)}
+        onClick={() => beginNavigation(item.href)}
+        className="relative flex h-[58px] min-w-0 flex-1 touch-manipulation flex-col items-center justify-center gap-1 rounded-[17px]"
       >
         {active && (
-          <motion.div
-            layoutId="octoson-mobile-tab"
-            className="absolute inset-1 rounded-[15px] border border-cyan-100/[0.09] bg-cyan-100/[0.06]"
-            transition={{
-              type: "spring",
-              stiffness: 430,
-              damping: 34,
-            }}
-          />
+          <div className="absolute inset-1 rounded-[15px] border border-cyan-100/[0.09] bg-cyan-100/[0.06]" />
         )}
 
         <motion.div whileTap={{ scale: 0.84 }} className="relative z-10">
@@ -185,10 +192,7 @@ export default function MobileNav({ onMore }: MobileNavProps) {
         </span>
 
         {active && (
-          <motion.span
-            layoutId="octoson-mobile-dot"
-            className="absolute bottom-[3px] h-[2px] w-[12px] rounded-full bg-cyan-100/80 shadow-[0_0_9px_rgba(165,243,252,.55)]"
-          />
+          <span className="absolute bottom-[3px] h-[2px] w-[12px] rounded-full bg-cyan-100/80 shadow-[0_0_9px_rgba(165,243,252,.55)]" />
         )}
       </Link>
     );
@@ -198,7 +202,10 @@ export default function MobileNav({ onMore }: MobileNavProps) {
     <>
       <AnimatePresence>
         {playOpen && (
-          <div className="fixed inset-0 z-[90] lg:hidden">
+          <motion.div
+            className="fixed inset-0 z-[90] lg:hidden"
+            exit={{ pointerEvents: "none" }}
+          >
             <motion.button
               type="button"
               aria-label="Oyun menyusunu bağla"
@@ -276,7 +283,10 @@ export default function MobileNav({ onMore }: MobileNavProps) {
                     <div className="mt-5 grid grid-cols-2 gap-2.5">
                       <Link
                         href="/dashboard/casino"
-                        className="group relative col-span-1 overflow-hidden rounded-[20px] border border-cyan-100/[0.1] bg-cyan-100/[0.045] p-4"
+                        onPointerDown={() =>
+                          beginNavigation("/dashboard/casino")
+                        }
+                        className="group relative col-span-1 touch-manipulation overflow-hidden rounded-[20px] border border-cyan-100/[0.1] bg-cyan-100/[0.045] p-4"
                       >
                         <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-cyan-200/[0.08] blur-3xl" />
 
@@ -302,7 +312,10 @@ export default function MobileNav({ onMore }: MobileNavProps) {
 
                       <Link
                         href="/dashboard/games"
-                        className="group relative col-span-1 overflow-hidden rounded-[20px] border border-violet-200/[0.09] bg-violet-200/[0.035] p-4"
+                        onPointerDown={() =>
+                          beginNavigation("/dashboard/games")
+                        }
+                        className="group relative col-span-1 touch-manipulation overflow-hidden rounded-[20px] border border-violet-200/[0.09] bg-violet-200/[0.035] p-4"
                       >
                         <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-violet-300/[0.07] blur-3xl" />
 
@@ -340,7 +353,10 @@ export default function MobileNav({ onMore }: MobileNavProps) {
 
                       <Link
                         href="/dashboard/casino"
-                        className="flex items-center gap-1 text-[9px] font-medium text-white/30"
+                        onPointerDown={() =>
+                          beginNavigation("/dashboard/casino")
+                        }
+                        className="flex touch-manipulation items-center gap-1 text-[9px] font-medium text-white/30"
                       >
                         Hamısı
                         <ChevronRight className="h-3 w-3" />
@@ -370,7 +386,8 @@ export default function MobileNav({ onMore }: MobileNavProps) {
                           >
                             <Link
                               href={game.href}
-                              className="group relative flex min-h-[76px] items-center gap-3 overflow-hidden rounded-[17px] border border-white/[0.065] bg-white/[0.025] p-3 transition active:scale-[0.98]"
+                              onPointerDown={() => beginNavigation(game.href)}
+                              className="group relative flex min-h-[76px] touch-manipulation items-center gap-3 overflow-hidden rounded-[17px] border border-white/[0.065] bg-white/[0.025] p-3 transition active:scale-[0.98]"
                             >
                               <div
                                 className="pointer-events-none absolute -left-6 -top-8 h-20 w-20 rounded-full blur-3xl"
@@ -423,7 +440,7 @@ export default function MobileNav({ onMore }: MobileNavProps) {
                 </div>
               </div>
             </motion.div>
-          </div>
+          </motion.div>
         )}
       </AnimatePresence>
 
@@ -438,14 +455,14 @@ export default function MobileNav({ onMore }: MobileNavProps) {
               ))}
             </div>
 
-            <div className="relative h-full w-[78px] shrink-0">
+            <div className="relative h-full w-[86px] shrink-0">
               <motion.button
                 type="button"
                 aria-label="Oyna"
                 aria-expanded={playOpen}
                 onClick={() => setPlayOpen((current) => !current)}
                 whileTap={{ scale: 0.91 }}
-                className="absolute left-1/2 top-[-20px] flex -translate-x-1/2 flex-col items-center"
+                className="absolute left-1/2 top-[-31px] z-20 flex -translate-x-1/2 touch-manipulation flex-col items-center"
               >
                 <motion.span
                   animate={
@@ -464,25 +481,11 @@ export default function MobileNav({ onMore }: MobileNavProps) {
                     stiffness: 420,
                     damping: 26,
                   }}
-                  className="relative flex h-[58px] w-[58px] items-center justify-center rounded-[19px] border border-cyan-100/30 bg-[linear-gradient(145deg,rgba(207,250,254,.98),rgba(103,232,249,.82))] shadow-[0_0_0_5px_rgba(103,232,249,.045),0_0_30px_rgba(103,232,249,.24),0_12px_30px_rgba(0,0,0,.55)]"
+                  className="relative flex h-[64px] w-[64px] items-center justify-center rounded-[21px] border border-cyan-100/30 bg-[linear-gradient(145deg,rgba(207,250,254,.98),rgba(103,232,249,.82))] shadow-[0_0_0_4px_rgba(103,232,249,.04),0_0_22px_rgba(103,232,249,.18),0_10px_24px_rgba(0,0,0,.48)]"
                 >
-                  <span className="absolute inset-[1px] rounded-[18px] border border-white/40" />
+                  <span className="absolute inset-[1px] rounded-[20px] border border-white/40" />
 
-                  <motion.span
-                    className="absolute inset-0 rounded-[19px]"
-                    animate={{
-                      boxShadow: [
-                        "0 0 18px rgba(103,232,249,.14)",
-                        "0 0 32px rgba(103,232,249,.30)",
-                        "0 0 18px rgba(103,232,249,.14)",
-                      ],
-                    }}
-                    transition={{
-                      duration: 2.4,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                  />
+                  <span className="pointer-events-none absolute inset-0 rounded-[21px] shadow-[0_0_22px_rgba(103,232,249,.16)]" />
 
                   {playOpen ? (
                     <X
@@ -497,7 +500,7 @@ export default function MobileNav({ onMore }: MobileNavProps) {
                   )}
                 </motion.span>
 
-                <span className="mt-1.5 text-[8px] font-bold uppercase tracking-[0.13em] text-cyan-50/80">
+                <span className="mt-1 text-[8px] font-bold uppercase tracking-[0.13em] text-cyan-50/85">
                   Oyna
                 </span>
               </motion.button>
