@@ -26,7 +26,6 @@ export type CasinoPlayInput = {
   bet: number;
   choice?: string;
   cashout?: number;
-  rouletteBets?: Array<{ kind: string; value: string; amount: number }>;
 };
 
 export type CasinoPlayResult = {
@@ -196,39 +195,32 @@ function resolveOutcome(input: CasinoPlayInput) {
   }
 
   if (game === "roulette") {
-    const redNumbers = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
-    const roll = Math.floor(Math.random() * 37);
-    const landed = roll === 0 ? "green" : redNumbers.has(roll) ? "red" : "black";
-    const labels: Record<string, string> = { red: "Qırmızı", black: "Qara", green: "Yaşıl" };
-
-    if (Array.isArray(input.rouletteBets) && input.rouletteBets.length) {
-      let payout = 0;
-      for (const b of input.rouletteBets) {
-        const amount = Math.max(0, Math.floor(Number(b.amount)));
-        let hit = false;
-        let x = 0;
-        if (b.kind === "number") { hit = roll === Number(b.value); x = 36; }
-        else if (b.kind === "color") { hit = landed === b.value; x = 2; }
-        else if (b.kind === "parity") { hit = roll > 0 && (b.value === "even" ? roll % 2 === 0 : roll % 2 === 1); x = 2; }
-        else if (b.kind === "half") { hit = b.value === "low" ? roll >= 1 && roll <= 18 : roll >= 19 && roll <= 36; x = 2; }
-        else if (b.kind === "dozen") { const d = Number(b.value); hit = roll > 0 && Math.ceil(roll / 12) === d; x = 3; }
-        else if (b.kind === "column") { const c = Number(b.value); hit = roll > 0 && ((roll - 1) % 3) + 1 === c; x = 3; }
-        if (hit) payout += amount * x;
-      }
-      const total = input.rouletteBets.reduce((n, b) => n + Math.max(0, Math.floor(Number(b.amount))), 0);
-      return {
-        title: "Rulet",
-        description: `Düşdü: ${labels[landed]} ${roll}`,
-        multiplier: total > 0 ? payout / total : 0,
-        won: payout > total,
-      };
+    if (!["red", "black"].includes(choice)) {
+      throw new Error("invalid_choice");
     }
 
-    if (!["red", "black"].includes(choice)) throw new Error("invalid_choice");
+    const roll = Math.floor(Math.random() * 37);
+
+    const landed =
+      roll === 0
+        ? "green"
+        : roll % 2 === 0
+          ? "black"
+          : "red";
+
     const won = landed === choice;
+
+    const labels: Record<string, string> = {
+      red: "Qırmızı",
+      black: "Qara",
+      green: "Yaşıl",
+    };
+
     return {
       title: "Rulet",
-      description: `Seçim: ${labels[choice]} • Düşdü: ${labels[landed]} ${roll}`,
+      description:
+        `Seçim: ${labels[choice]} • ` +
+        `Düşdü: ${labels[landed]} ${roll}`,
       multiplier: won ? 1.95 : 0,
       won,
     };

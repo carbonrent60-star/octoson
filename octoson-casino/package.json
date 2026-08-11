@@ -1,0 +1,34 @@
+{
+  "name": "october-looks-bot",
+  "version": "1.0.0",
+  "description": "Azerbaijani Discord bot for October's looksmaxxing community.",
+  "main": "src/bot.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/bot.js",
+    "test": "NODE_ENV=test node --test",
+    "deploy": "node src/deploy-commands.js",
+    "clear": "node src/clear-commands.js",
+    "refresh": "npm run deploy",
+    "check": "node --check src/bot.js && node --check src/economy.js && node --check src/commands.js && node --check src/content.js && node --check src/deploy-commands.js && node --check src/clear-commands.js"
+  },
+  "keywords": [
+    "discord",
+    "bot",
+    "azerbaijani",
+    "looksmaxxing",
+    "october"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@napi-rs/canvas": "^1.0.3",
+    "@phosphor-icons/core": "^2.1.1",
+    "@supabase/supabase-js": "^2.112.2",
+    "discord.js": "^14.15.3",
+    "dotenv": "^16.4.5",
+    "openai": "^6.39.0"
+  },
+  "engines": {
+    "node": ">=18.17.0"
+  }
+}
