@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import { createPageMetadata } from "@/lib/metadata";
 import VerifiedBadge from "@/components/profile/verified-badge";
+import PrimeBadge from "@/components/profile/prime-badge";
 import ProfileStudio from "@/components/profile/profile-studio";
 import { saveVerifiedAppearanceAction } from "./actions";
 import { redirect } from "next/navigation";
@@ -292,11 +293,14 @@ export default async function ProfilePage() {
   const seasonXp = Math.max(0, num(season.xp));
   const seasonTotalXp = Math.max(0, num(season.totalXp));
 
-  const primeActiveUntil = text(prime.activeUntil);
+  // Prime activeUntil is stored by the economy system as a
+  // millisecond Unix timestamp (Date.now() + duration).
+  const primeActiveUntil = num(prime.activeUntil);
 
   const primeActive =
-    !!primeActiveUntil &&
-    new Date(primeActiveUntil).getTime() > Date.now();
+    prime.active === true ||
+    profile.primeActive === true ||
+    primeActiveUntil > Date.now();
 
   const transactions = array(profile.transactions)
     .filter(
@@ -479,6 +483,13 @@ export default async function ProfilePage() {
 
                   {verified ? (
                     <VerifiedBadge size="lg" />
+                  ) : null}
+
+                  {primeActive ? (
+                    <PrimeBadge
+                      size="lg"
+                      activeUntil={primeActiveUntil || null}
+                    />
                   ) : null}
                 </div>
 

@@ -2,6 +2,7 @@ import type { CSSProperties } from "react";
 import Link from "next/link";
 import AvatarAmbient from "@/components/profile/avatar-ambient";
 import VerifiedBadge from "@/components/profile/verified-badge";
+import PrimeBadge from "@/components/profile/prime-badge";
 import { auth } from "@/auth";
 import { notFound, redirect } from "next/navigation";
 import {
@@ -296,11 +297,9 @@ export default async function PublicUserPage({
                   <VerifiedBadge size="lg" />
                 ) : null}
 
-                {profile.primeActive && (
-                  <span className="rounded-full border border-cyan-100/[0.1] bg-cyan-100/[0.035] px-2 py-1 text-[8px] font-bold uppercase tracking-[0.12em] text-cyan-100/60">
-                    PRIME
-                  </span>
-                )}
+                {profile.primeActive ? (
+                  <PrimeBadge size="lg" />
+                ) : null}
               </div>
 
               <p className="mt-1 text-[11px] text-white/25">

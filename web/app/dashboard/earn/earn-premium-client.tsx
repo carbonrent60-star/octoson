@@ -68,6 +68,7 @@ type Mission = {
   seasonXpReward: number;
   completedAt: number | null;
   claimedAt: number | null;
+  primeOnly: boolean;
 };
 
 type ActiveContract = {
@@ -1203,6 +1204,10 @@ function MissionCard({
         complete
           ? styles.missionComplete
           : ""
+      } ${
+        mission.primeOnly
+          ? styles.primeMissionCard
+          : ""
       }`}
       style={{
         animationDelay: `${Math.min(index, 8) * 45}ms`,
@@ -1241,6 +1246,16 @@ function MissionCard({
               <HelpCircle className="h-3.5 w-3.5" />
             </button>
 
+            {mission.primeOnly ? (
+              <span
+                className={`${styles.badge} ${styles.primeMissionBadge}`}
+                title="Yalnız Octoson Prime üzvləri üçün"
+              >
+                <Crown className="h-2.5 w-2.5" />
+                PRIME
+              </span>
+            ) : null}
+
             <span
               className={`${styles.badge} ${
                 styles[
@@ -1269,11 +1284,19 @@ function MissionCard({
         </div>
 
         <div className="mt-6">
-          <p className="text-[7px] font-semibold uppercase tracking-[0.19em] text-white/18">
-            {metricLabel(
-              mission.metric
-            )}
-          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="text-[7px] font-semibold uppercase tracking-[0.19em] text-white/18">
+              {metricLabel(
+                mission.metric
+              )}
+            </p>
+
+            {mission.primeOnly ? (
+              <span className={styles.primeMissionEyebrow}>
+                PRIME EXCLUSIVE
+              </span>
+            ) : null}
+          </div>
 
           <h3 className="mt-2 text-[16px] font-semibold tracking-[-0.03em] text-white/80">
             {mission.title}
@@ -1420,9 +1443,13 @@ function MissionCard({
 
                     <div className="min-w-0 flex-1">
                       <p className={styles.missionGuideEyebrow}>
-                        {mission.periodType === "weekly"
-                          ? "HƏFTƏLİK MİSSİYA"
-                          : "GÜNDƏLİK MİSSİYA"}
+                        {mission.primeOnly
+                          ? mission.periodType === "weekly"
+                            ? "PRIME · HƏFTƏLİK MİSSİYA"
+                            : "PRIME · GÜNDƏLİK MİSSİYA"
+                          : mission.periodType === "weekly"
+                            ? "HƏFTƏLİK MİSSİYA"
+                            : "GÜNDƏLİK MİSSİYA"}
                       </p>
 
                       <h4 className={styles.missionGuideTitle}>

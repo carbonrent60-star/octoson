@@ -268,19 +268,209 @@ const WEEKLY_MISSIONS = [
   },
 ];
 
+
+/*
+|--------------------------------------------------------------------------
+| PRIME MISSIONS
+|--------------------------------------------------------------------------
+|
+| Extra objectives available while Octoson Prime is active.
+|
+| Prime does NOT replace normal missions. Prime members receive the
+| normal catalog plus these additional missions.
+|
+| These use existing economy metrics, so the normal gameplay hooks and
+| recordEarningProgress() automatically progress them.
+|
+*/
+
+const PRIME_DAILY_MISSIONS = [
+  {
+    key: "prime_games_5",
+    title: "Prime sessiyası",
+    description: "Bu gün 5 oyun tamamla.",
+    metric: "game_played",
+    target: 5,
+    difficulty: "medium",
+    tier: "prime",
+    aura: 1800,
+    xp: 60,
+    seasonXp: 90,
+    prime: true,
+  },
+
+  {
+    key: "prime_activity_10",
+    title: "Prime ritmi",
+    description: "Bu gün 10 aktivlik tamamla.",
+    metric: "activity",
+    target: 10,
+    difficulty: "medium",
+    tier: "prime",
+    aura: 2500,
+    xp: 80,
+    seasonXp: 120,
+    prime: true,
+  },
+
+  {
+    key: "prime_casino_12",
+    title: "Prime risk",
+    description: "Bu gün Casino-da 12 mərc tamamla.",
+    metric: "casino_bet",
+    target: 12,
+    difficulty: "hard",
+    tier: "prime",
+    aura: 3500,
+    xp: 100,
+    seasonXp: 145,
+    prime: true,
+  },
+
+  {
+    key: "prime_earn_7500",
+    title: "Prime kapital",
+    description: "Bu gün 7,500 Aura qazan.",
+    metric: "aura_earned",
+    target: 7500,
+    difficulty: "hard",
+    tier: "prime",
+    aura: 4000,
+    xp: 110,
+    seasonXp: 165,
+    prime: true,
+  },
+];
+
+const PRIME_WEEKLY_MISSIONS = [
+  {
+    key: "prime_games_35",
+    title: "Prime oyunçu",
+    description: "Bu həftə 35 oyun tamamla.",
+    metric: "game_played",
+    target: 35,
+    difficulty: "hard",
+    tier: "prime",
+    aura: 10000,
+    xp: 275,
+    seasonXp: 425,
+    prime: true,
+  },
+
+  {
+    key: "prime_activity_60",
+    title: "Prime aktivlik",
+    description: "Bu həftə 60 aktivlik tamamla.",
+    metric: "activity",
+    target: 60,
+    difficulty: "hard",
+    tier: "prime",
+    aura: 14000,
+    xp: 350,
+    seasonXp: 525,
+    prime: true,
+  },
+
+  {
+    key: "prime_casino_75",
+    title: "Prime High Roller",
+    description: "Bu həftə Casino-da 75 mərc tamamla.",
+    metric: "casino_bet",
+    target: 75,
+    difficulty: "elite",
+    tier: "prime",
+    aura: 18000,
+    xp: 425,
+    seasonXp: 650,
+    prime: true,
+  },
+
+  {
+    key: "prime_earn_50000",
+    title: "Prime imperiya",
+    description: "Bu həftə 50,000 Aura qazan.",
+    metric: "aura_earned",
+    target: 50000,
+    difficulty: "elite",
+    tier: "prime",
+    aura: 22000,
+    xp: 500,
+    seasonXp: 750,
+    prime: true,
+  },
+];
+
+
+/*
+ * Prime state comes from the same economy profile used by Discord
+ * and the existing Prime system.
+ *
+ * Prime is active only while profile.prime.activeUntil is in the future.
+ */
+async function hasActivePrime(supabase, userId) {
+  const { data, error } = await supabase
+    .from("economy_users")
+    .select("profile")
+    .eq("user_id", String(userId))
+    .maybeSingle();
+
+  if (error) {
+    throw error;
+  }
+
+  const profile =
+    data?.profile &&
+    typeof data.profile === "object" &&
+    !Array.isArray(data.profile)
+      ? data.profile
+      : {};
+
+  const prime =
+    profile.prime &&
+    typeof profile.prime === "object" &&
+    !Array.isArray(profile.prime)
+      ? profile.prime
+      : {};
+
+  return Number(prime.activeUntil ?? 0) > Date.now();
+}
+
+
 export async function ensureEarningMissions(supabase, userId) {
   const now = new Date();
+
+  /*
+   * Prime members receive the normal mission catalog PLUS the
+   * additional Prime catalog.
+   *
+   * Existing mission rows are immutable, so activating Prime later
+   * in the day/week safely provisions only the missing Prime rows.
+   */
+  const primeActive = await hasActivePrime(
+    supabase,
+    userId
+  );
+
+  const dailyMissions = [
+    ...DAILY_MISSIONS,
+    ...PRIME_DAILY_MISSIONS,
+  ];
+
+  const weeklyMissions = [
+    ...WEEKLY_MISSIONS,
+    ...PRIME_WEEKLY_MISSIONS,
+  ];
 
   const periods = [
     {
       type: "daily",
       key: utcDayKey(now),
-      missions: DAILY_MISSIONS,
+      missions: dailyMissions,
     },
     {
       type: "weekly",
       key: utcWeekKey(now),
-      missions: WEEKLY_MISSIONS,
+      missions: weeklyMissions,
     },
   ];
 
@@ -310,6 +500,7 @@ export async function ensureEarningMissions(supabase, userId) {
       metadata: {
         difficulty: mission.difficulty,
         tier: mission.tier,
+        prime: mission.prime === true,
       },
     }));
 

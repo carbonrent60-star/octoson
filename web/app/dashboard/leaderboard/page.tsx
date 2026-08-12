@@ -1,5 +1,6 @@
 import { createPageMetadata } from "@/lib/metadata";
 import VerifiedBadge from "@/components/profile/verified-badge";
+import PrimeBadge from "@/components/profile/prime-badge";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import {
@@ -264,9 +265,9 @@ export default async function LeaderboardPage() {
                           </span>
                         )}
 
-                        {entry.primeActive && (
-                          <Crown className="h-3 w-3 shrink-0 text-amber-200/55" />
-                        )}
+                        {entry.primeActive ? (
+                          <PrimeBadge size="xs" />
+                        ) : null}
                       </div>
 
                       <p className="mt-0.5 truncate text-[8px] text-white/15">
@@ -418,7 +419,9 @@ function PodiumCard({
             </span>
           )}
 
-          {entry.primeActive && <Crown className="h-3 w-3 text-amber-200/50" />}
+          {entry.primeActive ? (
+            <PrimeBadge size="sm" />
+          ) : null}
         </div>
 
         <p className="mt-1 text-[9px] text-white/18">

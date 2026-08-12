@@ -12,6 +12,7 @@ import {
 
 import AdminActionForm from "@/components/admin/admin-action-form";
 import VerifiedBadge from "@/components/profile/verified-badge";
+import PrimeBadge from "@/components/profile/prime-badge";
 import { requireOctosonAdmin } from "@/lib/admin";
 import { getSupabaseServerClient } from "@/lib/supabase-server";
 
@@ -702,6 +703,29 @@ export default async function AdminPage({
                 identity.verified === true ||
                 profile.verified === true;
 
+              const prime =
+                profile.prime &&
+                typeof profile.prime === "object" &&
+                !Array.isArray(profile.prime)
+                  ? profile.prime as Record<string, unknown>
+                  : {};
+
+              const primeActiveUntil = Number(
+                prime.activeUntil ??
+                  prime.until ??
+                  prime.expiresAt ??
+                  profile.primeUntil ??
+                  0
+              );
+
+              const primeActive =
+                prime.active === true ||
+                profile.primeActive === true ||
+                (
+                  Number.isFinite(primeActiveUntil) &&
+                  primeActiveUntil > Date.now()
+                );
+
               return (
                 <details
                   key={
@@ -759,6 +783,15 @@ export default async function AdminPage({
 
                             {verified ? (
                               <VerifiedBadge size="sm" />
+                            ) : null}
+
+                            {primeActive ? (
+                              <PrimeBadge
+                                size="sm"
+                                activeUntil={
+                                  primeActiveUntil || null
+                                }
+                              />
                             ) : null}
 
                             {online ? (

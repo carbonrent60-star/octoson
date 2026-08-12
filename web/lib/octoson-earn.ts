@@ -20,6 +20,7 @@ export type EarningMission = {
   seasonXpReward: number;
   completedAt: number | null;
   claimedAt: number | null;
+  primeOnly: boolean;
 };
 
 export type EarningOverview = {
@@ -793,6 +794,17 @@ export async function getEarningOverview(
               : number(
                   mission.claimed_at
                 ),
+
+          primeOnly:
+            String(
+              mission.mission_key ?? ""
+            ).startsWith("prime_") ||
+            Boolean(
+              mission.metadata &&
+              typeof mission.metadata === "object" &&
+              !Array.isArray(mission.metadata) &&
+              mission.metadata.primeOnly === true
+            ),
         })
       ),
 

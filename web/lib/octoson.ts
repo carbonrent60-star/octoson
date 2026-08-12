@@ -202,6 +202,7 @@ export async function getOctosonLeaderboard(
       const prime = readRecord(profile.prime);
 
       const primeUntil = readNumber(
+        prime.activeUntil ??
         prime.until ??
           prime.expiresAt ??
           profile.primeUntil
@@ -369,6 +370,7 @@ export async function getOctosonPublicProfile(
   const prime = readRecord(profile.prime);
 
   const primeUntil = readNumber(
+    prime.activeUntil ??
     prime.until ??
       prime.expiresAt ??
       profile.primeUntil

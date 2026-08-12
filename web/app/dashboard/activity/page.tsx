@@ -176,7 +176,7 @@ export default async function ActivityPage() {
 
   const members = await getOctosonGuildMembers(userIds);
 
-  const verifiedEntries = await Promise.all(
+  const profileEntries = await Promise.all(
     userIds.map(async (userId) => {
       try {
         const profile =
@@ -184,16 +184,28 @@ export default async function ActivityPage() {
 
         return [
           userId,
-          profile?.verified === true,
+          {
+            verified:
+              profile?.verified === true,
+            primeActive:
+              profile?.primeActive === true,
+          },
         ] as const;
       } catch {
-        return [userId, false] as const;
+        return [
+          userId,
+          {
+            verified: false,
+            primeActive: false,
+          },
+        ] as const;
       }
     })
   );
 
-  const verifiedByUser: Record<string, boolean> =
-    Object.fromEntries(verifiedEntries);
+  const profileByUser = Object.fromEntries(
+    profileEntries
+  );
 
   const activityMembers = Object.fromEntries(
     Object.entries(members).map(
@@ -202,7 +214,9 @@ export default async function ActivityPage() {
         {
           ...member,
           verified:
-            verifiedByUser[userId] === true,
+            profileByUser[userId]?.verified === true,
+          primeActive:
+            profileByUser[userId]?.primeActive === true,
         },
       ]
     )

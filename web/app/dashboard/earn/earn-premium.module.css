@@ -5503,3 +5503,59 @@
     font-size: 6px !important;
   }
 }
+
+/* =========================================================
+   PRIME MISSION IDENTITY
+   ========================================================= */
+
+.primeMissionCard {
+  position: relative;
+  border-color: rgba(255, 224, 166, 0.13) !important;
+  background:
+    radial-gradient(
+      circle at 100% 0%,
+      rgba(245, 211, 145, 0.065),
+      transparent 38%
+    ),
+    rgba(255, 255, 255, 0.018);
+}
+
+.primeMissionCard::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  box-shadow:
+    inset 0 1px rgba(255, 241, 214, 0.025),
+    0 0 40px rgba(225, 184, 111, 0.018);
+}
+
+.primeMissionCard:hover {
+  border-color: rgba(255, 224, 166, 0.22) !important;
+}
+
+.primeMissionBadge {
+  border-color: rgba(255, 222, 158, 0.16) !important;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(235, 195, 119, 0.11),
+      rgba(255, 242, 215, 0.035)
+    ) !important;
+  color: rgba(255, 234, 193, 0.72) !important;
+}
+
+.primeMissionEyebrow {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid rgba(255, 222, 158, 0.11);
+  border-radius: 999px;
+  padding: 3px 7px;
+  background: rgba(235, 195, 119, 0.035);
+  color: rgba(255, 230, 182, 0.48);
+  font-size: 6px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  line-height: 1;
+}

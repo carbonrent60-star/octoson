@@ -1815,6 +1815,26 @@ export async function buyLoanInsurance(userId) {
   return { ok: true, price, profile: loanProfile(user) };
 }
 
+export async function adminResetPrime(userId) {
+  const { store, user } = await getStoreUser(userId);
+
+  user.prime ??= {};
+
+  user.prime.activeUntil = null;
+  user.prime.purchasedAt = null;
+  user.prime.refundsRemaining = 0;
+  user.prime.monthKey = null;
+  user.prime.losses = [];
+
+  await writeStore(store);
+
+  return {
+    ok: true,
+    profile: primeProfile(user),
+    user: structuredClone(user)
+  };
+}
+
 export async function getPrimeProfile(userId) {
   const { store, user } = await getStoreUser(userId);
   prunePrime(user);

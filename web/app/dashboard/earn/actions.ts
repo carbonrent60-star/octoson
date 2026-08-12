@@ -84,6 +84,44 @@ export async function claimMissionAction(
     };
   }
 
+  /*
+   * Prime mission access is always checked server-side.
+   * The browser is never trusted for Prime state.
+   */
+  const isPrimeMission =
+    String(mission.mission_key ?? "").startsWith("prime_");
+
+  if (isPrimeMission) {
+    try {
+      const economy =
+        await import("../../../../src/economy.js");
+
+      const prime =
+        await economy.getPrimeProfile(userId);
+
+      if (!prime?.active) {
+        return {
+          ok: false,
+          claimed: false,
+          message:
+            "Bu mükafatı götürmək üçün aktiv Prime lazımdır.",
+        };
+      }
+    } catch (error) {
+      console.error(
+        "[OCTOSON EARN] Prime access check failed:",
+        error
+      );
+
+      return {
+        ok: false,
+        claimed: false,
+        message:
+          "Prime statusu yoxlanılmadı.",
+      };
+    }
+  }
+
   const target = Math.max(1, Number(mission.target ?? 1));
   const progress = Math.max(0, Number(mission.progress ?? 0));
 
@@ -114,6 +152,8 @@ export async function claimMissionAction(
       periodType: mission.period_type,
       periodKey: mission.period_key,
       title: mission.title,
+      primeOnly:
+        String(mission.mission_key ?? "").startsWith("prime_"),
     },
     p_season_key: SEASON_KEY,
   });

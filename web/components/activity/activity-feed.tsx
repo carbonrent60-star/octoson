@@ -1,5 +1,6 @@
 "use client";
 import VerifiedBadge from "@/components/profile/verified-badge";
+import PrimeBadge from "@/components/profile/prime-badge";
 
 import Link from "next/link";
 
@@ -44,6 +45,7 @@ type Member = {
   name?: string;
   avatar?: string | null;
   verified?: boolean;
+  primeActive?: boolean;
 };
 
 type ActivityFeedProps = {
@@ -597,6 +599,13 @@ export default function ActivityFeed({
                         className="shrink-0"
                       />
                     ) : null}
+
+                    {member?.primeActive ? (
+                      <PrimeBadge
+                        size="xs"
+                        className="shrink-0"
+                      />
+                    ) : null}
                   </div>
 
                   <div className="mt-1 flex items-center gap-1.5 text-[9px] text-white/20">
@@ -718,6 +727,13 @@ export default function ActivityFeed({
 
                     {member?.verified ? (
                       <VerifiedBadge
+                        size="xs"
+                        className="shrink-0"
+                      />
+                    ) : null}
+
+                    {member?.primeActive ? (
+                      <PrimeBadge
                         size="xs"
                         className="shrink-0"
                       />
