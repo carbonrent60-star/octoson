@@ -15,11 +15,43 @@ export default async function DashboardLayout({
     redirect("/");
   }
 
-  const member = await getOctosonGuildMember(
-    session.user.discordId
-  );
+  /*
+   * Discord membership is an access check, but Discord API
+   * availability must never be allowed to crash the entire dashboard.
+   *
+   * getOctosonGuildMember():
+   * - returns null when Discord explicitly says the user is not a member
+   * - throws for transient failures / rate limits
+   *
+   * A transient Discord failure therefore keeps an already-authenticated
+   * dashboard session alive instead of producing the Next.js red overlay.
+   */
+  let membership:
+    | Awaited<ReturnType<typeof getOctosonGuildMember>>
+    | undefined;
 
-  if (!member) {
+  try {
+    membership = await getOctosonGuildMember(
+      session.user.discordId
+    );
+  } catch (error) {
+    console.warn(
+      "[OCTOSON WEB] Discord membership temporarily unavailable; using authenticated session.",
+      error instanceof Error ? error.message : error
+    );
+
+    membership = undefined;
+  }
+
+  /*
+   * Only redirect when Discord successfully answered and explicitly
+   * confirmed that the member does not exist.
+   *
+   * undefined = Discord unavailable / rate limited
+   * null      = confirmed non-member
+   * object    = member
+   */
+  if (membership === null) {
     redirect("/not-member");
   }
 

@@ -9,10 +9,12 @@ import {
   saveEconomyRestrictions,
   saveEconomySettings,
   saveEconomyStore,
-  transferEconomyProfiles
+  transferEconomyProfiles,
+  claimEarningReward
 } from './db/economy-store.js';
 import { randomUUID } from 'node:crypto';
 import { nowMs } from './db/helpers.js';
+import { recordEarningProgress } from './earning-progress.js';
 
 const startingBalance = 500;
 const maxLevel = 50;
@@ -1076,6 +1078,15 @@ export async function applyBankInterest(userId) {
   awardXp(currentUser, 8);
   unlockAchievements(currentUser);
   await writeStore(store);
+
+  if (reward > 0) {
+    await recordEarningProgress(
+      userId,
+      'aura_earned',
+      reward
+    );
+  }
+
   return { claimed: true, reward, profile: structuredClone(currentUser) };
 }
 
@@ -1487,60 +1498,299 @@ export async function takeLoan(userId, lender, amount) {
 }
 
 export async function payLoan(userId, amount, payerId = userId) {
-  const store = await readStore();
-  ensureUser(store, userId);
-  ensureUser(store, payerId);
-  let user = store.users[userId];
-  let payer = store.users[payerId];
-  applyLoanState(user);
+  return withStoreMutationLock(async () => {
+    const store = await readStore();
 
-  // block cross-user payments when payer has trade restriction
-  if (payerId !== userId) {
-    const tradeBlock = await checkRestriction(payerId, 'trade');
-    if (tradeBlock) {
-      return { ok: false, reason: 'trade_restricted', profile: loanProfile(user), payer: structuredClone(payer), restriction: tradeBlock };
+    const ids = payerId === userId
+      ? [userId]
+      : [userId, payerId];
+
+    /*
+     * Always refresh every profile involved in this payment.
+     * Discord and Web may be running in separate processes, so cached
+     * versions must not be trusted for a money mutation.
+     */
+    const freshStore = await loadEconomyStore(ids);
+
+    for (const id of ids) {
+      const freshUser = freshStore.users?.[id];
+
+      if (freshUser) {
+        store.users[id] = migrateUser(freshUser);
+        store.versions[id] = freshStore.versions?.[id] ?? 0;
+      }
+
+      ensureUser(store, id);
     }
-    user = store.users[userId];
-    payer = store.users[payerId];
-  }
 
-  if (!user.loan.active) {
-    return { ok: false, reason: 'no_loan', profile: loanProfile(user), payer: structuredClone(payer) };
-  }
+    /*
+     * Treat the fresh database state as our new snapshot baseline.
+     */
+    const snapshots =
+      storeSnapshots.get(store) ?? captureStoreSnapshot(store);
 
-  const payment = Math.min(amount, user.loan.active.remaining);
-  if (payer.balance < payment) {
-    return { ok: false, reason: 'insufficient', profile: loanProfile(user), payer: structuredClone(payer) };
-  }
-
-  payer.balance -= payment;
-  payer.stats.auraLost += payment;
-  user.loan.active.remaining -= payment;
-  user.loan.active.paidInstallments += 1;
-  user.loan.stats.totalRepaid += payment;
-  addTransaction(payer, -payment, payerId === userId ? 'loan_payment' : 'loan_help', `for:${userId}`);
-
-  if (user.loan.active.remaining <= 0) {
-    const early = Date.now() < user.loan.active.dueAt;
-    user.loan.active = null;
-    user.loan.frozen = false;
-    user.loan.stats.onTimePayments += 1;
-    user.loan.creditScore = clamp(user.loan.creditScore + (early ? 55 : 30), 250, 950);
-    if (early) {
-      const chest = '🥈 Gümüş sandığı';
-      user.inventory.chests[chest] = (user.inventory.chests[chest] ?? 0) + 1;
-      awardXp(user, 250);
-      addTransaction(user, 0, 'loan_reward', 'early payment chest + XP');
+    for (const id of ids) {
+      snapshots.users.set(
+        id,
+        JSON.stringify(store.users[id])
+      );
     }
-  } else {
-    user.loan.active.nextPaymentAt = Date.now() + user.loan.active.paymentEveryMs;
-    user.loan.creditScore = clamp(user.loan.creditScore + 6, 250, 950);
-  }
 
-  updateDerivedStats(user);
-  updateDerivedStats(payer);
-  await writeStore(store);
-  return { ok: true, payment, profile: loanProfile(user), payer: structuredClone(payer) };
+    storeSnapshots.set(store, snapshots);
+
+    const user = store.users[userId];
+    const payer = store.users[payerId];
+
+    applyLoanState(user);
+
+    /*
+     * Cross-user loan help is trade-like.
+     * Check the already-loaded restrictions directly instead of calling
+     * checkRestriction(), because that function performs another
+     * read/write during this mutation.
+     */
+    if (payerId !== userId) {
+      pruneExpiredRestrictions(payer);
+
+      const now = Date.now();
+
+      const tradeBlock =
+        (payer.moderation?.restrictions ?? []).find(restriction => {
+          if (
+            restriction.expiresAt &&
+            restriction.expiresAt <= now
+          ) {
+            return false;
+          }
+
+          return (
+            restriction.type === 'trade' ||
+            restriction.type === 'all_economy'
+          );
+        }) ?? null;
+
+      if (tradeBlock) {
+        return {
+          ok: false,
+          reason: 'trade_restricted',
+          profile: loanProfile(user),
+          payer: structuredClone(payer),
+          restriction: structuredClone(tradeBlock)
+        };
+      }
+    }
+
+    if (!user.loan.active) {
+      return {
+        ok: false,
+        reason: 'no_loan',
+        profile: loanProfile(user),
+        payer: structuredClone(payer)
+      };
+    }
+
+    const requested = Math.floor(Number(amount));
+
+    if (!Number.isFinite(requested) || requested <= 0) {
+      return {
+        ok: false,
+        reason: 'invalid_amount',
+        profile: loanProfile(user),
+        payer: structuredClone(payer)
+      };
+    }
+
+    const payment = Math.min(
+      requested,
+      user.loan.active.remaining
+    );
+
+    if (payer.balance < payment) {
+      return {
+        ok: false,
+        reason: 'insufficient',
+        payment,
+        profile: loanProfile(user),
+        payer: structuredClone(payer)
+      };
+    }
+
+    /*
+     * Apply the payment in memory.
+     */
+    payer.balance -= payment;
+    payer.stats.auraLost += payment;
+
+    user.loan.active.remaining -= payment;
+    user.loan.active.paidInstallments += 1;
+    user.loan.stats.totalRepaid += payment;
+
+    addTransaction(
+      payer,
+      -payment,
+      payerId === userId ? 'loan_payment' : 'loan_help',
+      `for:${userId}`
+    );
+
+    if (payerId !== userId) {
+      addTransaction(
+        user,
+        0,
+        'loan_help_received',
+        `from:${payerId}:amount:${payment}`
+      );
+    }
+
+    if (user.loan.active.remaining <= 0) {
+      const completedLoan = user.loan.active;
+      const early = Date.now() < completedLoan.dueAt;
+
+      user.loan.active = null;
+      user.loan.frozen = false;
+      user.loan.stats.onTimePayments += 1;
+
+      user.loan.creditScore = clamp(
+        user.loan.creditScore + (early ? 55 : 30),
+        250,
+        950
+      );
+
+      if (early) {
+        const chest = '🥈 Gümüş sandığı';
+
+        user.inventory.chests[chest] =
+          (user.inventory.chests[chest] ?? 0) + 1;
+
+        awardXp(user, 250);
+
+        addTransaction(
+          user,
+          0,
+          'loan_reward',
+          'early payment chest + XP'
+        );
+      }
+    } else {
+      user.loan.active.nextPaymentAt =
+        Date.now() + user.loan.active.paymentEveryMs;
+
+      user.loan.creditScore = clamp(
+        user.loan.creditScore + 6,
+        250,
+        950
+      );
+    }
+
+    updateDerivedStats(user);
+
+    if (payerId !== userId) {
+      updateDerivedStats(payer);
+    }
+
+    /*
+     * Normal /wallet payloan:
+     * one profile -> normal single-profile persistence.
+     */
+    if (payerId === userId) {
+      await writeStore(store);
+
+      return {
+        ok: true,
+        payment,
+        profile: loanProfile(user),
+        payer: structuredClone(payer)
+      };
+    }
+
+    /*
+     * /wallet helploan:
+     *
+     * payer and borrower MUST be committed atomically. We already have
+     * transferEconomyProfiles(), backed by the Supabase
+     * transfer_economy_profiles RPC, for exactly this type of two-profile
+     * mutation.
+     */
+    const payerSnapshot = snapshots.users.get(payerId);
+    const userSnapshot = snapshots.users.get(userId);
+
+    const payerBefore = payerSnapshot
+      ? JSON.parse(payerSnapshot)
+      : {};
+
+    const userBefore = userSnapshot
+      ? JSON.parse(userSnapshot)
+      : {};
+
+    const payerOldTxLength =
+      Array.isArray(payerBefore.transactions)
+        ? payerBefore.transactions.length
+        : 0;
+
+    const userOldTxLength =
+      Array.isArray(userBefore.transactions)
+        ? userBefore.transactions.length
+        : 0;
+
+    const payerTransactions =
+      Array.isArray(payer.transactions)
+        ? payer.transactions.slice(payerOldTxLength)
+        : [];
+
+    const userTransactions =
+      Array.isArray(user.transactions)
+        ? user.transactions.slice(userOldTxLength)
+        : [];
+
+    const transferResult = await transferEconomyProfiles({
+      fromUserId: payerId,
+      fromExpectedVersion: store.versions?.[payerId] ?? 0,
+      fromProfile: payer,
+      fromTransactions: payerTransactions,
+
+      toUserId: userId,
+      toExpectedVersion: store.versions?.[userId] ?? 0,
+      toProfile: user,
+      toTransactions: userTransactions,
+
+      idempotencyKey:
+        `loan_help:${payerId}:${userId}:${Date.now()}:${payment}`
+    });
+
+    /*
+     * transferEconomyProfiles() has already persisted both profiles.
+     * Update local versions/snapshots so writeStore() doesn't immediately
+     * try to save the same mutation again.
+     */
+    store.versions[payerId] =
+      transferResult.fromVersion ??
+      store.versions?.[payerId] ??
+      0;
+
+    store.versions[userId] =
+      transferResult.toVersion ??
+      store.versions?.[userId] ??
+      0;
+
+    snapshots.users.set(
+      payerId,
+      JSON.stringify(payer)
+    );
+
+    snapshots.users.set(
+      userId,
+      JSON.stringify(user)
+    );
+
+    storeSnapshots.set(store, snapshots);
+    cache = store;
+
+    return {
+      ok: true,
+      payment,
+      profile: loanProfile(user),
+      payer: structuredClone(payer)
+    };
+  });
 }
 
 export async function buyLoanInsurance(userId) {
@@ -1701,6 +1951,14 @@ export async function claimDaily(userId) {
 
   await writeStore(store);
 
+  if (appliedReward > 0) {
+    await recordEarningProgress(
+      userId,
+      'aura_earned',
+      appliedReward
+    );
+  }
+
   return {
     claimed: true,
     reward,
@@ -1731,6 +1989,15 @@ export async function claimTimedReward(userId, kind) {
   awardXp(user, xp);
   unlockAchievements(user);
   await writeStore(store);
+
+  if (appliedReward > 0) {
+    await recordEarningProgress(
+      userId,
+      'aura_earned',
+      appliedReward
+    );
+  }
+
   return { claimed: true, reward, profile: structuredClone(user) };
 }
 
@@ -1767,6 +2034,17 @@ export async function performActivity(userId, activity) {
   awardXp(user, config.xp);
   unlockAchievements(user);
   await writeStore(store);
+
+  await recordEarningProgress(userId, 'activity', 1);
+
+  if (amount > 0) {
+    await recordEarningProgress(
+      userId,
+      'aura_earned',
+      amount
+    );
+  }
+
   return { ok: true, success, amount, profile: structuredClone(user), config };
 }
 
@@ -1780,8 +2058,34 @@ export async function awardActionXp(userId, amount) {
 
 export async function recordGame(userId, { game, bet = 0, won = false, net = 0, multiplier = 0, ledger = true }) {
   const { store, user } = await getStoreUser(userId);
-  applyGameStats(user, { game, bet, won, net, multiplier, ledger });
+
+  applyGameStats(user, {
+    game,
+    bet,
+    won,
+    net,
+    multiplier,
+    ledger
+  });
+
   await writeStore(store);
+
+  /*
+   * recordGame() is used by PvP-style games.
+   *
+   * Casino games use settleCasinoGame(), which already records
+   * game_played separately, so this does not double-count casino.
+   *
+   * PvP winnings intentionally do NOT count toward aura_earned:
+   * that Aura came from another player's stake rather than being
+   * newly generated economy income.
+   */
+  await recordEarningProgress(
+    userId,
+    'game_played',
+    1
+  );
+
   return structuredClone(user);
 }
 
@@ -1825,6 +2129,38 @@ export async function settleCasinoGame(userId, { game, bet = 0, cost = bet, payo
     recordPrimeLoss(user, { game, bet, net });
     updateDerivedStats(user);
     await writeStore(store);
+
+    await recordEarningProgress(
+      userId,
+      'game_played',
+      1
+    );
+
+    await recordEarningProgress(
+      userId,
+      'casino_bet',
+      1
+    );
+
+    /*
+     * Only count actual casino profit as newly earned Aura.
+     * Returning the player's original stake is not income.
+     */
+    if (bonusProfit > 0) {
+      await recordEarningProgress(
+        userId,
+        'aura_earned',
+        bonusProfit
+      );
+    }
+
+    if (boosterEffect?.amount > 0) {
+      await recordEarningProgress(
+        userId,
+        'aura_earned',
+        boosterEffect.amount
+      );
+    }
 
     return {
       ok: true,
@@ -2193,6 +2529,15 @@ export async function sellInventoryItem(userId, itemName) {
   addObjectiveProgress(user, 'market', 1, 'weekly');
   updateDerivedStats(user);
   await writeStore(store);
+
+  if (reward > 0) {
+    await recordEarningProgress(
+      userId,
+      'aura_earned',
+      reward
+    );
+  }
+
   return { ok: true, sold, reward, profile: structuredClone(user) };
 }
 
@@ -2277,7 +2622,24 @@ export async function openBestChest(userId) {
   awardXp(user, 15);
   unlockAchievements(user);
   await writeStore(store);
-  return { ok: true, chestName, reward, baseReward, cacheMultiplier, collectible, profile: structuredClone(user) };
+
+  if (reward > 0) {
+    await recordEarningProgress(
+      userId,
+      'aura_earned',
+      reward
+    );
+  }
+
+  return {
+    ok: true,
+    chestName,
+    reward,
+    baseReward,
+    cacheMultiplier,
+    collectible,
+    profile: structuredClone(user)
+  };
 }
 
 export async function craftCollectible(userId) {
@@ -2312,6 +2674,15 @@ export async function recycleCollectible(userId) {
   addObjectiveProgress(user, 'market', 1, 'weekly');
   updateDerivedStats(user);
   await writeStore(store);
+
+  if (reward > 0) {
+    await recordEarningProgress(
+      userId,
+      'aura_earned',
+      reward
+    );
+  }
+
   return { ok: true, item, reward, profile: structuredClone(user) };
 }
 
@@ -2681,6 +3052,14 @@ export async function runWorldMission(userId, choice = 'smart') {
 
   await writeStore(store);
 
+  if (amount > 0) {
+    await recordEarningProgress(
+      userId,
+      'aura_earned',
+      amount
+    );
+  }
+
   return {
     ok: true,
     success,
@@ -2745,7 +3124,23 @@ export async function collectWorldIncome(userId) {
   awardXp(currentUser, 12);
   updateDerivedStats(currentUser);
   await writeStore(store);
-  return { ok: true, amount, base, marketPulse, profile: structuredClone(currentUser), world: structuredClone(currentUser.world) };
+
+  if (amount > 0) {
+    await recordEarningProgress(
+      userId,
+      'aura_earned',
+      amount
+    );
+  }
+
+  return {
+    ok: true,
+    amount,
+    base,
+    marketPulse,
+    profile: structuredClone(currentUser),
+    world: structuredClone(currentUser.world)
+  };
 }
 
 export async function runDailyAdventure(userId, choice = 'help') {
@@ -2783,7 +3178,23 @@ export async function runDailyAdventure(userId, choice = 'help') {
   awardXp(user, config.xp);
   updateDerivedStats(user);
   await writeStore(store);
-  return { ok: true, success, amount, config, profile: structuredClone(user), world: structuredClone(user.world) };
+
+  if (amount > 0) {
+    await recordEarningProgress(
+      userId,
+      'aura_earned',
+      amount
+    );
+  }
+
+  return {
+    ok: true,
+    success,
+    amount,
+    config,
+    profile: structuredClone(user),
+    world: structuredClone(user.world)
+  };
 }
 
 export async function exploreWorld(userId, mapKey) {
@@ -2824,7 +3235,25 @@ export async function exploreWorld(userId, mapKey) {
   awardXp(user, success ? 24 : 10);
   updateDerivedStats(user);
   await writeStore(store);
-  return { ok: true, success, amount, loot, map, visits: state.visits, profile: structuredClone(user), world: structuredClone(user.world) };
+
+  if (amount > 0) {
+    await recordEarningProgress(
+      userId,
+      'aura_earned',
+      amount
+    );
+  }
+
+  return {
+    ok: true,
+    success,
+    amount,
+    loot,
+    map,
+    visits: state.visits,
+    profile: structuredClone(user),
+    world: structuredClone(user.world)
+  };
 }
 
 export async function getWorldEvent(userId) {
@@ -4085,4 +4514,40 @@ function randomBetween(min, max) {
 
 function pick(items) {
   return items[Math.floor(Math.random() * items.length)];
+}
+/**
+ * Applies a reward through the server-authoritative website earning system.
+ *
+ * This is intentionally separate from the existing Discord /earn functions.
+ * Do not use this in performActivity(), claimTimedReward(), etc. unless those
+ * systems are explicitly migrated, otherwise the same action could pay twice.
+ */
+export async function claimServerEarningReward({
+  userId,
+  claimKey,
+  sourceType,
+  sourceId,
+  auraReward = 0,
+  xpReward = 0,
+  seasonXpReward = 0,
+  metadata = {},
+  seasonKey = 's1_dark_city'
+}) {
+  const result = await claimEarningReward({
+    userId,
+    claimKey,
+    sourceType,
+    sourceId,
+    auraReward,
+    xpReward,
+    seasonXpReward,
+    metadata,
+    seasonKey
+  });
+
+  // claim_earning_reward modifies economy_users directly in Postgres.
+  // Force the next economy read to reload the authoritative DB state.
+  cache = undefined;
+
+  return result;
 }

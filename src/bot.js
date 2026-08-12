@@ -112,7 +112,7 @@ import {
 import * as moderation from './moderation.js';
 import { requiredEnv } from './env.js';
 import { hashScore, pick, progressBar } from './utils.js';
-import { renderCasinoCard, renderLeaderboardImage, renderProfileCard, renderRobberyCard, renderTransactionCard, renderTransferCard } from './canvas-renderer.js';
+import { renderCasinoCard, renderLeaderboardImage, renderProfileCard, renderWalletCard, renderRobberyCard, renderTransactionCard, renderTransferCard } from './canvas-renderer.js';
 import { initPartyStore, getParty, getPartyByUser, createParty, joinParty, leaveParty, formatPartyEmbed } from './party.js';
 import {
   getPartyBlackjackMatch,
@@ -1084,7 +1084,9 @@ async function handleWalletCommand(interaction) {
 
   if (subcommand === 'bank') {
     const profile = await getProfile(interaction.user.id);
-    await interaction.reply({ embeds: [walletEmbed(profile)] });
+    await interaction.reply(
+      await walletPayload(interaction.user, profile)
+    );
     return;
   }
 
@@ -8293,15 +8295,19 @@ function uiEmojiLabel(key) {
 
 function baseEmbed() {
   return new EmbedBuilder()
-    .setColor(brand.color)
-    .setFooter({ text: brand.footer })
+    .setColor(0x5865f2)
+    .setFooter({
+      text: 'OCTOSON  •  AURA ECONOMY'
+    })
     .setTimestamp();
 }
 
 function gameEmbed() {
   return baseEmbed()
-    .setColor(brand.accent)
-    .setFooter({ text: `${brand.footer} - yalnız server içi Aura` });
+    .setColor(0x5865f2)
+    .setFooter({
+      text: 'Octoson  •  yalnız server içi Aura'
+    });
 }
 
 function helpEmbed() {
@@ -8538,15 +8544,16 @@ function styleGuideEmbed() {
 }
 
 function profileEmbed(user, profile) {
+  const totalAura = Number(profile.balance ?? 0) + Number(profile.bank ?? 0);
+
   return markPrimeEmbed(gameEmbed(), user, profile)
-    .setTitle(`🪪 ${primeDisplayName(user, profile)} - Aura Profili`)
-    .setImage('attachment://aura-profile.png')
-    .setDescription(`Profil kartı aşağıdakı şəkildədir. Qısa baxış: **${formatNumber(profile.balance)} Aura**, **Sv.${profile.level}**, **${profile.rank}**.`)
-    .addFields(
-      { name: '📊 XP', value: xpLine(profile), inline: true },
-      { name: '🔥 Seriya', value: `${profile.dailyStreak} gün`, inline: true },
-      { name: '🎯 Növbəti addım', value: nextActionLine(profile), inline: false }
-    );
+    .setColor(isPrimeProfile(profile) ? 0x8b5cf6 : 0x5865f2)
+    .setTitle(`${primeDisplayName(user, profile)}  •  Aura Profili`)
+    .setDescription(
+      `**${formatNumber(totalAura)} Aura**  ·  ` +
+      `Sv.${profile.level}  ·  ${profile.rank}`
+    )
+    .setImage('attachment://aura-profile.png');
 }
 
 async function profilePayload(user, profile, options = {}) {
@@ -8569,16 +8576,62 @@ async function profilePayload(user, profile, options = {}) {
 }
 
 function walletEmbed(profile) {
+  const total = Number(profile.balance ?? 0) + Number(profile.bank ?? 0);
+
   return gameEmbed()
-    .setTitle('🏦 Aura bankı')
-    .setDescription(`${xpLine(profile)}\n${streakLine(profile)}`)
-    .addFields(
-      { name: 'Wallet', value: `${formatNumber(profile.balance)} ${gameCopy.currency}`, inline: true },
-      { name: 'Bank', value: `${formatNumber(profile.bank)} ${gameCopy.currency}`, inline: true },
-      { name: 'Ümumi', value: `${formatNumber(profile.balance + profile.bank)} ${gameCopy.currency}`, inline: true },
-      { name: 'Faiz', value: 'Gündə 1.5%, maksimum 750 Aura.', inline: false },
-      { name: 'Vergi', value: '10000 Aura üstü toplam sərvət üçün gündə 1%, maksimum 1000 Aura.', inline: false }
+    .setColor(0x5865f2)
+    .setTitle('Aura Wallet')
+    .setDescription(
+      `**${formatNumber(total)} Aura** ümumi sərvət\n` +
+      `Wallet və bank hesabının canlı xülasəsi.`
+    )
+    .setImage('attachment://aura-wallet.png');
+}
+
+async function walletPayload(user, profile, options = {}) {
+  try {
+    const attachment = new AttachmentBuilder(
+      await renderWalletCard(user, profile),
+      { name: 'aura-wallet.png' }
     );
+
+    return {
+      embeds: [walletEmbed(profile)],
+      files: [attachment],
+      components: options.components ?? [],
+      ephemeral: options.ephemeral
+    };
+  } catch (error) {
+    console.error('Wallet canvas render failed:', error);
+
+    return {
+      embeds: [
+        walletEmbed(profile)
+          .setImage(null)
+          .addFields(
+            {
+              name: 'Wallet',
+              value: `**${formatNumber(profile.balance)} Aura**`,
+              inline: true
+            },
+            {
+              name: 'Bank',
+              value: `**${formatNumber(profile.bank)} Aura**`,
+              inline: true
+            },
+            {
+              name: 'Ümumi',
+              value: `**${formatNumber(
+                Number(profile.balance ?? 0) + Number(profile.bank ?? 0)
+              )} Aura**`,
+              inline: true
+            }
+          )
+      ],
+      components: options.components ?? [],
+      ephemeral: options.ephemeral
+    };
+  }
 }
 
 function loanCenterEmbed(credit) {
@@ -8845,37 +8898,65 @@ async function transactionPayload(title, profile, description, options = {}) {
   }
 }
 
-async function transferPayload(title, fromProfile, toProfile, fromUser, toUser, description, options = {}) {
-  const amount = Math.abs(options.amount ?? amountFromDescription(description) ?? 0);
-  const cleanDescription = `${displayUserName(fromUser)} -> ${displayUserName(toUser)}: **${formatNumber(amount)} Aura**`;
+async function transferPayload(
+  title,
+  fromProfile,
+  toProfile,
+  fromUser,
+  toUser,
+  description,
+  options = {}
+) {
+  const amount = Math.abs(
+    options.amount ?? amountFromDescription(description) ?? 0
+  );
+
+  const cleanDescription =
+    `${displayUserName(fromUser)} -> ${displayUserName(toUser)}: ` +
+    `**${formatNumber(amount)} Aura**`;
 
   if (!toProfile || options.kind === 'error') {
-    return transactionPayload(title, fromProfile, cleanDescription, options);
+    return transactionPayload(
+      title,
+      fromProfile,
+      cleanDescription,
+      options
+    );
   }
 
   try {
-    const attachment = new AttachmentBuilder(await renderTransferCard({
-      fromUser,
-      toUser,
-      fromProfile,
-      toProfile,
-      amount,
-      title,
-      tone: options.kind === 'gift' ? 'gift' : 'transfer'
-    }), { name: 'aura-transfer.png' });
-
     const isGift = options.kind === 'gift';
-    const embed = markPrimeEmbed(gameEmbed(), fromUser, fromProfile)
-      .setColor(isGift ? 0xec4899 : brand.success)
-      .setTitle(`${isGift ? '🎁' : '💸'} ${title}`)
-      .setDescription(`${primeMention(fromUser, fromProfile)} → ${primeMention(toUser, toProfile)}\n**${formatNumber(amount)} ${gameCopy.currency}** ${isGift ? 'hədiyyə edildi.' : 'göndərildi.'}`)
-      .addFields(
-        { name: 'Göndərən', value: `${displayUserName(fromUser)}\n${formatNumber(fromProfile.balance)} ${gameCopy.currency}`, inline: true },
-        { name: 'Alan', value: `${displayUserName(toUser)}\n${formatNumber(toProfile.balance)} ${gameCopy.currency}`, inline: true },
-        { name: isGift ? 'Hədiyyə' : 'Məbləğ', value: `**${formatNumber(amount)} ${gameCopy.currency}**`, inline: true },
-        { name: 'Status', value: 'Balanslar yeniləndi və əməliyyat tarixçəyə yazıldı.', inline: false }
+
+    const attachment = new AttachmentBuilder(
+      await renderTransferCard({
+        fromUser,
+        toUser,
+        fromProfile,
+        toProfile,
+        amount,
+        title,
+        tone: isGift ? 'gift' : 'transfer'
+      }),
+      { name: 'aura-transfer.png' }
+    );
+
+    const embed = markPrimeEmbed(
+      gameEmbed(),
+      fromUser,
+      fromProfile
+    )
+      .setColor(isGift ? 0x8b5cf6 : 0x3b82f6)
+      .setTitle(isGift ? 'Aura hədiyyəsi tamamlandı' : 'Aura transferi tamamlandı')
+      .setDescription(
+        `${primeMention(fromUser, fromProfile)} → ${primeMention(toUser, toProfile)}\n` +
+        `**${formatNumber(amount)} ${gameCopy.currency}** ${
+          isGift ? 'hədiyyə edildi.' : 'göndərildi.'
+        }`
       )
-      .setImage('attachment://aura-transfer.png');
+      .setImage('attachment://aura-transfer.png')
+      .setFooter({
+        text: 'Octoson • Aura iqtisadiyyatı'
+      });
 
     return {
       embeds: [embed],
@@ -8885,7 +8966,13 @@ async function transferPayload(title, fromProfile, toProfile, fromUser, toUser, 
     };
   } catch (error) {
     console.error('Transfer canvas render failed:', error);
-    return transactionPayload(title, fromProfile, cleanDescription, options);
+
+    return transactionPayload(
+      title,
+      fromProfile,
+      cleanDescription,
+      options
+    );
   }
 }
 
@@ -10343,12 +10430,41 @@ async function handleMentionGift(message, text) {
 
     scheduleLiveLeaderboardRefresh();
 
-    const profile = await getProfile(target.id);
+    const [fromProfile, toProfile] = await Promise.all([
+      getProfile(message.author.id),
+      getProfile(target.id)
+    ]);
+
+    const attachment = new AttachmentBuilder(
+      await renderTransferCard({
+        fromUser: message.author,
+        toUser: target,
+        fromProfile,
+        toProfile,
+        amount,
+        title: 'Aura hədiyyəsi',
+        tone: 'gift'
+      }),
+      { name: 'aura-transfer.png' }
+    );
+
+    const embed = markPrimeEmbed(
+      gameEmbed(),
+      message.author,
+      fromProfile
+    )
+      .setColor(0x8b5cf6)
+      .setTitle('Aura hədiyyəsi tamamlandı')
+      .setDescription(
+        `${primeMention(message.author, fromProfile)} → ` +
+        `${primeMention(target, toProfile)}\n` +
+        `**${formatNumber(amount)} Aura** hədiyyə edildi.`
+      )
+      .setImage('attachment://aura-transfer.png');
 
     await message.reply({
-      content:
-        `<@${target.id}> sənə **${formatNumber(amount)} Aura** verildi.\n` +
-        `Yeni balans: **${formatNumber(profile.balance)} Aura**.`,
+      embeds: [embed],
+      files: [attachment],
       allowedMentions: {
         users: [target.id],
         repliedUser: false

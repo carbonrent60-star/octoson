@@ -383,60 +383,160 @@ export async function transferEconomyProfiles({
   toTransactions = [],
   idempotencyKey = null
 }) {
-  const safeFromProfile = ensureUserProfileShape(stripRestrictionShadow(fromProfile));
-  const safeToProfile = ensureUserProfileShape(stripRestrictionShadow(toProfile));
+  const safeFromProfile =
+    ensureUserProfileShape(
+      stripRestrictionShadow(fromProfile)
+    );
 
+  const safeToProfile =
+    ensureUserProfileShape(
+      stripRestrictionShadow(toProfile)
+    );
+
+  /*
+   * IMPORTANT:
+   * Normalize transactions BEFORE choosing memory or Supabase.
+   * Both storage backends need these arrays.
+   */
+  const normalizedFromTransactions =
+    fromTransactions.map((transaction, index) => {
+      const createdAt = toEpochMs(
+        transaction.createdAt ??
+        transaction.created_at ??
+        transaction.at,
+        nowMs()
+      );
+
+      return {
+        ...clone(transaction),
+        amount: toNumber(transaction.amount, 0),
+        balanceBefore:
+          transaction.balanceBefore ??
+          transaction.balance_before ??
+          null,
+        balanceAfter:
+          transaction.balanceAfter ??
+          transaction.balance_after ??
+          null,
+        createdAt,
+        at:
+          transaction.at ??
+          new Date(createdAt).toISOString()
+      };
+    });
+
+  const normalizedToTransactions =
+    toTransactions.map((transaction, index) => {
+      const createdAt = toEpochMs(
+        transaction.createdAt ??
+        transaction.created_at ??
+        transaction.at,
+        nowMs()
+      );
+
+      return {
+        ...clone(transaction),
+        amount: toNumber(transaction.amount, 0),
+        balanceBefore:
+          transaction.balanceBefore ??
+          transaction.balance_before ??
+          null,
+        balanceAfter:
+          transaction.balanceAfter ??
+          transaction.balance_after ??
+          null,
+        createdAt,
+        at:
+          transaction.at ??
+          new Date(createdAt).toISOString()
+      };
+    });
+
+  /*
+   * MEMORY STORAGE
+   */
   if (isMemoryStorageEnabled()) {
-    const fromCurrent = memoryState.economy.users.get(fromUserId);
-    const toCurrent = memoryState.economy.users.get(toUserId);
+    const fromCurrent =
+      memoryState.economy.users.get(fromUserId);
 
-    if (fromCurrent && toCurrent) {
-      const fromVersion = toNumber(fromCurrent.version, 0);
-      const toVersion = toNumber(toCurrent.version, 0);
-      if (fromVersion !== toNumber(fromExpectedVersion, 0) || toVersion !== toNumber(toExpectedVersion, 0)) {
-        throw new Error('version_conflict');
-      }
+    const toCurrent =
+      memoryState.economy.users.get(toUserId);
+
+    const currentFromVersion =
+      fromCurrent
+        ? toNumber(fromCurrent.version, 0)
+        : 0;
+
+    const currentToVersion =
+      toCurrent
+        ? toNumber(toCurrent.version, 0)
+        : 0;
+
+    if (
+      fromCurrent &&
+      currentFromVersion !==
+        toNumber(fromExpectedVersion, 0)
+    ) {
+      throw new Error(
+        `version_conflict:${fromUserId}`
+      );
     }
 
-    memoryState.economy.users.set(fromUserId, {
-      profile: safeFromProfile,
-      version: fromCurrent ? fromCurrent.version + 1 : 0
-    });
-    memoryState.economy.users.set(toUserId, {
-      profile: safeToProfile,
-      version: toCurrent ? toCurrent.version + 1 : 0
-    });
-    memorySaveRestrictions(fromUserId, safeFromProfile.moderation?.restrictions ?? []);
-    memorySaveRestrictions(toUserId, safeToProfile.moderation?.restrictions ?? []);
+    if (
+      toCurrent &&
+      currentToVersion !==
+        toNumber(toExpectedVersion, 0)
+    ) {
+      throw new Error(
+        `version_conflict:${toUserId}`
+      );
+    }
 
-    const normalizedFromTransactions = fromTransactions.map((transaction, index) => {
-      const createdAt = toEpochMs(transaction.createdAt ?? transaction.created_at ?? transaction.at, nowMs());
+    const nextFromVersion =
+      fromCurrent
+        ? currentFromVersion + 1
+        : 0;
 
-      return {
-        ...clone(transaction),
-        amount: toNumber(transaction.amount, 0),
-        balanceBefore: transaction.balanceBefore ?? transaction.balance_before ?? null,
-        balanceAfter: transaction.balanceAfter ?? transaction.balance_after ?? null,
-        createdAt,
-        at: transaction.at ?? new Date(createdAt).toISOString()
-      };
-    });
+    const nextToVersion =
+      toCurrent
+        ? currentToVersion + 1
+        : 0;
 
-    const normalizedToTransactions = toTransactions.map((transaction, index) => {
-      const createdAt = toEpochMs(transaction.createdAt ?? transaction.created_at ?? transaction.at, nowMs());
+    memoryState.economy.users.set(
+      fromUserId,
+      {
+        profile: clone(safeFromProfile),
+        version: nextFromVersion
+      }
+    );
 
-      return {
-        ...clone(transaction),
-        amount: toNumber(transaction.amount, 0),
-        balanceBefore: transaction.balanceBefore ?? transaction.balance_before ?? null,
-        balanceAfter: transaction.balanceAfter ?? transaction.balance_after ?? null,
-        createdAt,
-        at: transaction.at ?? new Date(createdAt).toISOString()
-      };
-    });
+    memoryState.economy.users.set(
+      toUserId,
+      {
+        profile: clone(safeToProfile),
+        version: nextToVersion
+      }
+    );
 
-    for (const [index, tx] of normalizedFromTransactions.entries()) {
-      const key = transactionKey(tx, `${fromUserId}:${index}`);
+    memorySaveRestrictions(
+      fromUserId,
+      safeFromProfile.moderation?.restrictions ?? []
+    );
+
+    memorySaveRestrictions(
+      toUserId,
+      safeToProfile.moderation?.restrictions ?? []
+    );
+
+    for (
+      const [index, tx]
+      of normalizedFromTransactions.entries()
+    ) {
+      const key = transactionKey(
+        tx,
+        `${fromUserId}:${index}`
+      );
+
       const row = {
         transaction_key: key,
         user_id: fromUserId,
@@ -444,17 +544,46 @@ export async function transferEconomyProfiles({
         type: `${tx.type ?? 'transaction'}`,
         note: `${tx.note ?? ''}`,
         metadata: clone(tx.metadata ?? {}),
-        balance_before: tx.balanceBefore ?? tx.balance_before ?? null,
-        balance_after: tx.balanceAfter ?? tx.balance_after ?? null,
-        created_at: toEpochMs(tx.createdAt ?? tx.created_at ?? tx.at, nowMs())
+        balance_before:
+          tx.balanceBefore ??
+          tx.balance_before ??
+          null,
+        balance_after:
+          tx.balanceAfter ??
+          tx.balance_after ??
+          null,
+        created_at: toEpochMs(
+          tx.createdAt ??
+          tx.created_at ??
+          tx.at,
+          nowMs()
+        )
       };
-      const existingIndex = memoryState.economy.transactions.findIndex(item => item.transaction_key === key);
-      if (existingIndex === -1) memoryState.economy.transactions.push(row);
-      else memoryState.economy.transactions[existingIndex] = row;
+
+      const existingIndex =
+        memoryState.economy.transactions
+          .findIndex(item =>
+            item.transaction_key === key
+          );
+
+      if (existingIndex === -1) {
+        memoryState.economy.transactions.push(row);
+      } else {
+        memoryState.economy.transactions[
+          existingIndex
+        ] = row;
+      }
     }
 
-    for (const [index, tx] of normalizedToTransactions.entries()) {
-      const key = transactionKey(tx, `${toUserId}:${index}`);
+    for (
+      const [index, tx]
+      of normalizedToTransactions.entries()
+    ) {
+      const key = transactionKey(
+        tx,
+        `${toUserId}:${index}`
+      );
+
       const row = {
         transaction_key: key,
         user_id: toUserId,
@@ -462,43 +591,113 @@ export async function transferEconomyProfiles({
         type: `${tx.type ?? 'transaction'}`,
         note: `${tx.note ?? ''}`,
         metadata: clone(tx.metadata ?? {}),
-        balance_before: tx.balanceBefore ?? tx.balance_before ?? null,
-        balance_after: tx.balanceAfter ?? tx.balance_after ?? null,
-        created_at: toEpochMs(tx.createdAt ?? tx.created_at ?? tx.at, nowMs())
+        balance_before:
+          tx.balanceBefore ??
+          tx.balance_before ??
+          null,
+        balance_after:
+          tx.balanceAfter ??
+          tx.balance_after ??
+          null,
+        created_at: toEpochMs(
+          tx.createdAt ??
+          tx.created_at ??
+          tx.at,
+          nowMs()
+        )
       };
-      const existingIndex = memoryState.economy.transactions.findIndex(item => item.transaction_key === key);
-      if (existingIndex === -1) memoryState.economy.transactions.push(row);
-      else memoryState.economy.transactions[existingIndex] = row;
+
+      const existingIndex =
+        memoryState.economy.transactions
+          .findIndex(item =>
+            item.transaction_key === key
+          );
+
+      if (existingIndex === -1) {
+        memoryState.economy.transactions.push(row);
+      } else {
+        memoryState.economy.transactions[
+          existingIndex
+        ] = row;
+      }
     }
 
     return {
-      fromVersion: memoryState.economy.users.get(fromUserId)?.version ?? 0,
-      toVersion: memoryState.economy.users.get(toUserId)?.version ?? 0,
-      fromProfile: safeFromProfile,
-      toProfile: safeToProfile
+      fromVersion: nextFromVersion,
+      toVersion: nextToVersion,
+      fromProfile: clone(safeFromProfile),
+      toProfile: clone(safeToProfile)
     };
   }
 
+  /*
+   * SUPABASE STORAGE
+   */
   const client = getSupabaseClient();
-  const { data, error } = await client.rpc('transfer_economy_profiles', {
-    p_from_user_id: fromUserId,
-    p_from_expected_version: toNumber(fromExpectedVersion, 0),
-    p_from_profile: safeFromProfile,
-    p_from_transactions: normalizedFromTransactions,
-    p_to_user_id: toUserId,
-    p_to_expected_version: toNumber(toExpectedVersion, 0),
-    p_to_profile: safeToProfile,
-    p_to_transactions: normalizedToTransactions,
-    p_idempotency_key: idempotencyKey
-  });
 
-  if (error) throw error;
+  const { data, error } = await client.rpc(
+    'transfer_economy_profiles',
+    {
+      p_from_user_id: fromUserId,
+      p_from_expected_version:
+        toNumber(fromExpectedVersion, 0),
+      p_from_profile: safeFromProfile,
+      p_from_transactions:
+        normalizedFromTransactions,
 
-  return data?.[0] ?? {
-    fromVersion: toNumber(fromExpectedVersion, 0) + 1,
-    toVersion: toNumber(toExpectedVersion, 0) + 1,
-    fromProfile: safeFromProfile,
-    toProfile: safeToProfile
+      p_to_user_id: toUserId,
+      p_to_expected_version:
+        toNumber(toExpectedVersion, 0),
+      p_to_profile: safeToProfile,
+      p_to_transactions:
+        normalizedToTransactions,
+
+      p_idempotency_key:
+        idempotencyKey ?? null
+    }
+  );
+
+  if (error) {
+    throw error;
+  }
+
+  const row =
+    Array.isArray(data) && data.length
+      ? data[0]
+      : null;
+
+  /*
+   * Depending on how Postgres RETURNS TABLE is exposed,
+   * Supabase may return snake_case or camelCase-ish fields.
+   * Support both.
+   */
+  const fromVersion =
+    row?.fromVersion ??
+    row?.from_version ??
+    row?.fromversion ??
+    (
+      toNumber(fromExpectedVersion, 0) + 1
+    );
+
+  const toVersion =
+    row?.toVersion ??
+    row?.to_version ??
+    row?.toversion ??
+    (
+      toNumber(toExpectedVersion, 0) + 1
+    );
+
+  return {
+    fromVersion,
+    toVersion,
+    fromProfile:
+      row?.fromProfile ??
+      row?.from_profile ??
+      safeFromProfile,
+    toProfile:
+      row?.toProfile ??
+      row?.to_profile ??
+      safeToProfile
   };
 }
 
@@ -723,4 +922,59 @@ export async function saveEconomyUserTransaction(userId, transaction) {
   const { error } = await client.from('economy_transactions').upsert(row, { onConflict: 'transaction_key' });
   if (error) throw error;
   return row;
+}
+
+export async function claimEarningReward({
+  userId,
+  claimKey,
+  sourceType,
+  sourceId,
+  auraReward = 0,
+  xpReward = 0,
+  seasonXpReward = 0,
+  metadata = {},
+  seasonKey = 's1_dark_city'
+}) {
+  if (!userId) throw new Error('claim_earning_reward:userId_required');
+  if (!claimKey) throw new Error('claim_earning_reward:claimKey_required');
+  if (!sourceType) throw new Error('claim_earning_reward:sourceType_required');
+  if (!sourceId) throw new Error('claim_earning_reward:sourceId_required');
+
+  const safeAuraReward = Math.max(0, Math.trunc(Number(auraReward) || 0));
+  const safeXpReward = Math.max(0, Math.trunc(Number(xpReward) || 0));
+  const safeSeasonXpReward = Math.max(0, Math.trunc(Number(seasonXpReward) || 0));
+
+  if (isMemoryStorageEnabled()) {
+    throw new Error('claim_earning_reward_requires_supabase');
+  }
+
+  const client = getSupabaseClient();
+
+  const { data, error } = await client.rpc('claim_earning_reward', {
+    p_user_id: String(userId),
+    p_claim_key: String(claimKey),
+    p_source_type: String(sourceType),
+    p_source_id: String(sourceId),
+    p_aura_reward: safeAuraReward,
+    p_xp_reward: safeXpReward,
+    p_season_xp_reward: safeSeasonXpReward,
+    p_metadata: metadata && typeof metadata === 'object' ? metadata : {},
+    p_season_key: String(seasonKey || 's1_dark_city')
+  });
+
+  if (error) throw error;
+
+  const row = Array.isArray(data) ? data[0] : data;
+
+  if (!row) {
+    throw new Error('claim_earning_reward_empty_response');
+  }
+
+  return {
+    claimed: Boolean(row.claimed),
+    balance: toNumber(row.balance, 0),
+    xp: toNumber(row.xp, 0),
+    seasonXp: toNumber(row.season_xp ?? row.seasonXp, 0),
+    version: toNumber(row.version, 0)
+  };
 }

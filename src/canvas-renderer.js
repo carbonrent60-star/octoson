@@ -124,75 +124,1207 @@ const iconPaths = {
 };
 
 export async function renderProfileCard(user, profile, options = {}) {
-  const width = 1100;
-  const height = 600;
+  const width = 1200;
+  const height = 650;
+
   const canvas = createCanvas(width, height);
   const ctx = canvas.getContext('2d');
-  const isMaxLevel = profile.level >= 50;
-  const needed = xpNeeded(Math.min(profile.level, 50));
-  const xpPercent = isMaxLevel ? 1 : Math.max(0, Math.min(1, profile.xp / needed));
-  const totalAura = profile.balance + profile.bank;
 
-  drawBackground(ctx, width, height);
-  drawGlow(ctx, 150, 120, 220, 'rgba(245, 158, 11, 0.18)');
-  drawGlow(ctx, 940, 470, 250, 'rgba(20, 184, 166, 0.16)');
-  drawGlow(ctx, 570, 70, 220, 'rgba(129, 140, 248, 0.10)');
+  // ============================================================
+  // SAME PROFILE CONTRACT AS WEB
+  // ============================================================
 
-  roundRect(ctx, 42, 42, width - 84, height - 84, 30);
-  ctx.fillStyle = 'rgba(15, 18, 28, 0.86)';
-  ctx.fill();
-  ctx.strokeStyle = 'rgba(255,255,255,0.10)';
-  ctx.lineWidth = 2;
-  ctx.stroke();
+  const identity =
+    profile?.identity &&
+    typeof profile.identity === 'object' &&
+    !Array.isArray(profile.identity)
+      ? profile.identity
+      : {};
 
-  roundRect(ctx, 76, 76, 958, 176, 28);
-  ctx.fillStyle = 'rgba(255,255,255,0.035)';
-  ctx.fill();
-  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
-  ctx.stroke();
+  const appearance =
+    profile?.appearance &&
+    typeof profile.appearance === 'object' &&
+    !Array.isArray(profile.appearance)
+      ? profile.appearance
+      : {};
 
-  const avatar = await loadRemoteImage(user.displayAvatarURL({ extension: 'png', size: 256, forceStatic: true }));
-  drawAvatar(ctx, avatar, 100, 98, 124);
+  const verified =
+    identity.verified === true ||
+    profile?.verified === true;
 
-  drawText(ctx, displayName(user), 250, 126, {
-    size: 40,
-    weight: 800,
-    color: '#f8fafc',
-    maxWidth: 500
-  });
-  drawText(ctx, `@${user.username ?? 'member'}`, 252, 164, {
-    size: 22,
-    color: '#94a3b8',
-    maxWidth: 360
-  });
+  const primaryColor =
+    verified && /^#[0-9a-fA-F]{6}$/.test(String(appearance.primaryColor ?? ''))
+      ? String(appearance.primaryColor)
+      : '#67e8f9';
 
-  const rankLabel = cleanRank(profile.rank);
-  const rankWidth = drawPill(ctx, 252, 190, rankLabel, '#f59e0b', '#111827');
-  const prestigeWidth = drawPill(ctx, 264 + rankWidth, 190, `Prestij ${profile.prestige}`, '#14b8a6', '#06201d');
-  if (options.primeBadge) {
-    await drawBadgePill(ctx, 276 + rankWidth + prestigeWidth, 190, 'PRIME', '#818cf8', '#eef2ff', 15);
+  const secondaryColor =
+    verified && /^#[0-9a-fA-F]{6}$/.test(String(appearance.secondaryColor ?? ''))
+      ? String(appearance.secondaryColor)
+      : '#6366f1';
+
+  const profileGradient =
+    verified
+      ? String(appearance.gradient ?? 'cyan')
+      : 'cyan';
+
+  const bannerAnimation =
+    verified
+      ? String(appearance.bannerAnimation ?? 'aurora')
+      : 'none';
+
+  const glowIntensity = Math.min(
+    100,
+    Math.max(
+      0,
+      Number(appearance.glowIntensity ?? 55)
+    )
+  );
+
+  // ============================================================
+  // HELPERS LOCAL TO PROFILE RENDERER
+  // ============================================================
+
+  function hexRgb(hex) {
+    const clean = String(hex).replace('#', '');
+
+    if (!/^[0-9a-fA-F]{6}$/.test(clean)) {
+      return { r: 103, g: 232, b: 249 };
+    }
+
+    return {
+      r: parseInt(clean.slice(0, 2), 16),
+      g: parseInt(clean.slice(2, 4), 16),
+      b: parseInt(clean.slice(4, 6), 16)
+    };
   }
 
-  await drawIcon(ctx, 'lightning', 760, 104, 42, '#f59e0b');
-  drawText(ctx, `Sv.${profile.level}`, 820, 132, { size: 54, weight: 900, color: '#f8fafc' });
-  drawText(ctx, isMaxLevel ? 'MAX LEVEL' : `${profile.xp}/${needed} XP`, 824, 172, { size: 22, weight: 800, color: isMaxLevel ? '#f59e0b' : '#cbd5e1' });
-  drawProgressBar(ctx, 760, 204, 250, 18, xpPercent, isMaxLevel ? '#22c55e' : '#f59e0b', '#334155');
-  drawText(ctx, isMaxLevel ? 'Tamamlandı' : `${Math.round(xpPercent * 100)}%`, 1010, 244, { size: 18, weight: 800, color: isMaxLevel ? '#22c55e' : '#f59e0b', align: 'right' });
+  function rgba(hex, alpha) {
+    const { r, g, b } = hexRgb(hex);
+    return `rgba(${r},${g},${b},${alpha})`;
+  }
 
-  await drawMetric(ctx, 84, 304, 292, 104, 'wallet', 'Balans', `${formatNumber(profile.balance)} Aura`, '#f59e0b');
-  await drawMetric(ctx, 404, 304, 292, 104, 'bank', 'Bank', `${formatNumber(profile.bank)} Aura`, '#14b8a6');
-  await drawMetric(ctx, 724, 304, 292, 104, 'trophy', 'Toplam', `${formatNumber(totalAura)} Aura`, '#818cf8');
+  function webText(
+    value,
+    x,
+    y,
+    {
+      size = 12,
+      weight = 500,
+      color = '#ffffff',
+      align = 'left',
+      maxWidth = undefined
+    } = {}
+  ) {
+    ctx.save();
 
-  roundRect(ctx, 84, 438, 932, 82, 24);
-  ctx.fillStyle = 'rgba(255,255,255,0.045)';
+    ctx.font =
+      `${weight} ${size}px "Octoson Inter"`;
+
+    ctx.fillStyle = color;
+    ctx.textAlign = align;
+    ctx.textBaseline = 'alphabetic';
+
+    if (maxWidth) {
+      ctx.fillText(String(value), x, y, maxWidth);
+    } else {
+      ctx.fillText(String(value), x, y);
+    }
+
+    ctx.restore();
+  }
+
+  function lineIcon(type, x, y, size, color, lineWidth = 1.7) {
+    const s = size;
+
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.strokeStyle = color;
+    ctx.fillStyle = 'transparent';
+    ctx.lineWidth = lineWidth;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    if (type === 'gem') {
+      ctx.beginPath();
+      ctx.moveTo(s * .28, s * .13);
+      ctx.lineTo(s * .72, s * .13);
+      ctx.lineTo(s * .93, s * .38);
+      ctx.lineTo(s * .50, s * .90);
+      ctx.lineTo(s * .07, s * .38);
+      ctx.closePath();
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(s * .07, s * .38);
+      ctx.lineTo(s * .93, s * .38);
+      ctx.moveTo(s * .28, s * .13);
+      ctx.lineTo(s * .39, s * .38);
+      ctx.lineTo(s * .50, s * .90);
+      ctx.moveTo(s * .72, s * .13);
+      ctx.lineTo(s * .61, s * .38);
+      ctx.lineTo(s * .50, s * .90);
+      ctx.stroke();
+    }
+
+    if (type === 'wallet') {
+      roundRect(ctx, s * .08, s * .20, s * .84, s * .62, s * .10);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(s * .16, s * .20);
+      ctx.lineTo(s * .70, s * .20);
+      ctx.lineTo(s * .70, s * .12);
+      ctx.lineTo(s * .18, s * .12);
+      ctx.stroke();
+
+      roundRect(ctx, s * .62, s * .39, s * .30, s * .23, s * .06);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(s * .72, s * .505, s * .018, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    if (type === 'bank') {
+      ctx.beginPath();
+      ctx.moveTo(s * .08, s * .31);
+      ctx.lineTo(s * .50, s * .08);
+      ctx.lineTo(s * .92, s * .31);
+      ctx.closePath();
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(s * .12, s * .39);
+      ctx.lineTo(s * .88, s * .39);
+
+      for (const cx of [.22, .42, .62, .82]) {
+        ctx.moveTo(s * cx, s * .42);
+        ctx.lineTo(s * cx, s * .72);
+      }
+
+      ctx.moveTo(s * .10, s * .78);
+      ctx.lineTo(s * .90, s * .78);
+      ctx.moveTo(s * .06, s * .88);
+      ctx.lineTo(s * .94, s * .88);
+      ctx.stroke();
+    }
+
+    if (type === 'crown') {
+      ctx.beginPath();
+      ctx.moveTo(s * .10, s * .30);
+      ctx.lineTo(s * .30, s * .54);
+      ctx.lineTo(s * .50, s * .20);
+      ctx.lineTo(s * .70, s * .54);
+      ctx.lineTo(s * .90, s * .30);
+      ctx.lineTo(s * .80, s * .78);
+      ctx.lineTo(s * .20, s * .78);
+      ctx.closePath();
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(s * .22, s * .88);
+      ctx.lineTo(s * .78, s * .88);
+      ctx.stroke();
+    }
+
+    if (type === 'badgecheck') {
+      // Lucide BadgeCheck-like 8-lobed badge.
+      const cx = s / 2;
+      const cy = s / 2;
+      const outer = s * .43;
+      const inner = s * .34;
+      const points = 16;
+
+      ctx.beginPath();
+
+      for (let i = 0; i < points; i++) {
+        const angle =
+          -Math.PI / 2 +
+          (Math.PI * 2 * i) / points;
+
+        const radius =
+          i % 2 === 0 ? outer : inner;
+
+        const px =
+          cx + Math.cos(angle) * radius;
+
+        const py =
+          cy + Math.sin(angle) * radius;
+
+        if (i === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      }
+
+      ctx.closePath();
+
+      ctx.fillStyle = rgba(primaryColor, .10);
+      ctx.fill();
+
+      ctx.strokeStyle = color;
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(s * .30, s * .51);
+      ctx.lineTo(s * .44, s * .65);
+      ctx.lineTo(s * .72, s * .35);
+      ctx.stroke();
+    }
+
+    ctx.restore();
+  }
+
+  function statusPill(x, y, label, accent = false) {
+    ctx.save();
+
+    ctx.font = `500 10px "Octoson Inter"`;
+
+    const tw = ctx.measureText(label).width;
+    const w = tw + 28;
+    const h = 28;
+
+    roundRect(ctx, x, y, w, h, 14);
+
+    ctx.fillStyle =
+      accent
+        ? rgba(primaryColor, .03)
+        : 'rgba(255,255,255,.025)';
+
+    ctx.fill();
+
+    ctx.strokeStyle =
+      accent
+        ? rgba(primaryColor, .09)
+        : 'rgba(255,255,255,.065)';
+
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    webText(label, x + 14, y + 18, {
+      size: 10,
+      weight: 500,
+      color:
+        accent
+          ? rgba(primaryColor, .55)
+          : 'rgba(255,255,255,.30)'
+    });
+
+    ctx.restore();
+
+    return w;
+  }
+
+  function heroStat({
+    x,
+    label,
+    value,
+    suffix = '',
+    icon,
+    accent = false
+  }) {
+    const y = 139;
+    const w = 112;
+    const h = 112;
+
+    roundRect(ctx, x, y, w, h, 15);
+
+    ctx.fillStyle =
+      accent
+        ? rgba(primaryColor, .025)
+        : 'rgba(0,0,0,.20)';
+
+    ctx.fill();
+
+    ctx.strokeStyle =
+      accent
+        ? rgba(primaryColor, .085)
+        : 'rgba(255,255,255,.055)';
+
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    webText(label, x + 14, y + 28, {
+      size: 8,
+      weight: 500,
+      color: 'rgba(255,255,255,.20)',
+      maxWidth: 72
+    });
+
+    lineIcon(
+      icon,
+      x + 87,
+      y + 17,
+      12,
+      accent
+        ? rgba(primaryColor, .45)
+        : 'rgba(255,255,255,.18)',
+      1.5
+    );
+
+    webText(value, x + 14, y + 72, {
+      size: 14,
+      weight: 600,
+      color: 'rgba(255,255,255,.65)',
+      maxWidth: 88
+    });
+
+    if (suffix) {
+      webText(suffix.toUpperCase(), x + 14, y + 91, {
+        size: 7,
+        weight: 600,
+        color: 'rgba(255,255,255,.15)'
+      });
+    }
+  }
+
+  // ============================================================
+  // DATA — SAME INTENT AS WEB HERO
+  // ============================================================
+
+  const stats =
+    profile?.stats &&
+    typeof profile.stats === 'object'
+      ? profile.stats
+      : {};
+
+  const world =
+    profile?.world &&
+    typeof profile.world === 'object'
+      ? profile.world
+      : {};
+
+  const wallet = Number(profile?.balance ?? 0);
+  const bank = Number(profile?.bank ?? 0);
+
+  const storedNetWorth = Number(world.netWorth ?? 0);
+
+  const netWorth =
+    storedNetWorth > 0
+      ? storedNetWorth
+      : wallet + bank;
+
+  const level =
+    Math.max(1, Number(profile?.level ?? 1));
+
+  const xp =
+    Math.max(0, Number(profile?.xp ?? 0));
+
+  const prestige =
+    Math.max(0, Number(profile?.prestige ?? 0));
+
+  const gamesPlayed =
+    Math.max(0, Number(stats.gamesPlayed ?? 0));
+
+  const gamesWon =
+    Math.max(0, Number(stats.gamesWon ?? 0));
+
+  const winRate =
+    gamesPlayed > 0
+      ? Math.round((gamesWon / gamesPlayed) * 100)
+      : 0;
+
+  const luck =
+    Number(profile?.luck ?? 50);
+
+  const streak =
+    Number(profile?.dailyStreak ?? 0);
+
+  const rank =
+    cleanRank(profile?.rank ?? 'Yeni başlayan');
+
+  const title =
+    String(profile?.title ?? 'Yeni üzv');
+
+  const needed =
+    xpNeeded(Math.min(level, 50));
+
+  const isMaxLevel =
+    level >= 50;
+
+  const xpProgress =
+    isMaxLevel
+      ? 100
+      : Math.min(
+          100,
+          Math.max(
+            0,
+            needed > 0
+              ? (xp / needed) * 100
+              : 0
+          )
+        );
+
+  // ============================================================
+  // PAGE / HERO BACKGROUND
+  // ============================================================
+
+  ctx.fillStyle = '#07080b';
+  ctx.fillRect(0, 0, width, height);
+
+  // Very subtle website-style dotted atmosphere.
+  ctx.save();
+  ctx.fillStyle = 'rgba(255,255,255,.022)';
+
+  for (let yy = 22; yy < height; yy += 24) {
+    for (let xx = 22; xx < width; xx += 24) {
+      ctx.beginPath();
+      ctx.arc(xx, yy, .7, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  ctx.restore();
+
+  // Main hero
+  const cardX = 30;
+  const cardY = 30;
+  const cardW = 1140;
+  const cardH = 590;
+
+  roundRect(
+    ctx,
+    cardX,
+    cardY,
+    cardW,
+    cardH,
+    26
+  );
+
+  ctx.fillStyle = '#09090c';
   ctx.fill();
-  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+
+  ctx.strokeStyle =
+    verified
+      ? rgba(primaryColor, .14)
+      : 'rgba(255,255,255,.07)';
+
+  ctx.lineWidth = 1;
   ctx.stroke();
 
-  await drawMiniStat(ctx, 112, 462, 'star', 'Uğur', `${profile.luck}%`);
-  await drawMiniStat(ctx, 330, 462, 'chart', 'Oyun', `${profile.stats.gamesPlayed}`);
-  await drawMiniStat(ctx, 548, 462, 'medal', 'Qələbə', `${profile.stats.gamesWon}`);
-  await drawMiniStat(ctx, 766, 462, 'sparkle', 'Seriya', `${profile.dailyStreak} gün`);
+  // ============================================================
+  // VERIFIED THEME ATMOSPHERE
+  // ============================================================
+
+  if (verified) {
+    // Primary top-right radial glow
+    const primaryGlow =
+      ctx.createRadialGradient(
+        930,
+        70,
+        0,
+        930,
+        70,
+        360
+      );
+
+    primaryGlow.addColorStop(
+      0,
+      rgba(
+        primaryColor,
+        Math.max(
+          .035,
+          (glowIntensity / 100) * .22
+        )
+      )
+    );
+
+    primaryGlow.addColorStop(
+      .42,
+      rgba(
+        primaryColor,
+        Math.max(
+          .015,
+          (glowIntensity / 100) * .075
+        )
+      )
+    );
+
+    primaryGlow.addColorStop(
+      1,
+      rgba(primaryColor, 0)
+    );
+
+    ctx.fillStyle = primaryGlow;
+    ctx.fillRect(
+      cardX,
+      cardY,
+      cardW,
+      cardH
+    );
+
+    // Secondary lower-left glow
+    const secondaryGlow =
+      ctx.createRadialGradient(
+        220,
+        575,
+        0,
+        220,
+        575,
+        310
+      );
+
+    secondaryGlow.addColorStop(
+      0,
+      rgba(
+        secondaryColor,
+        Math.max(
+          .025,
+          (glowIntensity / 100) * .15
+        )
+      )
+    );
+
+    secondaryGlow.addColorStop(
+      1,
+      rgba(secondaryColor, 0)
+    );
+
+    ctx.fillStyle = secondaryGlow;
+    ctx.fillRect(
+      cardX,
+      cardY,
+      cardW,
+      cardH
+    );
+
+    // Static PNG representation of selected gradient.
+    const diagonal =
+      ctx.createLinearGradient(
+        cardX,
+        cardY,
+        cardX + cardW,
+        cardY + cardH
+      );
+
+    diagonal.addColorStop(
+      0,
+      rgba(primaryColor, .04)
+    );
+
+    diagonal.addColorStop(
+      .45,
+      'rgba(0,0,0,0)'
+    );
+
+    diagonal.addColorStop(
+      1,
+      rgba(secondaryColor, .05)
+    );
+
+    ctx.fillStyle = diagonal;
+    ctx.fillRect(
+      cardX,
+      cardY,
+      cardW,
+      cardH
+    );
+
+    // Exact web concept: thin top theme line.
+    const themeLine =
+      ctx.createLinearGradient(
+        cardX + 150,
+        0,
+        cardX + cardW - 150,
+        0
+      );
+
+    themeLine.addColorStop(
+      0,
+      rgba(primaryColor, 0)
+    );
+
+    themeLine.addColorStop(
+      .5,
+      rgba(primaryColor, .42)
+    );
+
+    themeLine.addColorStop(
+      1,
+      rgba(primaryColor, 0)
+    );
+
+    ctx.fillStyle = themeLine;
+    ctx.fillRect(
+      cardX + 120,
+      cardY,
+      cardW - 240,
+      1
+    );
+  } else {
+    // Same default cyan haze as web non-verified hero.
+    const defaultGlow =
+      ctx.createRadialGradient(
+        1030,
+        30,
+        0,
+        1030,
+        30,
+        400
+      );
+
+    defaultGlow.addColorStop(
+      0,
+      'rgba(165,243,252,.065)'
+    );
+
+    defaultGlow.addColorStop(
+      1,
+      'rgba(165,243,252,0)'
+    );
+
+    ctx.fillStyle = defaultGlow;
+    ctx.fillRect(
+      cardX,
+      cardY,
+      cardW,
+      cardH
+    );
+  }
+
+  // ============================================================
+  // OCTOSON IDENTITY EYEBROW
+  // ============================================================
+
+  ctx.beginPath();
+  ctx.arc(72, 75, 3, 0, Math.PI * 2);
+  ctx.fillStyle = '#a5f3fc';
+  ctx.fill();
+
+  webText(
+    'OCTOSON IDENTITY',
+    84,
+    79,
+    {
+      size: 10,
+      weight: 600,
+      color: 'rgba(165,243,252,.55)'
+    }
+  );
+
+  webText(
+    'Aura economy status',
+    72,
+    103,
+    {
+      size: 11,
+      weight: 400,
+      color: 'rgba(255,255,255,.25)'
+    }
+  );
+
+  // ============================================================
+  // AVATAR
+  // ============================================================
+
+  let avatar = null;
+
+  try {
+    avatar = await loadRemoteImage(
+      user.displayAvatarURL({
+        extension: 'png',
+        size: 256,
+        forceStatic: true
+      })
+    );
+  } catch {}
+
+  const avatarX = 72;
+  const avatarY = 151;
+  const avatarSize = 92;
+  const avatarRadius = 22;
+
+  ctx.save();
+
+  roundRect(
+    ctx,
+    avatarX,
+    avatarY,
+    avatarSize,
+    avatarSize,
+    avatarRadius
+  );
+
+  ctx.clip();
+
+  if (avatar) {
+    ctx.drawImage(
+      avatar,
+      avatarX,
+      avatarY,
+      avatarSize,
+      avatarSize
+    );
+  } else {
+    ctx.fillStyle = 'rgba(255,255,255,.03)';
+    ctx.fillRect(
+      avatarX,
+      avatarY,
+      avatarSize,
+      avatarSize
+    );
+  }
+
+  ctx.restore();
+
+  roundRect(
+    ctx,
+    avatarX,
+    avatarY,
+    avatarSize,
+    avatarSize,
+    avatarRadius
+  );
+
+  ctx.strokeStyle =
+    'rgba(255,255,255,.10)';
+
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // Level badge — same placement/concept as web.
+  const levelBadge =
+    String(level);
+
+  ctx.font =
+    `700 11px "Octoson Inter"`;
+
+  const levelWidth =
+    Math.max(
+      32,
+      ctx.measureText(levelBadge).width + 20
+    );
+
+  const levelX =
+    avatarX +
+    avatarSize -
+    levelWidth +
+    7;
+
+  const levelY =
+    avatarY +
+    avatarSize -
+    19;
+
+  roundRect(
+    ctx,
+    levelX,
+    levelY,
+    levelWidth,
+    32,
+    10
+  );
+
+  ctx.fillStyle =
+    verified
+      ? primaryColor
+      : '#cffafe';
+
+  ctx.fill();
+
+  ctx.strokeStyle = '#09090c';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  webText(
+    levelBadge,
+    levelX + levelWidth / 2,
+    levelY + 21,
+    {
+      size: 11,
+      weight: 700,
+      color: '#05070a',
+      align: 'center'
+    }
+  );
+
+  // ============================================================
+  // IDENTITY
+  // ============================================================
+
+  const name =
+    displayName(user);
+
+  const nameX = 190;
+  const nameY = 179;
+
+  webText(
+    name,
+    nameX,
+    nameY,
+    {
+      size: 30,
+      weight: 600,
+      color: '#ffffff',
+      maxWidth: 360
+    }
+  );
+
+  // Put the web BadgeCheck directly beside rendered name.
+  if (verified) {
+    ctx.save();
+
+    ctx.font =
+      `600 30px "Octoson Inter"`;
+
+    const measuredName =
+      Math.min(
+        ctx.measureText(name).width,
+        360
+      );
+
+    lineIcon(
+      'badgecheck',
+      nameX + measuredName + 10,
+      nameY - 18,
+      18,
+      rgba(primaryColor, .90),
+      2.0
+    );
+
+    ctx.restore();
+  }
+
+  webText(
+    `@${user.username ?? 'user'}`,
+    nameX,
+    205,
+    {
+      size: 11,
+      weight: 400,
+      color: 'rgba(255,255,255,.25)',
+      maxWidth: 350
+    }
+  );
+
+  let pillX = nameX;
+
+  const rankWidth =
+    statusPill(
+      pillX,
+      221,
+      rank,
+      false
+    );
+
+  pillX += rankWidth + 8;
+
+  const titleWidth =
+    statusPill(
+      pillX,
+      221,
+      title,
+      true
+    );
+
+  pillX += titleWidth + 8;
+
+  if (prestige > 0) {
+    statusPill(
+      pillX,
+      221,
+      `Prestige ${prestige}`,
+      false
+    );
+  }
+
+  // ============================================================
+  // EXACT WEB HERO STATS
+  // ============================================================
+
+  heroStat({
+    x: 650,
+    label: 'Net Worth',
+    value: formatNumber(netWorth),
+    suffix: 'Aura',
+    icon: 'gem',
+    accent: true
+  });
+
+  heroStat({
+    x: 769,
+    label: 'Wallet',
+    value: formatNumber(wallet),
+    icon: 'wallet'
+  });
+
+  heroStat({
+    x: 888,
+    label: 'Bank',
+    value: formatNumber(bank),
+    icon: 'bank'
+  });
+
+  heroStat({
+    x: 1007,
+    label: 'Prestige',
+    value: formatNumber(prestige),
+    icon: 'crown'
+  });
+
+  // ============================================================
+  // LEVEL PROGRESS — WEB HERO LAYOUT
+  // ============================================================
+
+  ctx.beginPath();
+  ctx.moveTo(72, 285);
+  ctx.lineTo(1128, 285);
+  ctx.strokeStyle =
+    'rgba(255,255,255,.055)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  webText(
+    'LEVEL PROGRESS',
+    72,
+    326,
+    {
+      size: 9,
+      weight: 500,
+      color: 'rgba(255,255,255,.20)'
+    }
+  );
+
+  webText(
+    `Lv. ${level}`,
+    72,
+    365,
+    {
+      size: 25,
+      weight: 600,
+      color: 'rgba(255,255,255,.80)'
+    }
+  );
+
+  webText(
+    isMaxLevel
+      ? 'MAX LEVEL'
+      : `${formatNumber(xp)} XP`,
+    72,
+    390,
+    {
+      size: 9,
+      weight: 400,
+      color: 'rgba(255,255,255,.20)'
+    }
+  );
+
+  webText(
+    `${Math.round(xpProgress)}%`,
+    1128,
+    382,
+    {
+      size: 9,
+      weight: 500,
+      color: rgba(primaryColor, .65),
+      align: 'right'
+    }
+  );
+
+  // progress track
+  roundRect(
+    ctx,
+    325,
+    342,
+    803,
+    5,
+    2.5
+  );
+
+  ctx.fillStyle =
+    'rgba(255,255,255,.045)';
+  ctx.fill();
+
+  const progressWidth =
+    803 * (xpProgress / 100);
+
+  if (progressWidth > 0) {
+    const progressGradient =
+      ctx.createLinearGradient(
+        325,
+        0,
+        1128,
+        0
+      );
+
+    progressGradient.addColorStop(
+      0,
+      rgba(primaryColor, .50)
+    );
+
+    progressGradient.addColorStop(
+      1,
+      rgba(primaryColor, 1)
+    );
+
+    roundRect(
+      ctx,
+      325,
+      342,
+      progressWidth,
+      5,
+      2.5
+    );
+
+    ctx.fillStyle =
+      progressGradient;
+
+    ctx.fill();
+  }
+
+  // ============================================================
+  // SECONDARY METRICS
+  // ============================================================
+
+  const metrics = [
+    {
+      label: 'WIN RATE',
+      value: `${winRate}%`,
+      detail: `${formatNumber(gamesWon)} qələbə`,
+      accent: true
+    },
+    {
+      label: 'OYUN',
+      value: formatNumber(gamesPlayed),
+      detail: 'ümumi oyun'
+    },
+    {
+      label: 'UĞUR',
+      value: `${luck}%`,
+      detail: 'luck score',
+      accent: true
+    },
+    {
+      label: 'SERİYA',
+      value: `${streak} gün`,
+      detail: 'daily streak'
+    }
+  ];
+
+  metrics.forEach(
+    (metric, index) => {
+      const x =
+        72 + index * 266;
+
+      const y = 430;
+      const w = 257;
+      const h = 105;
+
+      roundRect(
+        ctx,
+        x,
+        y,
+        w,
+        h,
+        18
+      );
+
+      ctx.fillStyle =
+        'rgba(255,255,255,.018)';
+
+      ctx.fill();
+
+      ctx.strokeStyle =
+        'rgba(255,255,255,.06)';
+
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // Small restrained icon marker matching web visual weight.
+      ctx.beginPath();
+      ctx.arc(
+        x + 21,
+        y + 25,
+        3.5,
+        0,
+        Math.PI * 2
+      );
+
+      ctx.fillStyle =
+        metric.accent
+          ? rgba(primaryColor, .70)
+          : 'rgba(255,255,255,.22)';
+
+      ctx.fill();
+
+      webText(
+        metric.label,
+        x + 38,
+        y + 29,
+        {
+          size: 8,
+          weight: 500,
+          color: 'rgba(255,255,255,.20)'
+        }
+      );
+
+      webText(
+        metric.value,
+        x + 17,
+        y + 69,
+        {
+          size: 23,
+          weight: 600,
+          color: 'rgba(255,255,255,.75)',
+          maxWidth: w - 34
+        }
+      );
+
+      webText(
+        metric.detail,
+        x + 17,
+        y + 90,
+        {
+          size: 8,
+          weight: 400,
+          color: 'rgba(255,255,255,.15)',
+          maxWidth: w - 34
+        }
+      );
+    }
+  );
+
+  // ============================================================
+  // FOOTER
+  // ============================================================
+
+  webText(
+    'OCTOSON',
+    72,
+    583,
+    {
+      size: 8,
+      weight: 600,
+      color: 'rgba(255,255,255,.25)'
+    }
+  );
+
+  webText(
+    verified
+      ? `${profileGradient.toUpperCase()} THEME  •  OCTOSON VERIFIED`
+      : 'AURA ECONOMY',
+    600,
+    583,
+    {
+      size: 8,
+      weight: 500,
+      color:
+        verified
+          ? rgba(primaryColor, .25)
+          : 'rgba(255,255,255,.15)',
+      align: 'center'
+    }
+  );
+
+  webText(
+    'Discord ilə sinxron  •  Aura yalnız server içi valyutadır',
+    1128,
+    583,
+    {
+      size: 8,
+      weight: 400,
+      color: 'rgba(255,255,255,.15)',
+      align: 'right'
+    }
+  );
 
   return canvas.toBuffer('image/png');
 }
@@ -1296,66 +2428,569 @@ export async function renderTransactionCard({ title, description, profile, amoun
   return canvas.toBuffer('image/png');
 }
 
-export async function renderTransferCard({ fromUser, toUser, fromProfile, toProfile, amount, title = 'Aura göndərildi', tone = 'transfer' }) {
-  const width = 1120;
-  const height = 520;
+export async function renderWalletCard(user, profile) {
+  const width = 1200;
+  const height = 540;
+
   const canvas = createCanvas(width, height);
   const ctx = canvas.getContext('2d');
-  const accent = tone === 'gift' ? '#ec4899' : '#14b8a6';
-  const secondary = tone === 'gift' ? '#f59e0b' : '#38bdf8';
-  const actionLabel = tone === 'gift' ? 'HƏDİYYƏ' : 'TRANSFER';
 
-  drawBackground(ctx, width, height);
-  drawGlow(ctx, 190, 120, 250, `${secondary}24`);
-  drawGlow(ctx, 920, 360, 270, `${accent}30`);
-  drawGlow(ctx, 560, 250, 220, 'rgba(129,140,248,0.12)');
+  const balance = Number(profile.balance ?? 0);
+  const bank = Number(profile.bank ?? 0);
+  const total = balance + bank;
 
-  roundRect(ctx, 38, 38, width - 76, height - 76, 30);
-  ctx.fillStyle = 'rgba(15, 18, 28, 0.92)';
+  const bg = ctx.createLinearGradient(0, 0, width, height);
+  bg.addColorStop(0, '#07080d');
+  bg.addColorStop(0.55, '#0b0d14');
+  bg.addColorStop(1, '#090b12');
+
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, width, height);
+
+  drawGlow(ctx, 1040, 90, 330, 'rgba(99,102,241,0.12)');
+  drawGlow(ctx, 130, 470, 260, 'rgba(139,92,246,0.07)');
+
+  roundRect(ctx, 34, 34, 1132, 472, 34);
+
+  const panel = ctx.createLinearGradient(34, 34, 1166, 506);
+  panel.addColorStop(0, 'rgba(255,255,255,0.050)');
+  panel.addColorStop(1, 'rgba(255,255,255,0.020)');
+
+  ctx.fillStyle = panel;
   ctx.fill();
-  ctx.strokeStyle = `${accent}70`;
-  ctx.lineWidth = 2;
+
+  ctx.strokeStyle = 'rgba(255,255,255,0.09)';
+  ctx.lineWidth = 1.5;
   ctx.stroke();
 
-  await drawIcon(ctx, tone === 'gift' ? 'sparkle' : 'wallet', 74, 72, 46, accent);
-  drawText(ctx, title, 132, 92, { size: 40, weight: 900, color: '#f8fafc', maxWidth: 610 });
-  drawText(ctx, 'Octoson iqtisadiyyatı • əməliyyat təhlükəsiz yadda saxlandı', 134, 124, { size: 19, color: '#94a3b8', maxWidth: 610 });
+  drawText(ctx, 'OCTOSON', 76, 82, {
+    size: 15,
+    weight: 900,
+    color: '#818cf8'
+  });
 
-  roundRect(ctx, 790, 70, 248, 82, 24);
-  ctx.fillStyle = `${accent}18`;
+  drawText(ctx, 'AURA WALLET', 76, 108, {
+    size: 12,
+    weight: 800,
+    color: '#596275'
+  });
+
+  const avatar = await loadRemoteImage(
+    user.displayAvatarURL({
+      extension: 'png',
+      size: 256,
+      forceStatic: true
+    })
+  );
+
+  drawAvatarModern(ctx, avatar, 76, 144, 86);
+
+  drawText(ctx, displayName(user), 188, 173, {
+    size: 30,
+    weight: 900,
+    color: '#f8fafc',
+    maxWidth: 430
+  });
+
+  drawText(ctx, `@${user.username ?? 'member'}`, 190, 204, {
+    size: 15,
+    weight: 600,
+    color: '#697386'
+  });
+
+  drawText(ctx, 'ÜMUMİ SƏRVƏT', 790, 145, {
+    size: 12,
+    weight: 900,
+    color: '#687386'
+  });
+
+  drawText(ctx, `${formatNumber(total)} Aura`, 790, 193, {
+    size: 42,
+    weight: 900,
+    color: '#f8fafc',
+    maxWidth: 330
+  });
+
+  drawText(
+    ctx,
+    `${Math.round(total ? (balance / total) * 100 : 0)}% wallet  •  ` +
+    `${Math.round(total ? (bank / total) * 100 : 0)}% bank`,
+    792,
+    224,
+    {
+      size: 14,
+      weight: 700,
+      color: '#737e91'
+    }
+  );
+
+  await drawModernMetric(
+    ctx,
+    76,
+    280,
+    326,
+    116,
+    'wallet',
+    'WALLET',
+    `${formatNumber(balance)} Aura`
+  );
+
+  await drawModernMetric(
+    ctx,
+    437,
+    280,
+    326,
+    116,
+    'bank',
+    'BANK',
+    `${formatNumber(bank)} Aura`
+  );
+
+  await drawModernMetric(
+    ctx,
+    798,
+    280,
+    326,
+    116,
+    'diamond',
+    'TOPLAM',
+    `${formatNumber(total)} Aura`
+  );
+
+  roundRect(ctx, 76, 426, 1048, 46, 16);
+  ctx.fillStyle = 'rgba(255,255,255,0.025)';
   ctx.fill();
-  ctx.strokeStyle = `${accent}70`;
-  ctx.stroke();
-  drawText(ctx, actionLabel, 814, 102, { size: 16, weight: 900, color: accent });
-  drawText(ctx, `${formatNumber(amount)} Aura`, 814, 134, { size: 30, weight: 900, color: '#f8fafc', maxWidth: 200 });
 
-  const fromAvatar = await loadRemoteImage(fromUser.displayAvatarURL({ extension: 'png', size: 256, forceStatic: true }));
-  const toAvatar = await loadRemoteImage(toUser.displayAvatarURL({ extension: 'png', size: 256, forceStatic: true }));
+  drawText(
+    ctx,
+    'Bank faizi 1.5% / gün  •  max 750 Aura',
+    100,
+    455,
+    {
+      size: 14,
+      weight: 700,
+      color: '#7d8799'
+    }
+  );
 
-  drawTransferAccount(ctx, fromAvatar, displayName(fromUser), 'Göndərən', fromProfile, 74, 186, secondary);
-  drawTransferAccount(ctx, toAvatar, displayName(toUser), 'Qəbul edən', toProfile, 746, 186, accent);
-  drawTransferFlow(ctx, 430, 218, 260, 112, accent, amount);
-
-  await drawMetric(ctx, 74, 398, 304, 72, 'wallet', 'Göndərənin yeni balansı', `${formatNumber(fromProfile.balance)} Aura`, secondary);
-  await drawMetric(ctx, 408, 398, 304, 72, tone === 'gift' ? 'sparkle' : 'chart', tone === 'gift' ? 'Göndərilən hədiyyə' : 'Göndərilən Aura', `${formatNumber(amount)} Aura`, accent);
-  await drawMetric(ctx, 742, 398, 304, 72, 'trophy', 'Alanın yeni balansı', `${formatNumber(toProfile.balance)} Aura`, '#818cf8');
+  drawText(
+    ctx,
+    'Vergi • 10K+ sərvət',
+    1100,
+    455,
+    {
+      size: 14,
+      weight: 700,
+      color: '#7d8799',
+      align: 'right'
+    }
+  );
 
   return canvas.toBuffer('image/png');
 }
 
-function drawTransferAccount(ctx, avatar, name, label, profile, x, y, color) {
-  roundRect(ctx, x, y, 300, 170, 26);
-  ctx.fillStyle = 'rgba(255,255,255,0.055)';
+export async function renderTransferCard({
+  fromUser,
+  toUser,
+  fromProfile,
+  toProfile,
+  amount,
+  title = 'Aura göndərildi',
+  tone = 'transfer'
+}) {
+  const width = 1200;
+  const height = 560;
+  const canvas = createCanvas(width, height);
+  const ctx = canvas.getContext('2d');
+
+  const isGift = tone === 'gift';
+
+  // Octoson 2026 palette — intentionally restrained.
+  const accent = isGift ? '#a78bfa' : '#60a5fa';
+  const accentSoft = isGift ? '#c4b5fd' : '#93c5fd';
+  const secondary = isGift ? '#f0abfc' : '#67e8f9';
+
+  const fromAvatar = await loadRemoteImage(
+    fromUser.displayAvatarURL({
+      extension: 'png',
+      size: 256,
+      forceStatic: true
+    })
+  );
+
+  const toAvatar = await loadRemoteImage(
+    toUser.displayAvatarURL({
+      extension: 'png',
+      size: 256,
+      forceStatic: true
+    })
+  );
+
+  // ----------------------------------------------------------
+  // Background
+  // ----------------------------------------------------------
+
+  const bg = ctx.createLinearGradient(0, 0, width, height);
+  bg.addColorStop(0, '#07090f');
+  bg.addColorStop(0.48, '#0b0e17');
+  bg.addColorStop(1, '#080b12');
+
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, width, height);
+
+  // Very subtle ambient light.
+  drawGlow(ctx, 155, 70, 260, `${accent}18`);
+  drawGlow(ctx, 1060, 470, 300, `${secondary}10`);
+  drawGlow(ctx, 600, 290, 280, `${accent}0c`);
+
+  // Fine top highlight.
+  const topLine = ctx.createLinearGradient(100, 0, 1100, 0);
+  topLine.addColorStop(0, 'rgba(255,255,255,0)');
+  topLine.addColorStop(0.5, `${accent}75`);
+  topLine.addColorStop(1, 'rgba(255,255,255,0)');
+
+  ctx.fillStyle = topLine;
+  ctx.fillRect(100, 0, 1000, 2);
+
+  // ----------------------------------------------------------
+  // Main glass surface
+  // ----------------------------------------------------------
+
+  roundRect(ctx, 34, 34, 1132, 492, 34);
+
+  const panel = ctx.createLinearGradient(34, 34, 1166, 526);
+  panel.addColorStop(0, 'rgba(255,255,255,0.055)');
+  panel.addColorStop(0.55, 'rgba(255,255,255,0.025)');
+  panel.addColorStop(1, 'rgba(255,255,255,0.038)');
+
+  ctx.fillStyle = panel;
   ctx.fill();
-  ctx.strokeStyle = `${color}70`;
+
+  ctx.strokeStyle = 'rgba(255,255,255,0.095)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // ----------------------------------------------------------
+  // Header
+  // ----------------------------------------------------------
+
+  drawText(ctx, 'OCTOSON', 74, 82, {
+    size: 15,
+    weight: 900,
+    color: accentSoft,
+    maxWidth: 180
+  });
+
+  drawText(ctx, title, 74, 125, {
+    size: 36,
+    weight: 900,
+    color: '#f8fafc',
+    maxWidth: 500
+  });
+
+  drawText(
+    ctx,
+    isGift
+      ? 'Aura hədiyyəsi uğurla tamamlandı'
+      : 'Aura transferi uğurla tamamlandı',
+    76,
+    155,
+    {
+      size: 17,
+      color: '#7f899c',
+      maxWidth: 500
+    }
+  );
+
+  // Status pill.
+  const statusX = 934;
+  const statusY = 72;
+
+  roundRect(ctx, statusX, statusY, 168, 42, 21);
+  ctx.fillStyle = `${accent}12`;
+  ctx.fill();
+  ctx.strokeStyle = `${accent}45`;
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  ctx.fillStyle = accent;
+  ctx.beginPath();
+  ctx.arc(statusX + 22, statusY + 21, 5, 0, Math.PI * 2);
+  ctx.fill();
+
+  drawText(ctx, 'TAMAMLANDI', statusX + 38, statusY + 27, {
+    size: 13,
+    weight: 900,
+    color: '#dbeafe',
+    maxWidth: 112
+  });
+
+  // ----------------------------------------------------------
+  // Sender / receiver cards
+  // ----------------------------------------------------------
+
+  drawPremiumTransferUser(
+    ctx,
+    fromAvatar,
+    displayName(fromUser),
+    'GÖNDƏRƏN',
+    fromProfile,
+    74,
+    205,
+    accent
+  );
+
+  drawPremiumTransferUser(
+    ctx,
+    toAvatar,
+    displayName(toUser),
+    'QƏBUL EDƏN',
+    toProfile,
+    806,
+    205,
+    secondary
+  );
+
+  // ----------------------------------------------------------
+  // Central transaction
+  // ----------------------------------------------------------
+
+  const centerX = 600;
+
+  drawText(ctx, isGift ? 'HƏDİYYƏ' : 'TRANSFER', centerX, 220, {
+    size: 13,
+    weight: 900,
+    color: '#697386',
+    align: 'center'
+  });
+
+  drawText(ctx, formatNumber(amount), centerX, 282, {
+    size: 52,
+    weight: 900,
+    color: '#f8fafc',
+    align: 'center',
+    maxWidth: 300
+  });
+
+  drawText(ctx, 'AURA', centerX, 312, {
+    size: 16,
+    weight: 900,
+    color: accentSoft,
+    align: 'center'
+  });
+
+  // Minimal transfer rail.
+  const railY = 352;
+
+  const rail = ctx.createLinearGradient(410, railY, 790, railY);
+  rail.addColorStop(0, `${accent}25`);
+  rail.addColorStop(0.5, `${accent}dd`);
+  rail.addColorStop(1, `${secondary}70`);
+
+  ctx.strokeStyle = rail;
+  ctx.lineWidth = 3;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(416, railY);
+  ctx.lineTo(774, railY);
+  ctx.stroke();
+
+  ctx.fillStyle = accent;
+  ctx.beginPath();
+  ctx.arc(416, railY, 6, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = secondary;
+  ctx.beginPath();
+  ctx.moveTo(790, railY);
+  ctx.lineTo(770, railY - 11);
+  ctx.lineTo(770, railY + 11);
+  ctx.closePath();
+  ctx.fill();
+
+  // ----------------------------------------------------------
+  // Footer information
+  // ----------------------------------------------------------
+
+  ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(74, 427);
+  ctx.lineTo(1126, 427);
+  ctx.stroke();
+
+  drawPremiumTransferStat(
+    ctx,
+    74,
+    455,
+    'GÖNDƏRƏNİN BALANSI',
+    `${formatNumber(fromProfile.balance)} Aura`
+  );
+
+  drawPremiumTransferStat(
+    ctx,
+    440,
+    455,
+    isGift ? 'HƏDİYYƏ EDİLƏN' : 'GÖNDƏRİLƏN',
+    `${formatNumber(amount)} Aura`,
+    true,
+    accentSoft
+  );
+
+  drawPremiumTransferStat(
+    ctx,
+    806,
+    455,
+    'QƏBUL EDƏNİN BALANSI',
+    `${formatNumber(toProfile.balance)} Aura`
+  );
+
+  return canvas.toBuffer('image/png');
+}
+
+function drawPremiumTransferUser(
+  ctx,
+  avatar,
+  name,
+  label,
+  profile,
+  x,
+  y,
+  color
+) {
+  const width = 320;
+  const height = 184;
+
+  roundRect(ctx, x, y, width, height, 26);
+
+  const surface = ctx.createLinearGradient(x, y, x, y + height);
+  surface.addColorStop(0, 'rgba(255,255,255,0.060)');
+  surface.addColorStop(1, 'rgba(255,255,255,0.025)');
+
+  ctx.fillStyle = surface;
+  ctx.fill();
+
+  ctx.strokeStyle = 'rgba(255,255,255,0.085)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // Accent edge.
+  const edge = ctx.createLinearGradient(x, y + 30, x, y + 150);
+  edge.addColorStop(0, `${color}00`);
+  edge.addColorStop(0.5, `${color}aa`);
+  edge.addColorStop(1, `${color}00`);
+
+  ctx.fillStyle = edge;
+  ctx.fillRect(x, y + 24, 2, height - 48);
+
+  drawPremiumAvatar(ctx, avatar, x + 24, y + 27, 86, color);
+
+  drawText(ctx, label, x + 132, y + 51, {
+    size: 12,
+    weight: 900,
+    color,
+    maxWidth: 160
+  });
+
+  drawText(ctx, name, x + 132, y + 84, {
+    size: 25,
+    weight: 900,
+    color: '#f8fafc',
+    maxWidth: 160
+  });
+
+  drawText(ctx, cleanRank(profile.rank), x + 132, y + 110, {
+    size: 15,
+    color: '#7f899c',
+    maxWidth: 160
+  });
+
+  ctx.strokeStyle = 'rgba(255,255,255,0.065)';
+  ctx.beginPath();
+  ctx.moveTo(x + 24, y + 132);
+  ctx.lineTo(x + width - 24, y + 132);
+  ctx.stroke();
+
+  drawText(ctx, 'BALANS', x + 24, y + 158, {
+    size: 11,
+    weight: 900,
+    color: '#697386'
+  });
+
+  drawText(ctx, `${formatNumber(profile.balance)} Aura`, x + width - 24, y + 160, {
+    size: 19,
+    weight: 900,
+    color: '#e5e7eb',
+    align: 'right',
+    maxWidth: 190
+  });
+}
+
+function drawPremiumAvatar(ctx, image, x, y, size, color) {
+  // Outer soft ring.
+  ctx.save();
+
+  ctx.beginPath();
+  ctx.arc(
+    x + size / 2,
+    y + size / 2,
+    size / 2 + 3,
+    0,
+    Math.PI * 2
+  );
+
+  ctx.strokeStyle = `${color}80`;
   ctx.lineWidth = 2;
   ctx.stroke();
 
-  drawAvatar(ctx, avatar, x + 26, y + 28, 94);
-  drawText(ctx, label, x + 140, y + 56, { size: 17, weight: 900, color });
-  drawText(ctx, name, x + 140, y + 92, { size: 27, weight: 900, color: '#f8fafc', maxWidth: 142 });
-  drawText(ctx, cleanRank(profile.rank), x + 140, y + 124, { size: 16, color: '#cbd5e1', maxWidth: 142 });
-  drawText(ctx, `${formatNumber(profile.balance)} Aura`, x + 26, y + 148, { size: 19, weight: 900, color: '#f8fafc', maxWidth: 240 });
+  ctx.beginPath();
+  ctx.arc(
+    x + size / 2,
+    y + size / 2,
+    size / 2,
+    0,
+    Math.PI * 2
+  );
+
+  ctx.clip();
+
+  if (image) {
+    ctx.drawImage(image, x, y, size, size);
+  } else {
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(x, y, size, size);
+  }
+
+  ctx.restore();
+}
+
+function drawPremiumTransferStat(
+  ctx,
+  x,
+  y,
+  label,
+  value,
+  centered = false,
+  valueColor = '#f8fafc'
+) {
+  const align = centered ? 'center' : 'left';
+  const textX = centered ? x + 160 : x;
+
+  drawText(ctx, label, textX, y, {
+    size: 11,
+    weight: 900,
+    color: '#697386',
+    align,
+    maxWidth: 320
+  });
+
+  drawText(ctx, value, textX, y + 31, {
+    size: 22,
+    weight: 900,
+    color: valueColor,
+    align,
+    maxWidth: 320
+  });
 }
 
 export async function renderRobberyCard({ robberUser, targetUser, robberProfile, targetProfile, amount, success }) {
@@ -1838,7 +3473,7 @@ function drawProgressBar(ctx, x, y, w, h, percent, fill, track) {
 }
 
 function drawPill(ctx, x, y, label, bg, fg, fontSize = 17) {
-  ctx.font = `800 ${fontSize}px Inter, Arial, sans-serif`;
+  ctx.font = `800 ${fontSize}px "Octoson Inter", Inter, Arial, sans-serif`;
   const width = Math.min(320, Math.ceil(ctx.measureText(label).width) + 28);
   roundRect(ctx, x, y, width, 32, 16);
   ctx.fillStyle = bg;
@@ -1848,7 +3483,7 @@ function drawPill(ctx, x, y, label, bg, fg, fontSize = 17) {
 }
 
 async function drawBadgePill(ctx, x, y, label, bg, fg, fontSize = 15) {
-  ctx.font = `900 ${fontSize}px Inter, Arial, sans-serif`;
+  ctx.font = `900 ${fontSize}px "Octoson Inter", Inter, Arial, sans-serif`;
   const width = Math.min(180, Math.ceil(ctx.measureText(label).width) + 48);
   roundRect(ctx, x, y, width, 32, 16);
   ctx.fillStyle = bg;

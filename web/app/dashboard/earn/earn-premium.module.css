@@ -1,0 +1,2288 @@
+.page {
+  --cyan: 125, 225, 255;
+  --violet: 176, 145, 255;
+  --amber: 247, 190, 102;
+  --emerald: 91, 225, 164;
+  --rose: 244, 124, 155;
+
+  position: relative;
+  isolation: isolate;
+}
+
+.ambientOne,
+.ambientTwo {
+  position: fixed;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: 999px;
+  filter: blur(130px);
+}
+
+.ambientOne {
+  width: 500px;
+  height: 500px;
+  top: 80px;
+  left: 20%;
+  background: rgba(80, 190, 255, 0.025);
+}
+
+.ambientTwo {
+  width: 550px;
+  height: 550px;
+  top: 420px;
+  right: 3%;
+  background: rgba(160, 110, 255, 0.018);
+}
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.065);
+  border-radius: 32px;
+  padding: 30px;
+  background:
+    radial-gradient(
+      circle at 15% 0%,
+      rgba(102, 215, 255, 0.06),
+      transparent 34%
+    ),
+    radial-gradient(
+      circle at 85% 10%,
+      rgba(171, 133, 255, 0.045),
+      transparent 30%
+    ),
+    linear-gradient(
+      155deg,
+      rgba(11, 13, 17, 0.98),
+      rgba(6, 8, 11, 0.99)
+    );
+  box-shadow:
+    0 30px 100px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+}
+
+.heroGlow {
+  position: absolute;
+  width: 340px;
+  height: 340px;
+  right: -70px;
+  bottom: -170px;
+  border-radius: 999px;
+  background: rgba(130, 180, 255, 0.045);
+  filter: blur(85px);
+}
+
+.liveDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(180, 245, 255, 0.9);
+  box-shadow:
+    0 0 0 4px rgba(180, 245, 255, 0.035),
+    0 0 18px rgba(180, 245, 255, 0.45);
+  animation: livePulse 2.8s ease-in-out infinite;
+}
+
+.heroStat {
+  min-height: 116px;
+  border-radius: 19px;
+  border: 1px solid rgba(255, 255, 255, 0.055);
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.017);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.02);
+  transition:
+    transform 220ms ease,
+    border-color 220ms ease,
+    background 220ms ease;
+}
+
+.heroStat:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.09);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.progressPanel,
+.claimSummary {
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.015);
+  padding: 16px;
+}
+
+.claimSummary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.howItWorks {
+  margin-top: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 25px;
+  padding: 22px;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.016),
+      rgba(255, 255, 255, 0.008)
+    );
+}
+
+.howStep {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.045);
+  border-radius: 18px;
+  padding: 16px;
+  background: rgba(5, 7, 9, 0.48);
+  transition:
+    transform 220ms ease,
+    border-color 220ms ease,
+    background 220ms ease;
+}
+
+.howStep:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.075);
+  background: rgba(255, 255, 255, 0.018);
+}
+
+.seasonCard {
+  position: relative;
+  overflow: hidden;
+  margin-top: 14px;
+  border-radius: 24px;
+  padding: 21px;
+  border: 1px solid rgba(177, 143, 255, 0.075);
+  background:
+    radial-gradient(
+      circle at 5% 50%,
+      rgba(170, 130, 255, 0.055),
+      transparent 26%
+    ),
+    rgba(8, 9, 13, 0.85);
+}
+
+.tabsShell {
+  margin-top: 22px;
+}
+
+.tabs {
+  display: flex;
+  gap: 7px;
+  overflow-x: auto;
+  padding: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.055);
+  border-radius: 17px;
+  background: rgba(4, 5, 7, 0.7);
+  scrollbar-width: none;
+}
+
+.tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.tab {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-width: 135px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 13px;
+  padding: 12px 14px;
+  color: rgba(255, 255, 255, 0.26);
+  font-size: 9px;
+  font-weight: 600;
+  transition:
+    background 200ms ease,
+    color 200ms ease,
+    transform 200ms ease,
+    box-shadow 200ms ease;
+}
+
+.tab:hover {
+  color: rgba(255, 255, 255, 0.48);
+}
+
+.tabActive {
+  color: rgba(225, 250, 255, 0.78);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(170, 235, 255, 0.075),
+      rgba(170, 235, 255, 0.025)
+    );
+  box-shadow:
+    inset 0 0 0 1px rgba(175, 238, 255, 0.075),
+    0 8px 30px rgba(0, 0, 0, 0.18);
+}
+
+.tabCount {
+  border-radius: 999px;
+  padding: 2px 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 7px;
+  color: rgba(255, 255, 255, 0.32);
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.tabContent {
+  margin-top: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.052);
+  border-radius: 27px;
+  padding: 24px;
+  background:
+    linear-gradient(
+      160deg,
+      rgba(10, 11, 14, 0.91),
+      rgba(6, 7, 9, 0.97)
+    );
+  min-height: 380px;
+}
+
+.missionCard {
+  position: relative;
+  overflow: hidden;
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.055);
+  padding: 19px;
+  background:
+    linear-gradient(
+      150deg,
+      rgba(255, 255, 255, 0.019),
+      rgba(255, 255, 255, 0.007)
+    ),
+    rgba(7, 8, 11, 0.92);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.018);
+  animation: cardIn 430ms ease both;
+  transition:
+    transform 230ms ease,
+    border-color 230ms ease,
+    background 230ms ease,
+    box-shadow 230ms ease;
+}
+
+.missionCard:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255, 255, 255, 0.09);
+  background:
+    linear-gradient(
+      150deg,
+      rgba(255, 255, 255, 0.027),
+      rgba(255, 255, 255, 0.009)
+    ),
+    rgba(8, 9, 12, 0.95);
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+}
+
+.missionComplete {
+  border-color: rgba(94, 225, 165, 0.095);
+}
+
+.cardShine {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background:
+    linear-gradient(
+      110deg,
+      transparent 20%,
+      rgba(255, 255, 255, 0.022) 45%,
+      transparent 70%
+    );
+  transform: translateX(-100%);
+  transition: opacity 300ms ease;
+}
+
+.missionCard:hover .cardShine {
+  opacity: 1;
+  animation: shineAcross 1.25s ease;
+}
+
+.contractHero {
+  position: relative;
+  overflow: hidden;
+  border-radius: 25px;
+  border: 1px solid rgba(176, 145, 255, 0.075);
+  padding: 25px;
+  background:
+    radial-gradient(
+      circle at 90% 0%,
+      rgba(173, 132, 255, 0.065),
+      transparent 33%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(18, 16, 27, 0.94),
+      rgba(7, 8, 11, 0.98)
+    );
+}
+
+.contractGlow {
+  position: absolute;
+  width: 290px;
+  height: 290px;
+  right: -130px;
+  bottom: -130px;
+  border-radius: 999px;
+  background: rgba(148, 110, 255, 0.06);
+  filter: blur(75px);
+}
+
+.infoCard,
+.emptyState {
+  border-radius: 21px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 18px;
+  background: rgba(255, 255, 255, 0.012);
+}
+
+.emptyState {
+  display: flex;
+  min-height: 260px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.iconBox,
+.bigIconBox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid currentColor;
+}
+
+.iconBox {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+}
+
+.bigIconBox {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 999px;
+  padding: 5px 8px;
+  border: 1px solid currentColor;
+  font-size: 7px;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+}
+
+.reward {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid currentColor;
+  border-radius: 10px;
+  padding: 6px 8px;
+}
+
+.rewardLarge {
+  padding: 8px 11px;
+  border-radius: 12px;
+}
+
+.miniStat {
+  min-width: 74px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.045);
+  padding: 9px 10px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.012);
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 999px;
+  transition:
+    width 700ms cubic-bezier(.22, .8, .26, 1),
+    filter 250ms ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.progressFill::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.16),
+      transparent
+    );
+  transform: translateX(-100%);
+  animation: progressSheen 3.5s ease-in-out infinite;
+}
+
+.progressCyan {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(96, 210, 244, 0.58),
+      rgba(184, 245, 255, 0.9)
+    );
+  box-shadow:
+    0 0 18px rgba(111, 220, 255, 0.13);
+}
+
+.progressViolet {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(145, 111, 238, 0.62),
+      rgba(205, 184, 255, 0.9)
+    );
+  box-shadow:
+    0 0 18px rgba(172, 137, 255, 0.12);
+}
+
+.progressAmber {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(220, 152, 65, 0.62),
+      rgba(255, 211, 144, 0.92)
+    );
+  box-shadow:
+    0 0 18px rgba(250, 183, 95, 0.1);
+}
+
+.progressEmerald {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(58, 191, 129, 0.62),
+      rgba(140, 247, 192, 0.92)
+    );
+  box-shadow:
+    0 0 18px rgba(87, 221, 157, 0.13);
+}
+
+.progressRose {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(218, 79, 126, 0.62),
+      rgba(255, 159, 186, 0.9)
+    );
+  box-shadow:
+    0 0 18px rgba(244, 105, 150, 0.1);
+}
+
+.toneCyan {
+  color: rgba(var(--cyan), 0.7);
+  border-color: rgba(var(--cyan), 0.1);
+  background: rgba(var(--cyan), 0.035);
+}
+
+.toneViolet {
+  color: rgba(var(--violet), 0.72);
+  border-color: rgba(var(--violet), 0.1);
+  background: rgba(var(--violet), 0.035);
+}
+
+.toneAmber {
+  color: rgba(var(--amber), 0.75);
+  border-color: rgba(var(--amber), 0.1);
+  background: rgba(var(--amber), 0.035);
+}
+
+.toneEmerald {
+  color: rgba(var(--emerald), 0.72);
+  border-color: rgba(var(--emerald), 0.1);
+  background: rgba(var(--emerald), 0.035);
+}
+
+.toneRose {
+  color: rgba(var(--rose), 0.72);
+  border-color: rgba(var(--rose), 0.1);
+  background: rgba(var(--rose), 0.035);
+}
+
+.reveal {
+  animation: reveal 480ms ease both;
+}
+
+.revealDelayOne {
+  animation: reveal 500ms 60ms ease both;
+}
+
+.revealDelayTwo {
+  animation: reveal 500ms 110ms ease both;
+}
+
+.revealDelayThree {
+  animation: reveal 520ms 160ms ease both;
+}
+
+.panelEnter {
+  animation: panelIn 260ms ease both;
+}
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes panelIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.992);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes progressSheen {
+  0%,
+  72% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes shineAcross {
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes livePulse {
+  0%,
+  100% {
+    opacity: 0.7;
+    transform: scale(0.92);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+@media (max-width: 640px) {
+  .hero {
+    padding: 22px;
+    border-radius: 26px;
+  }
+
+  .tabContent {
+    padding: 16px;
+  }
+
+  .tabs {
+    justify-content: flex-start;
+  }
+
+  .tab {
+    flex: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .revealDelayOne,
+  .revealDelayTwo,
+  .revealDelayThree,
+  .panelEnter,
+  .missionCard,
+  .liveDot,
+  .progressFill::after,
+  .cardShine {
+    animation: none !important;
+  }
+
+  .progressFill,
+  .missionCard,
+  .heroStat,
+  .howStep,
+  .tab {
+    transition: none !important;
+  }
+}
+
+/* =========================================================
+   OCTOSON EARN — MOBILE PREMIUM V2
+   Compact, readable, touch-first
+   ========================================================= */
+
+@media (max-width: 640px) {
+  .page {
+    padding-bottom: 84px;
+    --mobile-gap: 10px;
+  }
+
+  /* Kill expensive ambient blur on phones */
+  .ambientOne,
+  .ambientTwo {
+    display: none;
+  }
+
+  /* =========================
+     HERO
+     ========================= */
+
+  .hero {
+    padding: 18px 16px 16px;
+    border-radius: 22px;
+    background:
+      radial-gradient(
+        circle at 8% 0%,
+        rgba(var(--cyan), 0.075),
+        transparent 36%
+      ),
+      radial-gradient(
+        circle at 96% 5%,
+        rgba(var(--violet), 0.055),
+        transparent 32%
+      ),
+      linear-gradient(
+        155deg,
+        rgba(11, 13, 17, 0.985),
+        rgba(6, 8, 11, 0.995)
+      );
+    box-shadow:
+      0 18px 55px rgba(0, 0, 0, 0.25),
+      inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  }
+
+  .heroGlow {
+    width: 220px;
+    height: 220px;
+    right: -100px;
+    bottom: -110px;
+    filter: blur(65px);
+  }
+
+  /* Reduce giant desktop whitespace */
+  .hero :global(.gap-8) {
+    gap: 20px;
+  }
+
+  .hero :global(.mt-5) {
+    margin-top: 14px;
+  }
+
+  .hero :global(h1) {
+    max-width: 330px;
+    font-size: 30px;
+    line-height: 0.98;
+    letter-spacing: -0.055em;
+  }
+
+  .hero :global(h1 + p) {
+    margin-top: 13px;
+    max-width: 330px;
+    font-size: 10px;
+    line-height: 1.7;
+  }
+
+  /* 2 x 2 compact stats */
+  .hero :global(.grid-cols-2) {
+    gap: 7px;
+  }
+
+  .heroStat {
+    min-height: 82px;
+    padding: 11px 12px;
+    border-radius: 15px;
+  }
+
+  .heroStat:hover {
+    transform: none;
+  }
+
+  .heroStat :global(.mt-5) {
+    margin-top: 12px;
+  }
+
+  .heroStat :global(.text-\[19px\]) {
+    font-size: 16px;
+  }
+
+  /* Overall progress + claim */
+  .hero :global(.mt-9) {
+    margin-top: 14px;
+  }
+
+  .progressPanel,
+  .claimSummary {
+    padding: 13px;
+    border-radius: 15px;
+  }
+
+  .progressPanel :global(.mt-4) {
+    margin-top: 10px;
+  }
+
+  .claimSummary {
+    min-height: 64px;
+  }
+
+  /* =========================
+     HOW IT WORKS
+     Compact onboarding strip
+     ========================= */
+
+  .howItWorks {
+    margin-top: 9px;
+    padding: 14px;
+    border-radius: 19px;
+  }
+
+  .howItWorks > :global(.mt-5) {
+    margin-top: 11px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .howStep {
+    min-height: 94px;
+    padding: 10px;
+    border-radius: 14px;
+  }
+
+  .howStep:hover {
+    transform: none;
+  }
+
+  .howStep .iconBox {
+    width: 29px;
+    height: 29px;
+    border-radius: 9px;
+  }
+
+  .howStep .iconBox svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .howStep :global(.mt-5) {
+    margin-top: 10px;
+  }
+
+  .howStep h3 {
+    font-size: 9px;
+    line-height: 1.25;
+  }
+
+  .howStep p {
+    display: none;
+  }
+
+  /* =========================
+     SEASON
+     ========================= */
+
+  .seasonCard {
+    margin-top: 9px;
+    padding: 13px;
+    border-radius: 18px;
+  }
+
+  .seasonCard > div {
+    gap: 12px;
+  }
+
+  .seasonCard .bigIconBox {
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
+  }
+
+  .seasonCard .bigIconBox svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .seasonCard h2 {
+    font-size: 15px;
+  }
+
+  .seasonCard :global(.mt-3) {
+    margin-top: 7px;
+  }
+
+  /* =========================
+     TABS
+     4 equal touch controls
+     ========================= */
+
+  .tabsShell {
+    margin-top: 12px;
+  }
+
+  .tabs {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 4px;
+    padding: 4px;
+    overflow: visible;
+    border-radius: 15px;
+    position: sticky;
+    top: 8px;
+    z-index: 20;
+    background: rgba(5, 6, 8, 0.91);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    box-shadow:
+      0 12px 35px rgba(0, 0, 0, 0.28),
+      inset 0 1px 0 rgba(255, 255, 255, 0.025);
+  }
+
+  .tab {
+    flex: initial;
+    min-width: 0;
+    min-height: 49px;
+    padding: 7px 3px;
+    gap: 4px;
+    flex-direction: column;
+    border-radius: 11px;
+    font-size: 7px;
+    line-height: 1;
+  }
+
+  .tab svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .tabCount {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    padding: 2px 4px;
+    font-size: 6px;
+  }
+
+  .tabActive {
+    background:
+      radial-gradient(
+        circle at 50% 0%,
+        rgba(var(--cyan), 0.09),
+        transparent 80%
+      ),
+      rgba(var(--cyan), 0.035);
+  }
+
+  /* =========================
+     CONTENT CONTAINER
+     ========================= */
+
+  .tabContent {
+    margin-top: 8px;
+    min-height: 0;
+    padding: 13px;
+    border-radius: 20px;
+  }
+
+  /* Mission section heading */
+  .tabContent :global(.text-\[23px\]) {
+    font-size: 19px;
+  }
+
+  /* Compact the 3 summary metrics */
+  .miniStat {
+    min-width: 0;
+    flex: 1;
+    padding: 7px 6px;
+    border-radius: 10px;
+  }
+
+  /* =========================
+     MISSION CARDS
+     ========================= */
+
+  .missionCard {
+    padding: 14px;
+    border-radius: 17px;
+  }
+
+  .missionCard:hover {
+    transform: none;
+  }
+
+  .missionCard .bigIconBox {
+    width: 37px;
+    height: 37px;
+    border-radius: 11px;
+  }
+
+  .missionCard .bigIconBox svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .missionCard .badge {
+    padding: 4px 6px;
+    font-size: 6px;
+  }
+
+  /* Mission identity */
+  .missionCard :global(.mt-6) {
+    margin-top: 14px;
+  }
+
+  .missionCard h3 {
+    margin-top: 5px;
+    font-size: 15px;
+    line-height: 1.25;
+  }
+
+  /* Description is useful but should not dominate mobile */
+  .missionCard h3 + p {
+    min-height: 0;
+    margin-top: 5px;
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    font-size: 8px;
+    line-height: 1.55;
+  }
+
+  /* Progress */
+  .missionCard :global(.h-\[7px\]) {
+    height: 6px;
+  }
+
+  /* Rewards */
+  .reward {
+    padding: 5px 7px;
+    border-radius: 9px;
+  }
+
+  .rewardLarge {
+    padding: 7px 9px;
+  }
+
+  /* Claim footer */
+  .missionCard :global(.border-t) {
+    padding-top: 12px;
+  }
+
+  /* Completed cards get a clear state */
+  .missionComplete {
+    background:
+      radial-gradient(
+        circle at 100% 0%,
+        rgba(var(--emerald), 0.045),
+        transparent 38%
+      ),
+      linear-gradient(
+        150deg,
+        rgba(var(--emerald), 0.018),
+        rgba(255, 255, 255, 0.006)
+      ),
+      rgba(7, 8, 11, 0.94);
+  }
+
+  /* =========================
+     CONTRACT
+     ========================= */
+
+  .contractHero {
+    padding: 17px;
+    border-radius: 19px;
+  }
+
+  .contractHero :global(.mt-10) {
+    margin-top: 22px;
+  }
+
+  .contractHero :global(.mt-9) {
+    margin-top: 19px;
+  }
+
+  .contractHero :global(.mt-8) {
+    margin-top: 17px;
+  }
+
+  .contractHero h2 {
+    font-size: 22px;
+    line-height: 1.05;
+  }
+
+  .contractGlow {
+    width: 190px;
+    height: 190px;
+    filter: blur(55px);
+  }
+
+  .infoCard {
+    padding: 13px;
+    border-radius: 15px;
+  }
+
+  .infoCard :global(.mt-8) {
+    margin-top: 12px;
+  }
+
+  /* Contract info becomes horizontal instead of tall */
+  .infoCard {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+  }
+
+  .infoCard .iconBox {
+    flex: 0 0 auto;
+  }
+
+  .infoCard > :global(.mt-8) {
+    margin-top: 0;
+  }
+
+  /* =========================
+     EMPTY STATES
+     ========================= */
+
+  .emptyState {
+    min-height: 180px;
+    padding: 18px;
+    border-radius: 17px;
+  }
+
+  /* =========================
+     ICONS
+     ========================= */
+
+  .iconBox {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+  }
+
+  .bigIconBox {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+  }
+
+  /* =========================
+     MOTION
+     ========================= */
+
+  .missionCard {
+    animation-duration: 300ms;
+  }
+
+  .panelEnter {
+    animation-duration: 220ms;
+  }
+
+  .progressFill {
+    transition-duration: 520ms;
+  }
+
+  .progressFill::after {
+    animation-duration: 4.5s;
+  }
+}
+
+/* Extra-tight phones */
+@media (max-width: 390px) {
+  .hero {
+    padding: 16px 13px 14px;
+    border-radius: 20px;
+  }
+
+  .hero :global(h1) {
+    font-size: 27px;
+  }
+
+  .heroStat {
+    min-height: 78px;
+    padding: 10px;
+  }
+
+  .howItWorks {
+    padding: 12px;
+  }
+
+  .howStep {
+    padding: 8px;
+  }
+
+  .tabContent {
+    padding: 11px;
+  }
+
+  .missionCard {
+    padding: 12px;
+  }
+
+  .tab {
+    font-size: 6.5px;
+  }
+
+  .tabCount {
+    top: 4px;
+    right: 4px;
+  }
+}
+
+/* Touch devices shouldn't run desktop hover effects */
+@media (hover: none) and (pointer: coarse) {
+  .missionCard:hover,
+  .heroStat:hover,
+  .howStep:hover {
+    transform: none;
+  }
+
+  .missionCard:hover .cardShine {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+
+/* ==========================================================
+   MISSION HELP / GUIDE
+   ========================================================== */
+
+.missionHelpButton {
+  display: inline-flex;
+  width: 25px;
+  height: 25px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.065);
+  border-radius: 9px;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.045),
+      rgba(255, 255, 255, 0.015)
+    ),
+    rgba(8, 10, 14, 0.8);
+  color: rgba(255, 255, 255, 0.32);
+  cursor: pointer;
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease,
+    color 160ms ease;
+}
+
+.missionHelpButton:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.13);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.missionHelpButton:focus-visible,
+.missionGuideClose:focus-visible,
+.missionGuideDone:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.35);
+  outline-offset: 2px;
+}
+
+.missionGuideBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  animation: missionGuideFade 160ms ease both;
+}
+
+.missionGuideModal {
+  position: relative;
+  width: min(100%, 460px);
+  max-height: min(720px, calc(100vh - 40px));
+  overflow: auto;
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  border-radius: 24px;
+  background:
+    radial-gradient(
+      circle at 100% 0%,
+      rgba(100, 150, 255, 0.07),
+      transparent 34%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.028),
+      transparent 38%
+    ),
+    rgba(7, 8, 12, 0.985);
+  box-shadow:
+    0 32px 100px rgba(0, 0, 0, 0.68),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035);
+  animation: missionGuideEnter 210ms
+    cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.missionGuideGlow {
+  position: absolute;
+  top: -90px;
+  right: -70px;
+  width: 220px;
+  height: 220px;
+  border-radius: 999px;
+  background: rgba(88, 130, 255, 0.08);
+  filter: blur(65px);
+  pointer-events: none;
+}
+
+.missionGuideTop {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 18px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.055);
+}
+
+.missionGuideIcon {
+  display: flex;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+}
+
+.missionGuideEyebrow {
+  margin: 0;
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: rgba(255, 255, 255, 0.22);
+}
+
+.missionGuideTitle {
+  margin: 4px 0 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 15px;
+  font-weight: 650;
+  line-height: 1.25;
+  letter-spacing: -0.025em;
+  color: rgba(255, 255, 255, 0.84);
+}
+
+.missionGuideClose {
+  display: flex;
+  width: 31px;
+  height: 31px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.055);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.025);
+  color: rgba(255, 255, 255, 0.32);
+  font-size: 19px;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background 150ms ease,
+    color 150ms ease;
+}
+
+.missionGuideClose:hover {
+  background: rgba(255, 255, 255, 0.065);
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.missionGuideBody {
+  padding: 20px;
+}
+
+.missionGuideSectionLabel {
+  margin: 0;
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.missionGuideHeading {
+  margin: 8px 0 0;
+  font-size: 18px;
+  font-weight: 650;
+  line-height: 1.25;
+  letter-spacing: -0.035em;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.missionGuideDescription {
+  margin: 8px 0 0;
+  font-size: 10px;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.32);
+}
+
+.missionGuideSteps {
+  display: grid;
+  gap: 7px;
+  margin-top: 18px;
+}
+
+.missionGuideStep {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 11px;
+  border: 1px solid rgba(255, 255, 255, 0.045);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.018);
+  font-size: 9px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.42);
+}
+
+.missionGuideStepNumber {
+  display: inline-flex;
+  width: 21px;
+  height: 21px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.065);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.035);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 8px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.48);
+}
+
+.missionGuideProgress {
+  margin-top: 18px;
+  padding: 13px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.018);
+}
+
+.missionGuideProgressTop,
+.missionGuideProgressBottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.missionGuideProgressTop {
+  font-size: 8px;
+  color: rgba(255, 255, 255, 0.26);
+}
+
+.missionGuideProgressTop strong {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 9px;
+  font-weight: 650;
+  color: rgba(255, 255, 255, 0.58);
+}
+
+.missionGuideProgressTrack {
+  height: 6px;
+  margin-top: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.missionGuideProgressFill {
+  height: 100%;
+  border-radius: inherit;
+  transition: width 500ms ease;
+}
+
+.missionGuideProgressBottom {
+  margin-top: 9px;
+  font-size: 8px;
+  color: rgba(255, 255, 255, 0.24);
+}
+
+.missionGuideProgressBottom strong {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: rgba(255, 255, 255, 0.42);
+}
+
+.missionGuideRewards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 14px;
+}
+
+.missionGuideDone {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 18px;
+  padding: 11px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  border-radius: 12px;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.085),
+      rgba(255, 255, 255, 0.035)
+    );
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 9px;
+  font-weight: 650;
+  cursor: pointer;
+  transition:
+    transform 150ms ease,
+    background 150ms ease;
+}
+
+.missionGuideDone:hover {
+  transform: translateY(-1px);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.12),
+      rgba(255, 255, 255, 0.05)
+    );
+}
+
+@keyframes missionGuideFade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes missionGuideEnter {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 640px) {
+  .missionGuideBackdrop {
+    align-items: flex-end;
+    padding: 10px;
+  }
+
+  .missionGuideModal {
+    width: 100%;
+    max-height: calc(100vh - 20px);
+    border-radius: 22px;
+  }
+
+  .missionGuideTop {
+    padding: 15px;
+  }
+
+  .missionGuideBody {
+    padding: 16px;
+  }
+
+  .missionGuideHeading {
+    font-size: 17px;
+  }
+
+  .missionGuideStep {
+    padding: 9px 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .missionGuideBackdrop,
+  .missionGuideModal {
+    animation: none;
+  }
+}
+
+
+/* OCTOSON ANIMATED MISSION TUTORIAL */
+
+.missionGuideModal {
+  max-width: 760px;
+}
+
+.missionTutorialHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.missionTutorialLive {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid rgba(var(--emerald), 0.1);
+  border-radius: 999px;
+  background: rgba(var(--emerald), 0.035);
+  padding: 6px 9px;
+  color: rgba(var(--emerald), 0.55);
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.missionTutorialLiveDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(var(--emerald), 0.9);
+  box-shadow: 0 0 10px rgba(var(--emerald), 0.45);
+  animation: missionTutorialPulse 1.4s ease-in-out infinite;
+}
+
+.missionTutorialWindow {
+  position: relative;
+  overflow: hidden;
+  margin-top: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.085);
+  border-radius: 20px;
+  background: #090a0d;
+  box-shadow:
+    0 24px 70px rgba(0, 0, 0, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+}
+
+.missionTutorialWindowGlow {
+  position: absolute;
+  z-index: 0;
+  width: 300px;
+  height: 260px;
+  right: -120px;
+  top: -130px;
+  border-radius: 999px;
+  background: rgba(var(--cyan), 0.055);
+  filter: blur(70px);
+  pointer-events: none;
+}
+
+.missionTutorialBrowser {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  height: 38px;
+  padding: 0 13px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.055);
+  background: rgba(255, 255, 255, 0.015);
+}
+
+.missionTutorialBrowserDots {
+  display: flex;
+  gap: 5px;
+}
+
+.missionTutorialBrowserDots span {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.13);
+}
+
+.missionTutorialBrowserTitle {
+  color: rgba(255, 255, 255, 0.27);
+  font-size: 7px;
+  font-weight: 600;
+}
+
+.missionTutorialBrowserStatus {
+  justify-self: end;
+  color: rgba(var(--emerald), 0.4);
+  font-size: 6px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+}
+
+.missionTutorialScene {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 46px 1fr;
+  min-height: 340px;
+}
+
+.missionTutorialSidebar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 13px;
+  padding-top: 14px;
+  border-right: 1px solid rgba(255, 255, 255, 0.045);
+  background: rgba(255, 255, 255, 0.008);
+}
+
+.missionTutorialLogo {
+  display: flex;
+  width: 23px;
+  height: 23px;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 5px;
+  border: 1px solid rgba(var(--cyan), 0.11);
+  border-radius: 8px;
+  background: rgba(var(--cyan), 0.04);
+  color: rgba(var(--cyan), 0.62);
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.missionTutorialSideItem {
+  display: block;
+  width: 17px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.055);
+}
+
+.missionTutorialSideActive {
+  width: 21px;
+  background: rgba(var(--cyan), 0.28);
+  box-shadow: 0 0 12px rgba(var(--cyan), 0.08);
+}
+
+.missionTutorialContent {
+  min-width: 0;
+  padding: 13px 15px 16px;
+}
+
+.missionTutorialTopbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 11px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.missionTutorialTopbar > div:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.missionTutorialTopbar strong {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 10px;
+  font-weight: 650;
+}
+
+.missionTutorialTinyLabel {
+  display: block;
+  color: rgba(255, 255, 255, 0.17);
+  font-size: 6px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+}
+
+.missionTutorialBalance {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid rgba(var(--amber), 0.08);
+  border-radius: 8px;
+  background: rgba(var(--amber), 0.025);
+  padding: 5px 7px;
+  color: rgba(var(--amber), 0.48);
+  font-family: monospace;
+  font-size: 7px;
+}
+
+.missionTutorialStage {
+  position: relative;
+  padding-top: 14px;
+}
+
+.missionTutorialActionCard,
+.missionTutorialBotCard,
+.missionTutorialProgressCard {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.055);
+  border-radius: 12px;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.025),
+      rgba(255, 255, 255, 0.008)
+    );
+  padding: 10px;
+  opacity: 0.5;
+  transform: scale(0.992);
+  transition:
+    opacity 350ms ease,
+    transform 350ms ease,
+    border-color 350ms ease,
+    background 350ms ease,
+    box-shadow 350ms ease;
+}
+
+.missionTutorialActionActive {
+  opacity: 1;
+  transform: scale(1);
+  border-color: rgba(var(--cyan), 0.11);
+  background:
+    linear-gradient(
+      145deg,
+      rgba(var(--cyan), 0.035),
+      rgba(255, 255, 255, 0.012)
+    );
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.18);
+}
+
+.missionTutorialActionIcon {
+  display: flex;
+  width: 34px;
+  height: 34px;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid;
+  border-radius: 10px;
+}
+
+.missionTutorialActionTitle {
+  display: block;
+  margin-top: 3px;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 10px;
+  font-weight: 650;
+}
+
+.missionTutorialActionText {
+  display: block;
+  margin-top: 3px;
+  color: rgba(255, 255, 255, 0.23);
+  font-size: 7px;
+  line-height: 1.55;
+}
+
+.missionTutorialActionButton {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-width: 50px;
+  min-height: 27px;
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.055);
+  color: rgba(255, 255, 255, 0.52);
+  font-size: 7px;
+  font-weight: 650;
+}
+
+.missionTutorialCursor {
+  position: absolute;
+  right: 26px;
+  bottom: -5px;
+  width: 14px;
+  height: 18px;
+  animation: missionTutorialCursor 1.05s ease-in-out both;
+}
+
+.missionTutorialCursor::before {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-top: 12px solid rgba(255, 255, 255, 0.92);
+  border-right: 7px solid transparent;
+  transform: rotate(-18deg);
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.4));
+}
+
+.missionTutorialCursor span {
+  position: absolute;
+  left: -8px;
+  top: -8px;
+  width: 24px;
+  height: 24px;
+  border: 1px solid rgba(var(--cyan), 0.35);
+  border-radius: 999px;
+  opacity: 0;
+  animation: missionTutorialClick 1.05s 650ms ease-out both;
+}
+
+.missionTutorialConnector {
+  display: flex;
+  height: 15px;
+  justify-content: center;
+}
+
+.missionTutorialConnector > span {
+  width: 1px;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.06);
+  transition:
+    background 400ms ease,
+    box-shadow 400ms ease;
+}
+
+.missionTutorialConnectorActive {
+  background: rgba(var(--cyan), 0.4) !important;
+  box-shadow: 0 0 9px rgba(var(--cyan), 0.25);
+}
+
+.missionTutorialBotCard {
+  align-items: flex-start;
+}
+
+.missionTutorialBotActive {
+  opacity: 1;
+  transform: scale(1);
+  border-color: rgba(88, 101, 242, 0.15);
+  background: rgba(88, 101, 242, 0.025);
+}
+
+.missionTutorialBotAvatar {
+  display: flex;
+  width: 29px;
+  height: 29px;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(var(--cyan), 0.15),
+      rgba(var(--violet), 0.08)
+    );
+  color: rgba(var(--cyan), 0.72);
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.missionTutorialBotName {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: rgba(var(--cyan), 0.68);
+  font-size: 8px;
+  font-weight: 700;
+}
+
+.missionTutorialBotName span {
+  border-radius: 3px;
+  background: #5865f2;
+  padding: 2px 4px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 5px;
+  font-weight: 800;
+}
+
+.missionTutorialTyping {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-top: 7px;
+}
+
+.missionTutorialTyping i {
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.32);
+  animation: missionTutorialTyping 700ms ease-in-out infinite;
+}
+
+.missionTutorialTyping i:nth-child(2) {
+  animation-delay: 120ms;
+}
+
+.missionTutorialTyping i:nth-child(3) {
+  animation-delay: 240ms;
+}
+
+.missionTutorialTyping span,
+.missionTutorialMutedLine {
+  margin-left: 4px;
+  color: rgba(255, 255, 255, 0.18);
+  font-size: 7px;
+}
+
+.missionTutorialMutedLine {
+  display: block;
+  margin-top: 7px;
+  margin-left: 0;
+}
+
+.missionTutorialSuccess {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 7px;
+  color: rgba(var(--emerald), 0.55);
+  font-size: 7px;
+  animation: missionTutorialSuccess 380ms ease both;
+}
+
+.missionTutorialProgressCard {
+  display: block;
+}
+
+.missionTutorialProgressActive {
+  opacity: 1;
+  transform: scale(1);
+  border-color: rgba(var(--violet), 0.1);
+}
+
+.missionTutorialProgressHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.missionTutorialProgressHeader strong {
+  display: block;
+  margin-top: 3px;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 8px;
+  font-weight: 650;
+}
+
+.missionTutorialProgressHeader > span {
+  color: rgba(var(--cyan), 0.52);
+  font-family: monospace;
+  font-size: 8px;
+  font-weight: 700;
+}
+
+.missionTutorialProgressTrack {
+  height: 6px;
+  margin-top: 9px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.missionTutorialProgressFill {
+  height: 100%;
+  border-radius: inherit;
+  transition: width 850ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.missionTutorialProgressFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 6px;
+  color: rgba(255, 255, 255, 0.17);
+  font-size: 6px;
+}
+
+.missionTutorialRewardFlash {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 12px;
+  border: 1px solid rgba(var(--emerald), 0);
+  border-radius: 11px;
+  background: rgba(var(--emerald), 0);
+  padding: 0 10px;
+  height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(5px);
+  color: rgba(var(--emerald), 0.55);
+  transition:
+    height 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    padding 420ms ease,
+    opacity 350ms ease,
+    transform 420ms ease,
+    border-color 350ms ease,
+    background 350ms ease;
+}
+
+.missionTutorialRewardVisible {
+  height: 47px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  opacity: 1;
+  transform: translateY(0);
+  border-color: rgba(var(--emerald), 0.09);
+  background: rgba(var(--emerald), 0.025);
+}
+
+.missionTutorialRewardFlash > div {
+  min-width: 0;
+  flex: 1;
+}
+
+.missionTutorialRewardFlash span {
+  display: block;
+  color: rgba(var(--emerald), 0.35);
+  font-size: 5px;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+}
+
+.missionTutorialRewardFlash strong {
+  display: block;
+  margin-top: 2px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 8px;
+  font-weight: 650;
+}
+
+.missionTutorialTimeline {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 5px;
+  margin-top: 10px;
+}
+
+.missionTutorialTimelineItem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 27px;
+  border: 1px solid rgba(255, 255, 255, 0.045);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.012);
+  color: rgba(255, 255, 255, 0.17);
+  font-size: 6px;
+  font-weight: 650;
+  transition:
+    color 300ms ease,
+    border-color 300ms ease,
+    background 300ms ease;
+}
+
+.missionTutorialTimelineItem span {
+  display: flex;
+  width: 14px;
+  height: 14px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.045);
+  font-family: monospace;
+  font-size: 6px;
+}
+
+.missionTutorialTimelineActive {
+  border-color: rgba(var(--cyan), 0.08);
+  background: rgba(var(--cyan), 0.02);
+  color: rgba(var(--cyan), 0.48);
+}
+
+@keyframes missionTutorialPulse {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(0.88);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes missionTutorialCursor {
+  0% {
+    opacity: 0;
+    transform: translate(20px, 18px);
+  }
+
+  35% {
+    opacity: 1;
+  }
+
+  75%,
+  100% {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes missionTutorialClick {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+
+  35% {
+    opacity: 0.65;
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.25);
+  }
+}
+
+@keyframes missionTutorialTyping {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: translateY(0);
+  }
+
+  50% {
+    opacity: 0.9;
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes missionTutorialSuccess {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 640px) {
+  .missionTutorialHeader {
+    gap: 10px;
+  }
+
+  .missionTutorialLive {
+    padding: 5px 7px;
+    font-size: 6px;
+  }
+
+  .missionTutorialWindow {
+    border-radius: 15px;
+  }
+
+  .missionTutorialScene {
+    grid-template-columns: 34px 1fr;
+    min-height: 320px;
+  }
+
+  .missionTutorialSidebar {
+    gap: 11px;
+  }
+
+  .missionTutorialLogo {
+    width: 20px;
+    height: 20px;
+  }
+
+  .missionTutorialSideItem {
+    width: 13px;
+  }
+
+  .missionTutorialContent {
+    padding: 10px;
+  }
+
+  .missionTutorialBalance {
+    display: none;
+  }
+
+  .missionTutorialActionCard,
+  .missionTutorialBotCard,
+  .missionTutorialProgressCard {
+    padding: 9px;
+  }
+
+  .missionTutorialActionIcon {
+    width: 30px;
+    height: 30px;
+  }
+
+  .missionTutorialActionButton {
+    min-width: 36px;
+    font-size: 0;
+  }
+
+  .missionTutorialActionButton svg {
+    width: 13px;
+    height: 13px;
+  }
+
+  .missionTutorialTimelineItem {
+    gap: 3px;
+    font-size: 5px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .missionTutorialLiveDot,
+  .missionTutorialCursor,
+  .missionTutorialCursor span,
+  .missionTutorialTyping i {
+    animation: none !important;
+  }
+}
