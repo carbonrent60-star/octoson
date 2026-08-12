@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 
 import type { LucideIcon } from "lucide-react";
 
@@ -29,6 +30,17 @@ import {
   TimerReset,
   Trophy,
   Zap,
+  ArrowLeft,
+  Banknote,
+  Boxes,
+  CircleUserRound,
+  Globe2,
+  Grid3X3,
+  Home,
+  Search,
+  ShoppingBag,
+  Volume2,
+  WalletCards,
 } from "lucide-react";
 
 import EarnClaimButton from "./claim-button";
@@ -166,6 +178,108 @@ function timeLeft(timestamp: number | null) {
   }
 
   return `${Math.max(1, minutes)} dəq`;
+}
+
+
+type MissionGuideSurface = "discord" | "website";
+
+function missionDemoCommand(metric: string) {
+  switch (metric) {
+    case "game_played":
+      return "/casino slots";
+    case "casino_bet":
+      return "/casino slots";
+    case "aura_earned":
+      return "/earn work";
+    case "activity":
+      return "/earn work";
+    default:
+      return "/help";
+  }
+}
+
+function missionDemoAction(metric: string) {
+  switch (metric) {
+    case "game_played":
+      return "Slots raundunu sona qədər tamamla. Tamamlanan casino raundu oyun kimi qeydə alınır.";
+    case "casino_bet":
+      return "Mərc məbləğini seç və casino raundunu tamamla.";
+    case "aura_earned":
+      return "Uyğun fəaliyyətdən sistem tərəfindən yaradılan Aura qazan.";
+    case "activity":
+      return "Work, crime, hunt, fish və ya mine kimi uyğun fəaliyyətlərdən birini tamamla.";
+    default:
+      return "Missiyanın tələb etdiyi uyğun fəaliyyəti tamamla.";
+  }
+}
+
+function missionWebsiteRoute(metric: string) {
+  switch (metric) {
+    case "game_played":
+      return "/dashboard/casino/slots";
+    case "casino_bet":
+      return "/dashboard/casino/slots";
+    case "aura_earned":
+      return "/dashboard/world";
+    case "activity":
+      return "/dashboard/world";
+    default:
+      return "/dashboard/earn";
+  }
+}
+
+function missionWebsiteSection(metric: string) {
+  switch (metric) {
+    case "game_played":
+      return {
+        eyebrow: "KAZİNO · SLOTS",
+        title: "Slots raundunu tamamla",
+        description:
+          "Kazino səhifəsində Slots aç, mərc seç və raundu sona qədər oyna.",
+        action: "Raundu oyna",
+        nav: "Kazino",
+      };
+
+    case "casino_bet":
+      return {
+        eyebrow: "KAZİNO · MƏRC",
+        title: "Uyğun mərc et",
+        description:
+          "Kazino oyunlarından birini aç, mərc daxil et və raundu tamamla.",
+        action: "Mərc et",
+        nav: "Kazino",
+      };
+
+    case "aura_earned":
+      return {
+        eyebrow: "DÜNYA · QAZANC",
+        title: "Aura qazandıran fəaliyyət et",
+        description:
+          "Dünya bölməsində uyğun qazanc fəaliyyətini tamamla. Sistem tərəfindən yaradılan Aura missiyaya yazılır.",
+        action: "Fəaliyyəti tamamla",
+        nav: "Dünya",
+      };
+
+    case "activity":
+      return {
+        eyebrow: "DÜNYA · FƏALİYYƏT",
+        title: "Uyğun fəaliyyət tamamla",
+        description:
+          "Dünya və economy fəaliyyətlərindən uyğun olanını tamamla və progressin yenilənməsini izlə.",
+        action: "Fəaliyyətə başla",
+        nav: "Dünya",
+      };
+
+    default:
+      return {
+        eyebrow: "OCTOSON · EARN",
+        title: "Missiyanın tələbini tamamla",
+        description:
+          "Tapşırığın tələb etdiyi uyğun bölməyə keç və fəaliyyəti tamamla.",
+        action: "Davam et",
+        nav: "Qazan",
+      };
+  }
 }
 
 function metricLabel(metric: string) {
@@ -1010,8 +1124,51 @@ function MissionCard({
   const [guideOpen, setGuideOpen] =
     useState(false);
 
+  const [guidePhase, setGuidePhase] = useState<
+    "action" | "processing" | "progress" | "reward"
+  >("action");
+
+  const [guideSurface, setGuideSurface] =
+    useState<MissionGuideSurface>("discord");
+
+  useEffect(() => {
+    if (!guideOpen) return;
+
+    const delays = {
+      action: 1100,
+      processing: 1250,
+      progress: 1750,
+      reward: 2600,
+    } as const;
+
+    const phases = [
+      "action",
+      "processing",
+      "progress",
+      "reward",
+    ] as const;
+
+    const current = phases.indexOf(guidePhase);
+
+    const timer = window.setTimeout(() => {
+      if (current >= phases.length - 1) {
+        setGuidePhase("action");
+      } else {
+        setGuidePhase(phases[current + 1]);
+      }
+    }, delays[guidePhase]);
+
+    return () => window.clearTimeout(timer);
+  }, [guideOpen, guidePhase]);
+
   const guide =
     missionGuide(mission);
+
+  const websiteGuide =
+    missionWebsiteSection(mission.metric);
+
+  const websiteRoute =
+    missionWebsiteRoute(mission.metric);
 
   const Icon =
     METRIC_ICONS[mission.metric] ??
@@ -1073,9 +1230,11 @@ function MissionCard({
             <button
               type="button"
               className={styles.missionHelpButton}
-              onClick={() =>
-                setGuideOpen(true)
-              }
+              onClick={() => {
+                setGuidePhase("action");
+                setGuideSurface("discord");
+                setGuideOpen(true);
+              }}
               aria-label={`${mission.title} üçün kömək`}
               title="Necə tamamlanır?"
             >
@@ -1231,193 +1390,864 @@ function MissionCard({
         </div>
       </div>
 
-      {guideOpen ? (
-        <div
-          className={styles.missionGuideBackdrop}
-          role="presentation"
-          onMouseDown={(event) => {
-            if (
-              event.target ===
-              event.currentTarget
-            ) {
-              setGuideOpen(false);
-            }
-          }}
-        >
-          <div
-            className={styles.missionGuideModal}
-            role="dialog"
-            aria-modal="true"
-            aria-label={`${mission.title} missiya köməyi`}
-          >
+      {guideOpen
+        ? createPortal(
             <div
-              className={
-                styles.missionGuideGlow
-              }
-            />
+              className={styles.missionGuideBackdrop}
+              role="presentation"
+              onMouseDown={(event) => {
+                if (event.target === event.currentTarget) {
+                  setGuideOpen(false);
+                }
+              }}
+            >
+              <div
+                className={styles.missionGuideModal}
+                role="dialog"
+                aria-modal="true"
+                aria-label={`${mission.title} missiya köməyi`}
+                onMouseDown={(event) => event.stopPropagation()}
+              >
+                <div className={styles.missionGuideGlow} />
 
-            <div className="relative">
-              <div className={styles.missionGuideTop}>
-                <div
-                  className={`${styles.missionGuideIcon} ${toneClass}`}
-                >
-                  <Icon className="h-4 w-4" />
-                </div>
-
-                <div className="min-w-0 flex-1">
-                  <p className={styles.missionGuideEyebrow}>
-                    {mission.periodType ===
-                    "weekly"
-                      ? "HƏFTƏLİK MİSSİYA"
-                      : "GÜNLÜK MİSSİYA"}
-                  </p>
-
-                  <h4 className={styles.missionGuideTitle}>
-                    {mission.title}
-                  </h4>
-                </div>
-
-                <button
-                  type="button"
-                  className={styles.missionGuideClose}
-                  onClick={() =>
-                    setGuideOpen(false)
-                  }
-                  aria-label="Bağla"
-                >
-                  ×
-                </button>
-              </div>
-
-              <div className={styles.missionGuideBody}>
-                <div>
-                  <p className={styles.missionGuideSectionLabel}>
-                    NECƏ TAMAMLANIR?
-                  </p>
-
-                  <h5 className={styles.missionGuideHeading}>
-                    {guide.title}
-                  </h5>
-
-                  <p className={styles.missionGuideDescription}>
-                    {guide.description}
-                  </p>
-                </div>
-
-                <div className={styles.missionGuideSteps}>
-                  {guide.steps.map(
-                    (step, stepIndex) => (
-                      <div
-                        key={step}
-                        className={styles.missionGuideStep}
-                      >
-                        <span
-                          className={
-                            styles.missionGuideStepNumber
-                          }
-                        >
-                          {stepIndex + 1}
-                        </span>
-
-                        <span>{step}</span>
-                      </div>
-                    )
-                  )}
-                </div>
-
-                <div className={styles.missionGuideProgress}>
-                  <div className={styles.missionGuideProgressTop}>
-                    <span>İrəliləyiş</span>
-
-                    <strong>
-                      {formatNumber(
-                        mission.progress
-                      )}{" "}
-                      /{" "}
-                      {formatNumber(
-                        mission.target
-                      )}
-                    </strong>
-                  </div>
-
-                  <div
-                    className={
-                      styles.missionGuideProgressTrack
-                    }
-                  >
+                <div className="relative">
+                  <div className={styles.missionGuideTop}>
                     <div
-                      className={`${styles.missionGuideProgressFill} ${
-                        complete
-                          ? styles.progressEmerald
-                          : tone === "violet"
-                            ? styles.progressViolet
-                            : tone === "amber"
-                              ? styles.progressAmber
-                              : tone === "rose"
-                                ? styles.progressRose
-                                : styles.progressCyan
-                      }`}
-                      style={{
-                        width: `${pct}%`,
-                      }}
-                    />
+                      className={`${styles.missionGuideIcon} ${toneClass}`}
+                    >
+                      <Icon className="h-4 w-4" />
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      <p className={styles.missionGuideEyebrow}>
+                        {mission.periodType === "weekly"
+                          ? "HƏFTƏLİK MİSSİYA"
+                          : "GÜNDƏLİK MİSSİYA"}
+                      </p>
+
+                      <h4 className={styles.missionGuideTitle}>
+                        {mission.title}
+                      </h4>
+                    </div>
+
+                    <button
+                      type="button"
+                      className={styles.missionGuideClose}
+                      onClick={() => setGuideOpen(false)}
+                      aria-label="Bağla"
+                    >
+                      ×
+                    </button>
                   </div>
 
-                  <div className={styles.missionGuideProgressBottom}>
-                    <span>
-                      {guide.remaining}
-                    </span>
+                  <div className={styles.missionGuideBody}>
+                    <div className={styles.missionTutorialHeader}>
+                      <div>
+                        <p className={styles.missionGuideSectionLabel}>
+                          NECƏ TAMAMLANIR?
+                        </p>
 
-                    <strong>
-                      {Math.round(pct)}%
-                    </strong>
+                        <h5 className={styles.missionGuideHeading}>
+                          {guide.title}
+                        </h5>
+
+                        <p className={styles.missionGuideDescription}>
+                          Octoson missiyanı Discord-da necə qeydə alır —
+                          canlı nümunə.
+                        </p>
+                      </div>
+
+                      <div className={styles.missionTutorialLive}>
+                        <span />
+                        CANLI DEMO
+                      </div>
+                    </div>
+
+                    <div className={styles.missionSurfaceSwitcher}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setGuideSurface("discord");
+                          setGuidePhase("action");
+                        }}
+                        className={`${styles.missionSurfaceButton} ${
+                          guideSurface === "discord"
+                            ? styles.missionSurfaceButtonActive
+                            : ""
+                        }`}
+                      >
+                        <span className={styles.missionSurfaceDiscordIcon}>
+                          #
+                        </span>
+                        Discord
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setGuideSurface("website");
+                          setGuidePhase("action");
+                        }}
+                        className={`${styles.missionSurfaceButton} ${
+                          guideSurface === "website"
+                            ? styles.missionSurfaceButtonActive
+                            : ""
+                        }`}
+                      >
+                        <span className={styles.missionSurfaceWebIcon}>
+                          ◉
+                        </span>
+                        Website
+                      </button>
+
+                      <span className={styles.missionSurfaceHint}>
+                        Hər iki üsul missiyanın necə tamamlandığını göstərir
+                      </span>
+                    </div>
+
+                    {guideSurface === "discord" ? (
+                      <div className={styles.discordMissionDemo}>
+                        <div className={styles.discordDemoHeader}>
+                          <div className={styles.discordDemoChannel}>
+                            <span>#</span>
+                            octoson-commands
+                          </div>
+
+                          <div className={styles.discordDemoHeaderDots}>
+                            <i />
+                            <i />
+                            <i />
+                          </div>
+                        </div>
+
+                        <div className={styles.discordDemoBody}>
+                          <div
+                            className={`${styles.discordUserMessage} ${
+                              guidePhase === "action"
+                                ? styles.discordStageActive
+                                : ""
+                            }`}
+                          >
+                            <div className={styles.discordUserAvatar}>
+                              B
+                              <span />
+                            </div>
+
+                            <div className="min-w-0 flex-1">
+                              <div className={styles.discordMessageMeta}>
+                                <strong>BAKHISHOV</strong>
+                                <b>OCTO</b>
+                                <span>indi</span>
+                              </div>
+
+                              <div className={styles.discordCommand}>
+                                {missionDemoCommand(mission.metric)}
+                              </div>
+
+                              <p className={styles.discordActionHint}>
+                                {missionDemoAction(mission.metric)}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div
+                            className={`${styles.discordTypingArea} ${
+                              guidePhase === "processing"
+                                ? styles.discordTypingVisible
+                                : ""
+                            }`}
+                          >
+                            <div className={styles.discordBotMiniAvatar}>
+                              O
+                            </div>
+
+                            <div className={styles.discordTypingDots}>
+                              <i />
+                              <i />
+                              <i />
+                            </div>
+
+                            <span>Octoson cavab verir</span>
+                          </div>
+
+                          <div
+                            className={`${styles.discordBotResponse} ${
+                              guidePhase === "progress" ||
+                              guidePhase === "reward"
+                                ? styles.discordBotResponseVisible
+                                : ""
+                            }`}
+                          >
+                            <div className={styles.discordBotAvatar}>
+                              O
+                              <span />
+                            </div>
+
+                            <div className="min-w-0 flex-1">
+                              <div className={styles.discordMessageMeta}>
+                                <strong className={styles.discordBotName}>
+                                  Octoson
+                                </strong>
+
+                                <b className={styles.discordAppBadge}>
+                                  ✓ APP
+                                </b>
+
+                                <span>indi</span>
+                              </div>
+
+                              <div className={styles.discordBotEmbed}>
+                                <div className={styles.discordBotEmbedGlow} />
+
+                                <div className="relative">
+                                  <p className={styles.discordEmbedEyebrow}>
+                                    MİSSİYA PROGRESS
+                                  </p>
+
+                                  <div className={styles.discordEmbedTitleRow}>
+                                    <CheckCircle2 className="h-3.5 w-3.5" />
+                                    <strong>{mission.title}</strong>
+                                  </div>
+
+                                  <p className={styles.discordEmbedText}>
+                                    Uyğun fəaliyyət qeydə alındı. Missiya
+                                    irəliləyişi avtomatik yeniləndi.
+                                  </p>
+
+                                  <div className={styles.discordEmbedProgressTop}>
+                                    <span>
+                                      {formatNumber(mission.progress)} /{" "}
+                                      {formatNumber(mission.target)}
+                                    </span>
+
+                                    <strong>{Math.round(pct)}%</strong>
+                                  </div>
+
+                                  <div className={styles.discordEmbedTrack}>
+                                    <div
+                                      key={`${guideSurface}-${guidePhase}`}
+                                      className={`${styles.discordEmbedFill} ${
+                                        complete
+                                          ? styles.progressEmerald
+                                          : tone === "violet"
+                                            ? styles.progressViolet
+                                            : tone === "amber"
+                                              ? styles.progressAmber
+                                              : tone === "rose"
+                                                ? styles.progressRose
+                                                : styles.progressCyan
+                                      }`}
+                                      style={{
+                                        width:
+                                          guidePhase === "reward"
+                                            ? "100%"
+                                            : `${Math.max(
+                                                Math.min(pct, 100),
+                                                pct > 0 ? pct : 34
+                                              )}%`,
+                                      }}
+                                    />
+                                  </div>
+
+                                  <div className={styles.discordEmbedFooter}>
+                                    <span>{guide.remaining}</span>
+                                    <span>Avtomatik qeydə alınır</span>
+                                  </div>
+
+                                  <div
+                                    className={`${styles.discordRewardReveal} ${
+                                      guidePhase === "reward"
+                                        ? styles.discordRewardRevealVisible
+                                        : ""
+                                    }`}
+                                  >
+                                    <Gift className="h-4 w-4" />
+
+                                    <div>
+                                      <span>MÜKAFAT HAZIRDIR</span>
+                                      <strong>
+                                        +{formatNumber(mission.auraReward)} Aura
+                                      </strong>
+                                    </div>
+
+                                    <div className={styles.discordRewardExtras}>
+                                      +{formatNumber(mission.xpReward)} XP
+                                      <span>·</span>
+                                      +{formatNumber(
+                                        mission.seasonXpReward
+                                      )}{" "}
+                                      Season XP
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className={styles.discordDemoFooter}>
+                          <span>October Server</span>
+
+                          <div>
+                            <i />
+                            ONLINE
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className={styles.websiteMissionDemo}>
+                        <div className={styles.websiteBrowserBar}>
+                          <div className={styles.websiteBrowserDots}>
+                            <i />
+                            <i />
+                            <i />
+                          </div>
+
+                          <div className={styles.websiteAddressBar}>
+                            <span className={styles.websiteLock}>●</span>
+                            <span>october.bakhishov.com</span>
+                            <strong>{websiteRoute}</strong>
+                          </div>
+
+                          <div className={styles.websiteBrowserMenu}>···</div>
+                        </div>
+
+                        <div className={styles.realDashboardViewport}>
+                          <div className={styles.realDashboardApp}>
+                            {/* REAL OCTOSON SIDEBAR */}
+                            <aside className={styles.realDashboardSidebar}>
+                              <div className={styles.realDashboardBrand}>
+                                <div className={styles.realDashboardBrandIcon}>
+                                  <Sparkles />
+                                </div>
+
+                                <div>
+                                  <div className={styles.realDashboardBrandName}>
+                                    Octoson
+                                    <span>WEB</span>
+                                  </div>
+
+                                  <p>AURA ECONOMY</p>
+                                </div>
+                              </div>
+
+                              <div className={styles.realDashboardDivider} />
+
+                              <div className={styles.realDashboardNavArea}>
+                                <p className={styles.realDashboardNavLabel}>
+                                  PLATFORMA
+                                </p>
+
+                                <div className={styles.realDashboardNav}>
+                                  {[
+                                    {
+                                      label: "Ana səhifə",
+                                      icon: Home,
+                                    },
+                                    {
+                                      label: "Kazino",
+                                      icon: Gamepad2,
+                                    },
+                                    {
+                                      label: "Oyunlar",
+                                      icon: Dices,
+                                    },
+                                    {
+                                      label: "Bank",
+                                      icon: Banknote,
+                                    },
+                                    {
+                                      label: "Qazan",
+                                      icon: CircleDollarSign,
+                                    },
+                                    {
+                                      label: "Bazar",
+                                      icon: ShoppingBag,
+                                    },
+                                    {
+                                      label: "İnventar",
+                                      icon: Boxes,
+                                    },
+                                    {
+                                      label: "Dünya",
+                                      icon: Globe2,
+                                    },
+                                    {
+                                      label: "Reytinq",
+                                      icon: Trophy,
+                                    },
+                                    {
+                                      label: "Fəaliyyət",
+                                      icon: Activity,
+                                    },
+                                    {
+                                      label: "Profil",
+                                      icon: CircleUserRound,
+                                    },
+                                    {
+                                      label: "Admin paneli",
+                                      icon: ShieldCheck,
+                                    },
+                                  ].map((item) => {
+                                    const NavIcon = item.icon;
+
+                                    const active =
+                                      item.label === websiteGuide.nav;
+
+                                    return (
+                                      <div
+                                        key={item.label}
+                                        className={`${styles.realDashboardNavItem} ${
+                                          active
+                                            ? styles.realDashboardNavItemActive
+                                            : ""
+                                        }`}
+                                      >
+                                        {active ? (
+                                          <span
+                                            className={
+                                              styles.realDashboardActiveLine
+                                            }
+                                          />
+                                        ) : null}
+
+                                        <NavIcon />
+
+                                        <span>{item.label}</span>
+
+                                        {active ? (
+                                          <ChevronRight
+                                            className={
+                                              styles.realDashboardNavChevron
+                                            }
+                                          />
+                                        ) : null}
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+
+                              <div className={styles.realDashboardStatus}>
+                                <div>
+                                  <span className={styles.realDashboardStatusDot} />
+                                  Economy aktivdir
+                                </div>
+
+                                <p>
+                                  Discord economy ilə real-time sinxronizasiya.
+                                </p>
+                              </div>
+                            </aside>
+
+                            {/* REAL OCTOSON APP AREA */}
+                            <div className={styles.realDashboardWorkspace}>
+                              <header className={styles.realDashboardHeader}>
+                                <div className={styles.realDashboardSearch}>
+                                  <Search />
+                                  <span>Octoson-da axtar...</span>
+                                  <kbd>⌘ K</kbd>
+                                </div>
+
+                                <div className={styles.realDashboardUser}>
+                                  <div className={styles.realDashboardSound}>
+                                    <Volume2 />
+                                    <span />
+                                  </div>
+
+                                  <strong>brandsbybakhishov</strong>
+
+                                  <div className={styles.realDashboardAvatar}>
+                                    B
+                                    <span />
+                                  </div>
+
+                                  <button type="button">
+                                    Çıxış
+                                  </button>
+                                </div>
+                              </header>
+
+                              <main className={styles.realDashboardContent}>
+                                {mission.metric === "game_played" ||
+                                mission.metric === "casino_bet" ? (
+                                  <>
+                                    {/* REAL /dashboard/casino/slots LOOK */}
+                                    <button
+                                      type="button"
+                                      className={styles.realCasinoBack}
+                                    >
+                                      <ArrowLeft />
+                                      Casino
+                                    </button>
+
+                                    <div className={styles.realCasinoHeading}>
+                                      <div>
+                                        <div className={styles.realCasinoEyebrow}>
+                                          <span />
+                                          OCTOSON CASINO
+                                        </div>
+
+                                        <div className={styles.realCasinoTitle}>
+                                          <Grid3X3 />
+                                          <h5>Slots</h5>
+                                        </div>
+
+                                        <p>
+                                          Üç çarxı fırlat. Simvolları
+                                          uyğunlaşdır və multiplier qazan.
+                                        </p>
+                                      </div>
+
+                                      <div className={styles.realCasinoWallet}>
+                                        <div>
+                                          <WalletCards />
+                                          Wallet
+                                        </div>
+
+                                        <strong>
+                                          23,150
+                                          <span>AURA</span>
+                                        </strong>
+                                      </div>
+                                    </div>
+
+                                    <div className={styles.realCasinoGrid}>
+                                      <section
+                                        className={`${styles.realSlotsStage} ${
+                                          guidePhase === "processing"
+                                            ? styles.realSlotsStageRunning
+                                            : ""
+                                        }`}
+                                      >
+                                        <div className={styles.realSlotsAmbient} />
+
+                                        <div className={styles.realSlotsMachine}>
+                                          <div className={styles.realSlotsTop}>
+                                            <span>5X</span>
+                                            <strong>OCTOSON SLOTS</strong>
+                                            <span>777</span>
+                                          </div>
+
+                                          <div className={styles.realSlotsReels}>
+                                            {[0, 1, 2].map((reel) => (
+                                              <div
+                                                key={reel}
+                                                className={`${styles.realSlotReel} ${
+                                                  guidePhase === "processing"
+                                                    ? styles.realSlotReelSpin
+                                                    : ""
+                                                }`}
+                                                style={{
+                                                  animationDelay: `${reel * 90}ms`,
+                                                }}
+                                              >
+                                                {guidePhase === "reward" ||
+                                                guidePhase === "progress"
+                                                  ? ["7", "💎", "7"][reel]
+                                                  : ["🍒", "7", "⭐"][reel]}
+                                              </div>
+                                            ))}
+                                          </div>
+
+                                          <div className={styles.realSlotsMachineFooter}>
+                                            {guidePhase === "action"
+                                              ? "Mərcini seç və fırlat"
+                                              : guidePhase === "processing"
+                                                ? "Çarxlar fırlanır..."
+                                                : guidePhase === "progress"
+                                                  ? "Raund tamamlandı"
+                                                  : "Missiya progressi yeniləndi"}
+                                          </div>
+                                        </div>
+                                      </section>
+
+                                      <aside className={styles.realCasinoControls}>
+                                        <div className={styles.realCasinoControlHeader}>
+                                          <div>
+                                            <span>MƏRC</span>
+                                            <strong>Raund parametrləri</strong>
+                                          </div>
+
+                                          <Grid3X3 />
+                                        </div>
+
+                                        <label>Mərc məbləği</label>
+
+                                        <div className={styles.realCasinoBetInput}>
+                                          <CircleDollarSign />
+                                          <span>100</span>
+                                          <b>AURA</b>
+                                        </div>
+
+                                        <div className={styles.realCasinoQuickBets}>
+                                          <span>100</span>
+                                          <span>500</span>
+                                          <span>1K</span>
+                                        </div>
+
+                                        <button
+                                          type="button"
+                                          className={`${styles.realCasinoPlayButton} ${
+                                            guidePhase === "processing"
+                                              ? styles.realCasinoPlayButtonBusy
+                                              : ""
+                                          }`}
+                                        >
+                                          {guidePhase === "processing" ? (
+                                            <>
+                                              <span
+                                                className={
+                                                  styles.realCasinoSpinner
+                                                }
+                                              />
+                                              Fırlanır...
+                                            </>
+                                          ) : guidePhase === "progress" ||
+                                            guidePhase === "reward" ? (
+                                            <>
+                                              <Check />
+                                              Raund tamamlandı
+                                            </>
+                                          ) : (
+                                            <>
+                                              <Grid3X3 />
+                                              Oyna
+                                            </>
+                                          )}
+                                        </button>
+
+                                        <div className={styles.realCasinoControlNotice}>
+                                          <ShieldCheck />
+                                          <span>
+                                            Nəticə Octoson economy tərəfindən
+                                            avtomatik qeydə alınır.
+                                          </span>
+                                        </div>
+                                      </aside>
+                                    </div>
+                                  </>
+                                ) : (
+                                  <>
+                                    {/* WORLD / EARN SURFACE USING THE SAME REAL SHELL */}
+                                    <div className={styles.realWorldHeading}>
+                                      <div className={styles.realWorldEyebrow}>
+                                        <span />
+                                        OCTOSON
+                                      </div>
+
+                                      <h5>{websiteGuide.nav}</h5>
+
+                                      <p>
+                                        Economy fəaliyyətlərini tamamla və
+                                        progressini real-time artır.
+                                      </p>
+                                    </div>
+
+                                    <div className={styles.realWorldGrid}>
+                                      <section className={styles.realWorldPrimary}>
+                                        <div
+                                          className={`${styles.realWorldIcon} ${toneClass}`}
+                                        >
+                                          <Icon />
+                                        </div>
+
+                                        <div>
+                                          <span>{websiteGuide.eyebrow}</span>
+                                          <h6>{websiteGuide.title}</h6>
+                                          <p>{websiteGuide.description}</p>
+                                        </div>
+
+                                        <button type="button">
+                                          {guidePhase === "processing" ? (
+                                            <>
+                                              <span
+                                                className={
+                                                  styles.realCasinoSpinner
+                                                }
+                                              />
+                                              Emal edilir...
+                                            </>
+                                          ) : guidePhase === "progress" ||
+                                            guidePhase === "reward" ? (
+                                            <>
+                                              <Check />
+                                              Tamamlandı
+                                            </>
+                                          ) : (
+                                            <>
+                                              <ArrowRight />
+                                              {websiteGuide.action}
+                                            </>
+                                          )}
+                                        </button>
+                                      </section>
+
+                                      <aside className={styles.realWorldSide}>
+                                        <span>MİSSİYA</span>
+                                        <strong>{mission.title}</strong>
+
+                                        <div>
+                                          <b>
+                                            {formatNumber(mission.progress)}
+                                          </b>
+                                          <i>/</i>
+                                          <span>
+                                            {formatNumber(mission.target)}
+                                          </span>
+                                        </div>
+
+                                        <div
+                                          className={
+                                            styles.realWorldProgressTrack
+                                          }
+                                        >
+                                          <span
+                                            style={{
+                                              width:
+                                                guidePhase === "reward"
+                                                  ? "100%"
+                                                  : `${Math.max(
+                                                      pct,
+                                                      guidePhase === "progress"
+                                                        ? 55
+                                                        : 12
+                                                    )}%`,
+                                            }}
+                                          />
+                                        </div>
+                                      </aside>
+                                    </div>
+                                  </>
+                                )}
+
+                                {/* REALISTIC MISSION UPDATE TOAST */}
+                                <div
+                                  className={`${styles.realDashboardMissionToast} ${
+                                    guidePhase === "progress" ||
+                                    guidePhase === "reward"
+                                      ? styles.realDashboardMissionToastVisible
+                                      : ""
+                                  }`}
+                                >
+                                  <div>
+                                    <CheckCircle2 />
+                                  </div>
+
+                                  <span>
+                                    <small>MİSSİYA YENİLƏNDİ</small>
+                                    <strong>{mission.title}</strong>
+                                  </span>
+
+                                  <b>
+                                    {guidePhase === "reward"
+                                      ? "100%"
+                                      : `${Math.max(Math.round(pct), 55)}%`}
+                                  </b>
+                                </div>
+                              </main>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                    )}
+
+                    <div className={styles.missionTutorialTimeline}>
+                      {[
+                        [
+                          "action",
+                          guideSurface === "discord"
+                            ? "Komanda"
+                            : "Fəaliyyət",
+                        ],
+                        [
+                          "processing",
+                          guideSurface === "discord"
+                            ? "Cavab"
+                            : "Sistem",
+                        ],
+                        ["progress", "Progress"],
+                        ["reward", "Mükafat"],
+                      ].map(([phase, label], phaseIndex) => {
+                        const phases = [
+                          "action",
+                          "processing",
+                          "progress",
+                          "reward",
+                        ];
+
+                        const currentIndex =
+                          phases.indexOf(guidePhase);
+                        const activeIndex =
+                          phases.indexOf(phase);
+
+                        return (
+                          <button
+                            type="button"
+                            key={phase}
+                            onClick={() =>
+                              setGuidePhase(
+                                phase as
+                                  | "action"
+                                  | "processing"
+                                  | "progress"
+                                  | "reward"
+                              )
+                            }
+                            className={`${styles.missionTutorialTimelineItem} ${
+                              activeIndex <= currentIndex
+                                ? styles.missionTutorialTimelineActive
+                                : ""
+                            }`}
+                          >
+                            <span>{phaseIndex + 1}</span>
+                            {label}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <div className={styles.missionGuideRewards}>
+                      <Reward
+                        icon={CircleDollarSign}
+                        value={`+${formatNumber(mission.auraReward)}`}
+                        label="Aura"
+                        tone="amber"
+                      />
+
+                      <Reward
+                        icon={Star}
+                        value={`+${formatNumber(mission.xpReward)}`}
+                        label="XP"
+                        tone="violet"
+                      />
+
+                      <Reward
+                        icon={Zap}
+                        value={`+${formatNumber(
+                          mission.seasonXpReward
+                        )}`}
+                        label="Season"
+                        tone="cyan"
+                      />
+                    </div>
+
+                    <button
+                      type="button"
+                      className={styles.missionGuideDone}
+                      onClick={() => setGuideOpen(false)}
+                    >
+                      Başa düşdüm
+                      <Check className="h-3.5 w-3.5" />
+                    </button>
                   </div>
                 </div>
-
-                <div className={styles.missionGuideRewards}>
-                  <Reward
-                    icon={CircleDollarSign}
-                    value={`+${formatNumber(
-                      mission.auraReward
-                    )}`}
-                    label="Aura"
-                    tone="amber"
-                  />
-
-                  <Reward
-                    icon={Star}
-                    value={`+${formatNumber(
-                      mission.xpReward
-                    )}`}
-                    label="XP"
-                    tone="violet"
-                  />
-
-                  <Reward
-                    icon={Zap}
-                    value={`+${formatNumber(
-                      mission.seasonXpReward
-                    )}`}
-                    label="Season"
-                    tone="cyan"
-                  />
-                </div>
-
-                <button
-                  type="button"
-                  className={styles.missionGuideDone}
-                  onClick={() =>
-                    setGuideOpen(false)
-                  }
-                >
-                  Başa düşdüm
-                  <ChevronRight className="h-3.5 w-3.5" />
-                </button>
               </div>
-            </div>
-          </div>
-        </div>
-      ) : null}
+            </div>,
+            document.body
+          )
+        : null}
     </article>
   );
 }

@@ -2286,3 +2286,3220 @@
     animation: none !important;
   }
 }
+
+
+/* OCTOSON SAFE ANIMATED MISSION TUTORIAL */
+
+.missionTutorialHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.missionTutorialLive {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  flex: 0 0 auto;
+  border: 1px solid rgba(91, 225, 164, 0.12);
+  border-radius: 999px;
+  padding: 7px 10px;
+  background: rgba(91, 225, 164, 0.035);
+  color: rgba(190, 255, 224, 0.5);
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
+.missionTutorialLive span {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(91, 225, 164, 0.9);
+  box-shadow: 0 0 12px rgba(91, 225, 164, 0.55);
+  animation: missionTutorialLivePulse 1.5s ease-in-out infinite;
+}
+
+.missionTutorialStage {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 145px 1fr;
+  align-items: center;
+  gap: 26px;
+  min-height: 190px;
+  margin-top: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.055);
+  border-radius: 22px;
+  padding: 24px;
+  background:
+    radial-gradient(
+      circle at 15% 50%,
+      rgba(125, 225, 255, 0.055),
+      transparent 34%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.025),
+      rgba(255, 255, 255, 0.008)
+    );
+}
+
+.missionTutorialStageGlow {
+  position: absolute;
+  inset: auto auto -90px -70px;
+  width: 240px;
+  height: 240px;
+  border-radius: 999px;
+  background: rgba(125, 225, 255, 0.035);
+  filter: blur(60px);
+  pointer-events: none;
+}
+
+.missionTutorialVisual {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 130px;
+  height: 130px;
+}
+
+.missionTutorialOrb {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 22px;
+  color: rgba(225, 247, 255, 0.85);
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.08),
+      rgba(255, 255, 255, 0.018)
+    ),
+    rgba(8, 11, 15, 0.92);
+  box-shadow:
+    inset 0 1px rgba(255, 255, 255, 0.06),
+    0 18px 45px rgba(0, 0, 0, 0.28);
+  transition:
+    transform 280ms ease,
+    color 280ms ease,
+    border-color 280ms ease,
+    box-shadow 280ms ease;
+  animation: missionTutorialFloat 3.2s ease-in-out infinite;
+}
+
+.missionTutorialOrb_action {
+  color: rgba(184, 235, 255, 0.9);
+  border-color: rgba(125, 225, 255, 0.16);
+  box-shadow: 0 0 42px rgba(125, 225, 255, 0.07);
+}
+
+.missionTutorialOrb_processing {
+  color: rgba(211, 194, 255, 0.9);
+  border-color: rgba(176, 145, 255, 0.18);
+  box-shadow: 0 0 42px rgba(176, 145, 255, 0.08);
+}
+
+.missionTutorialOrb_progress {
+  color: rgba(174, 242, 255, 0.92);
+  border-color: rgba(125, 225, 255, 0.18);
+  box-shadow: 0 0 42px rgba(125, 225, 255, 0.08);
+}
+
+.missionTutorialOrb_reward {
+  color: rgba(255, 220, 163, 0.95);
+  border-color: rgba(247, 190, 102, 0.2);
+  box-shadow: 0 0 48px rgba(247, 190, 102, 0.09);
+}
+
+.missionTutorialPulseOne,
+.missionTutorialPulseTwo {
+  position: absolute;
+  width: 82px;
+  height: 82px;
+  border: 1px solid rgba(125, 225, 255, 0.09);
+  border-radius: 26px;
+  animation: missionTutorialRing 2.6s ease-out infinite;
+}
+
+.missionTutorialPulseTwo {
+  animation-delay: 1.3s;
+}
+
+.missionTutorialCopy {
+  position: relative;
+  z-index: 2;
+}
+
+.missionTutorialPhase {
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: rgba(175, 231, 255, 0.38);
+}
+
+.missionTutorialTitle {
+  max-width: 430px;
+  margin-top: 9px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: -0.02em;
+}
+
+.missionTutorialText {
+  max-width: 470px;
+  margin-top: 9px;
+  color: rgba(255, 255, 255, 0.27);
+  font-size: 9px;
+  line-height: 1.8;
+}
+
+.missionTutorialTimeline {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
+  margin-top: 12px;
+}
+
+.missionTutorialTimelineItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  border: 1px solid rgba(255, 255, 255, 0.045);
+  border-radius: 12px;
+  padding: 9px 10px;
+  background: rgba(255, 255, 255, 0.015);
+  color: rgba(255, 255, 255, 0.2);
+  font-size: 7px;
+  text-align: left;
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    color 180ms ease,
+    transform 180ms ease;
+}
+
+.missionTutorialTimelineItem:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.09);
+}
+
+.missionTutorialTimelineItem span {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.035);
+  font-family: monospace;
+  font-size: 7px;
+}
+
+.missionTutorialTimelineActive {
+  border-color: rgba(125, 225, 255, 0.1);
+  background: rgba(125, 225, 255, 0.025);
+  color: rgba(205, 241, 255, 0.55);
+}
+
+.missionTutorialTimelineActive span {
+  background: rgba(125, 225, 255, 0.07);
+  color: rgba(210, 244, 255, 0.72);
+}
+
+.missionTutorialActions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 15px;
+}
+
+.missionTutorialNext {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 36px;
+  border: 1px solid rgba(125, 225, 255, 0.12);
+  border-radius: 11px;
+  padding: 0 14px;
+  background: rgba(125, 225, 255, 0.045);
+  color: rgba(211, 244, 255, 0.62);
+  font-size: 8px;
+  font-weight: 600;
+  transition:
+    transform 180ms ease,
+    background 180ms ease,
+    border-color 180ms ease;
+}
+
+.missionTutorialNext:hover {
+  transform: translateY(-1px);
+  border-color: rgba(125, 225, 255, 0.2);
+  background: rgba(125, 225, 255, 0.07);
+}
+
+@keyframes missionTutorialFloat {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1deg);
+  }
+
+  50% {
+    transform: translateY(-6px) rotate(1deg);
+  }
+}
+
+@keyframes missionTutorialRing {
+  0% {
+    transform: scale(0.72);
+    opacity: 0;
+  }
+
+  25% {
+    opacity: 0.55;
+  }
+
+  100% {
+    transform: scale(1.48);
+    opacity: 0;
+  }
+}
+
+@keyframes missionTutorialLivePulse {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.85);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+@media (max-width: 640px) {
+  .missionTutorialHeader {
+    flex-direction: column;
+  }
+
+  .missionTutorialStage {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+
+  .missionTutorialTimeline {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .missionTutorialCopy {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .missionTutorialOrb,
+  .missionTutorialPulseOne,
+  .missionTutorialPulseTwo,
+  .missionTutorialLive span {
+    animation: none !important;
+  }
+}
+
+/* ============================================================
+   OCTOSON EARN — SCREEN PORTAL + LANDING-STYLE DISCORD DEMO
+   ============================================================ */
+
+.missionGuideBackdrop {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 2147483000 !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  width: 100vw !important;
+  height: 100dvh !important;
+  padding: 24px !important;
+
+  overflow-y: auto;
+
+  background:
+    radial-gradient(
+      circle at 50% 42%,
+      rgba(var(--cyan), 0.055),
+      transparent 35%
+    ),
+    rgba(2, 3, 5, 0.78) !important;
+
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+
+  animation: earnScreenBackdropIn 220ms ease both;
+}
+
+.missionGuideModal {
+  position: relative !important;
+
+  width: min(720px, calc(100vw - 36px)) !important;
+  max-width: 720px !important;
+  max-height: calc(100dvh - 48px) !important;
+
+  margin: auto !important;
+
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+
+  border: 1px solid rgba(255, 255, 255, 0.085) !important;
+  border-radius: 25px !important;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(13, 14, 18, 0.995),
+      rgba(7, 8, 11, 0.995)
+    ) !important;
+
+  box-shadow:
+    0 50px 150px rgba(0, 0, 0, 0.75),
+    0 0 0 1px rgba(var(--cyan), 0.018) inset !important;
+
+  animation: earnScreenModalIn 360ms
+    cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.discordMissionDemo {
+  position: relative;
+  margin-top: 18px;
+  overflow: hidden;
+
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  border-radius: 20px;
+
+  background:
+    radial-gradient(
+      circle at 80% 0%,
+      rgba(88, 101, 242, 0.045),
+      transparent 35%
+    ),
+    #0b0c0f;
+
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.36),
+    inset 0 1px 0 rgba(255, 255, 255, 0.018);
+}
+
+.discordDemoHeader {
+  display: flex;
+  height: 45px;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 16px;
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.055);
+  background: rgba(255, 255, 255, 0.015);
+}
+
+.discordDemoChannel {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  color: rgba(255, 255, 255, 0.47);
+  font-size: 9px;
+  font-weight: 650;
+}
+
+.discordDemoChannel > span {
+  color: rgba(255, 255, 255, 0.18);
+  font-size: 15px;
+}
+
+.discordDemoHeaderDots {
+  display: flex;
+  gap: 5px;
+}
+
+.discordDemoHeaderDots i {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.13);
+}
+
+.discordDemoBody {
+  min-height: 300px;
+  padding: 18px;
+}
+
+.discordUserMessage {
+  display: flex;
+  gap: 11px;
+
+  opacity: 0.48;
+  transform: translateY(3px);
+
+  transition:
+    opacity 350ms ease,
+    transform 350ms ease;
+}
+
+.discordStageActive {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.discordUserAvatar {
+  position: relative;
+
+  display: flex;
+  width: 35px;
+  height: 35px;
+  flex: none;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 999px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.085),
+      rgba(255, 255, 255, 0.025)
+    );
+
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.discordUserAvatar > span {
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+
+  width: 10px;
+  height: 10px;
+
+  border: 3px solid #0b0c0f;
+  border-radius: 999px;
+
+  background: #23a55a;
+}
+
+.discordMessageMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+
+  min-height: 14px;
+}
+
+.discordMessageMeta strong {
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.discordMessageMeta > b {
+  border-radius: 4px;
+  padding: 2px 5px;
+
+  background: rgba(var(--cyan), 0.08);
+
+  color: rgba(var(--cyan), 0.57);
+  font-size: 5px;
+  font-weight: 800;
+}
+
+.discordMessageMeta > span {
+  color: rgba(255, 255, 255, 0.14);
+  font-size: 6px;
+}
+
+.discordCommand {
+  display: inline-flex;
+  margin-top: 7px;
+
+  align-items: center;
+
+  border-radius: 6px;
+
+  background: rgba(88, 101, 242, 0.15);
+
+  padding: 5px 8px;
+
+  color: #b7bcff;
+  font-size: 8px;
+  font-weight: 650;
+
+  animation: discordMissionCommandIn 420ms
+    cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.discordActionHint {
+  margin-top: 6px;
+
+  color: rgba(255, 255, 255, 0.18);
+  font-size: 7px;
+}
+
+.discordTypingArea {
+  display: flex;
+
+  height: 0;
+  margin-left: 45px;
+
+  align-items: center;
+  gap: 5px;
+
+  overflow: hidden;
+
+  opacity: 0;
+
+  transition:
+    height 350ms cubic-bezier(0.22, 1, 0.36, 1),
+    margin-top 350ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 220ms ease;
+}
+
+.discordTypingVisible {
+  height: 28px;
+  margin-top: 12px;
+  opacity: 1;
+}
+
+.discordBotMiniAvatar {
+  display: flex;
+  width: 19px;
+  height: 19px;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 999px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(var(--cyan), 0.15),
+      rgba(var(--violet), 0.08)
+    );
+
+  color: rgba(var(--cyan), 0.72);
+  font-size: 6px;
+  font-weight: 900;
+}
+
+.discordTypingDots {
+  display: flex;
+  gap: 3px;
+}
+
+.discordTypingDots i {
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+
+  background: rgba(255, 255, 255, 0.34);
+
+  animation: discordMissionTyping 700ms ease-in-out infinite;
+}
+
+.discordTypingDots i:nth-child(2) {
+  animation-delay: 120ms;
+}
+
+.discordTypingDots i:nth-child(3) {
+  animation-delay: 240ms;
+}
+
+.discordTypingArea > span {
+  margin-left: 2px;
+
+  color: rgba(255, 255, 255, 0.17);
+  font-size: 6px;
+}
+
+.discordBotResponse {
+  display: flex;
+
+  height: 0;
+  margin-top: 0;
+
+  gap: 11px;
+
+  overflow: hidden;
+
+  opacity: 0;
+  transform: translateY(10px) scale(0.992);
+  transform-origin: top;
+
+  transition:
+    height 480ms cubic-bezier(0.22, 1, 0.36, 1),
+    margin-top 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 380ms ease,
+    transform 480ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.discordBotResponseVisible {
+  height: 205px;
+  margin-top: 14px;
+
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.discordBotAvatar {
+  position: relative;
+
+  display: flex;
+  width: 35px;
+  height: 35px;
+  flex: none;
+
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid rgba(var(--cyan), 0.11);
+  border-radius: 999px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #17262a,
+      #07090a
+    );
+
+  color: rgba(var(--cyan), 0.74);
+  font-size: 10px;
+  font-weight: 900;
+
+  box-shadow: 0 0 25px rgba(var(--cyan), 0.045);
+}
+
+.discordBotAvatar > span {
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+
+  width: 10px;
+  height: 10px;
+
+  border: 3px solid #0b0c0f;
+  border-radius: 999px;
+
+  background: #23a55a;
+}
+
+.discordBotName {
+  color: rgba(var(--cyan), 0.72) !important;
+}
+
+.discordAppBadge {
+  background: #5865f2 !important;
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+
+.discordBotEmbed {
+  position: relative;
+
+  margin-top: 7px;
+  overflow: hidden;
+
+  border-left: 3px solid rgba(var(--cyan), 0.56);
+  border-radius: 8px;
+
+  background: rgba(255, 255, 255, 0.025);
+
+  padding: 12px;
+
+  animation: discordMissionEmbedIn 450ms
+    cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.discordBotEmbedGlow {
+  position: absolute;
+  right: -40px;
+  top: -40px;
+
+  width: 100px;
+  height: 100px;
+
+  border-radius: 999px;
+
+  background: rgba(var(--cyan), 0.035);
+  filter: blur(32px);
+}
+
+.discordEmbedEyebrow {
+  color: rgba(var(--cyan), 0.34);
+
+  font-size: 6px;
+  font-weight: 750;
+  letter-spacing: 0.17em;
+}
+
+.discordEmbedTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  margin-top: 6px;
+
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.discordEmbedTitleRow svg {
+  color: rgba(var(--emerald), 0.53);
+}
+
+.discordEmbedTitleRow strong {
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.discordEmbedText {
+  margin-top: 7px;
+
+  color: rgba(255, 255, 255, 0.22);
+  font-size: 7px;
+  line-height: 1.55;
+}
+
+.discordEmbedProgressTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-top: 12px;
+
+  color: rgba(255, 255, 255, 0.27);
+
+  font-family: monospace;
+  font-size: 7px;
+}
+
+.discordEmbedProgressTop strong {
+  color: rgba(var(--cyan), 0.5);
+}
+
+.discordEmbedTrack {
+  height: 5px;
+  margin-top: 6px;
+
+  overflow: hidden;
+
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.discordEmbedFill {
+  height: 100%;
+  border-radius: inherit;
+
+  transition: width 900ms
+    cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.discordEmbedFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-top: 6px;
+
+  color: rgba(255, 255, 255, 0.14);
+  font-size: 6px;
+}
+
+.discordRewardReveal {
+  display: flex;
+  height: 0;
+
+  align-items: center;
+  gap: 8px;
+
+  margin-top: 0;
+  overflow: hidden;
+
+  border: 1px solid rgba(var(--emerald), 0);
+  border-radius: 9px;
+
+  padding: 0 9px;
+
+  opacity: 0;
+  transform: translateY(4px);
+
+  transition:
+    height 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    margin-top 420ms ease,
+    padding 420ms ease,
+    opacity 300ms ease,
+    transform 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 300ms ease,
+    background 300ms ease;
+}
+
+.discordRewardRevealVisible {
+  height: 43px;
+  margin-top: 10px;
+
+  padding-top: 7px;
+  padding-bottom: 7px;
+
+  border-color: rgba(var(--emerald), 0.08);
+  background: rgba(var(--emerald), 0.022);
+
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.discordRewardReveal > svg {
+  flex: none;
+  color: rgba(var(--emerald), 0.57);
+}
+
+.discordRewardReveal > div:nth-child(2) {
+  min-width: 0;
+}
+
+.discordRewardReveal > div:nth-child(2) span {
+  display: block;
+
+  color: rgba(255, 255, 255, 0.16);
+  font-size: 5px;
+  font-weight: 750;
+  letter-spacing: 0.12em;
+}
+
+.discordRewardReveal > div:nth-child(2) strong {
+  display: block;
+  margin-top: 2px;
+
+  color: rgba(var(--emerald), 0.62);
+  font-size: 8px;
+}
+
+.discordRewardExtras {
+  margin-left: auto;
+
+  color: rgba(255, 255, 255, 0.2);
+  font-size: 6px;
+  white-space: nowrap;
+}
+
+.discordRewardExtras span {
+  margin: 0 3px;
+  color: rgba(255, 255, 255, 0.1);
+}
+
+.discordDemoFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  min-height: 34px;
+  padding: 0 16px;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.045);
+
+  color: rgba(255, 255, 255, 0.11);
+  font-size: 6px;
+  font-weight: 650;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.discordDemoFooter > div {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+
+  color: rgba(var(--emerald), 0.36);
+}
+
+.discordDemoFooter i {
+  width: 5px;
+  height: 5px;
+
+  border-radius: 999px;
+  background: rgba(var(--emerald), 0.76);
+
+  box-shadow: 0 0 9px rgba(var(--emerald), 0.28);
+
+  animation: discordMissionOnline 1.5s ease-in-out infinite;
+}
+
+@keyframes earnScreenBackdropIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes earnScreenModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.975);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes discordMissionCommandIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+    filter: blur(2px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes discordMissionTyping {
+  0%,
+  100% {
+    opacity: 0.24;
+    transform: translateY(0);
+  }
+
+  50% {
+    opacity: 0.8;
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes discordMissionEmbedIn {
+  from {
+    opacity: 0;
+    transform: translateY(7px) scale(0.99);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes discordMissionOnline {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 640px) {
+  .missionGuideBackdrop {
+    align-items: center !important;
+    padding: 12px !important;
+  }
+
+  .missionGuideModal {
+    width: calc(100vw - 24px) !important;
+    max-height: calc(100dvh - 24px) !important;
+    border-radius: 20px !important;
+  }
+
+  .discordDemoBody {
+    min-height: 280px;
+    padding: 14px;
+  }
+
+  .discordBotResponseVisible {
+    height: 220px;
+  }
+
+  .discordRewardExtras {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .discordCommand,
+  .discordBotEmbed,
+  .discordTypingDots i,
+  .discordDemoFooter i {
+    animation: none !important;
+  }
+}
+
+
+/* ============================================================
+   OCTOSON EARN — DUAL DISCORD / WEBSITE MISSION GUIDE
+   ============================================================ */
+
+.missionSurfaceSwitcher {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 18px;
+  padding: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.055);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.018);
+}
+
+.missionSurfaceButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 33px;
+  padding: 0 12px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    color 180ms ease,
+    transform 180ms ease;
+}
+
+.missionSurfaceButton:hover {
+  color: rgba(255, 255, 255, 0.68);
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.missionSurfaceButtonActive {
+  border-color: rgba(var(--cyan), 0.13);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(var(--cyan), 0.09),
+      rgba(var(--cyan), 0.025)
+    );
+  color: rgba(225, 252, 255, 0.82);
+  box-shadow:
+    0 8px 26px rgba(var(--cyan), 0.035),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+
+.missionSurfaceButton:active {
+  transform: scale(0.975);
+}
+
+.missionSurfaceDiscordIcon,
+.missionSurfaceWebIcon {
+  display: grid;
+  width: 17px;
+  height: 17px;
+  place-items: center;
+  border-radius: 6px;
+  font-size: 9px;
+  font-weight: 800;
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.missionSurfaceDiscordIcon {
+  color: rgba(150, 160, 255, 0.8);
+}
+
+.missionSurfaceWebIcon {
+  color: rgba(var(--cyan), 0.72);
+}
+
+.missionSurfaceHint {
+  margin-left: auto;
+  padding-right: 7px;
+  color: rgba(255, 255, 255, 0.17);
+  font-size: 7px;
+  font-weight: 500;
+}
+
+/* WEBSITE BROWSER */
+
+.websiteMissionDemo {
+  position: relative;
+  margin-top: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  border-radius: 20px;
+  background: #08090c;
+  box-shadow:
+    0 30px 85px rgba(0, 0, 0, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.02);
+  animation: websiteMissionIn 260ms ease both;
+}
+
+.websiteBrowserBar {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr) 38px;
+  align-items: center;
+  gap: 8px;
+  height: 42px;
+  padding: 0 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.03),
+      rgba(255, 255, 255, 0.012)
+    );
+}
+
+.websiteBrowserDots {
+  display: flex;
+  gap: 5px;
+}
+
+.websiteBrowserDots i {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.websiteBrowserDots i:nth-child(1) {
+  background: rgba(255, 105, 105, 0.5);
+}
+
+.websiteBrowserDots i:nth-child(2) {
+  background: rgba(255, 200, 100, 0.48);
+}
+
+.websiteBrowserDots i:nth-child(3) {
+  background: rgba(90, 225, 150, 0.46);
+}
+
+.websiteAddressBar {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 26px;
+  padding: 0 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.045);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.22);
+  color: rgba(255, 255, 255, 0.2);
+  font-size: 7px;
+  white-space: nowrap;
+}
+
+.websiteAddressBar strong {
+  overflow: hidden;
+  color: rgba(255, 255, 255, 0.36);
+  font-weight: 500;
+  text-overflow: ellipsis;
+}
+
+.websiteLock {
+  margin-right: 2px;
+  color: rgba(var(--emerald), 0.48);
+  font-size: 5px;
+}
+
+.websiteBrowserMenu {
+  text-align: right;
+  color: rgba(255, 255, 255, 0.18);
+  font-size: 11px;
+}
+
+.websiteDemoShell {
+  display: grid;
+  grid-template-columns: 128px minmax(0, 1fr);
+  min-height: 355px;
+}
+
+.websiteDemoSidebar {
+  display: flex;
+  flex-direction: column;
+  padding: 14px 10px 10px;
+  border-right: 1px solid rgba(255, 255, 255, 0.045);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.018),
+      transparent
+    );
+}
+
+.websiteLogo {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 3px 5px 13px;
+}
+
+.websiteLogo > span {
+  display: grid;
+  width: 23px;
+  height: 23px;
+  place-items: center;
+  border: 1px solid rgba(var(--cyan), 0.1);
+  border-radius: 8px;
+  background: rgba(var(--cyan), 0.04);
+  color: rgba(var(--cyan), 0.7);
+  font-size: 10px;
+  font-weight: 800;
+  box-shadow: 0 0 20px rgba(var(--cyan), 0.035);
+}
+
+.websiteLogo strong {
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 9px;
+  letter-spacing: -0.02em;
+}
+
+.websiteNavList {
+  display: grid;
+  gap: 3px;
+}
+
+.websiteNavItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 29px;
+  padding: 0 8px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.18);
+  font-size: 7px;
+  font-weight: 550;
+  transition: 180ms ease;
+}
+
+.websiteNavItem > span {
+  width: 12px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.25);
+  font-size: 8px;
+}
+
+.websiteNavItemActive {
+  border-color: rgba(var(--cyan), 0.08);
+  background: rgba(var(--cyan), 0.035);
+  color: rgba(var(--cyan), 0.68);
+}
+
+.websiteNavItemActive > span {
+  color: rgba(var(--cyan), 0.68);
+}
+
+.websiteSidebarUser {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: auto;
+  padding: 9px 5px 2px;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.websiteSidebarUser > div {
+  display: grid;
+  width: 23px;
+  height: 23px;
+  place-items: center;
+  border-radius: 8px;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(var(--violet), 0.25),
+      rgba(var(--cyan), 0.13)
+    );
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.websiteSidebarUser > span {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  color: rgba(255, 255, 255, 0.2);
+  font-size: 6px;
+}
+
+.websiteSidebarUser strong {
+  overflow: hidden;
+  color: rgba(255, 255, 255, 0.47);
+  font-size: 7px;
+  text-overflow: ellipsis;
+}
+
+.websiteDemoMain {
+  min-width: 0;
+  background:
+    radial-gradient(
+      circle at 70% 5%,
+      rgba(var(--cyan), 0.03),
+      transparent 34%
+    ),
+    #090a0d;
+}
+
+.websiteDemoTopbar {
+  display: flex;
+  min-height: 53px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.websiteDemoTopbar > div:first-child {
+  display: flex;
+  flex-direction: column;
+}
+
+.websiteDemoTopbar span {
+  color: rgba(255, 255, 255, 0.15);
+  font-size: 5px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+}
+
+.websiteDemoTopbar strong {
+  margin-top: 2px;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 10px;
+}
+
+.websiteTopPills {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.websiteTopPills span,
+.websiteTopPills b {
+  border: 1px solid rgba(255, 255, 255, 0.045);
+  border-radius: 999px;
+  padding: 4px 7px;
+  background: rgba(255, 255, 255, 0.018);
+  font-size: 5px;
+  font-weight: 700;
+}
+
+.websiteTopPills span {
+  color: rgba(var(--emerald), 0.52);
+}
+
+.websiteTopPills b {
+  color: rgba(var(--amber), 0.5);
+}
+
+.websiteMissionContent {
+  position: relative;
+  padding: 16px;
+}
+
+.websiteMissionHero {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.websiteMissionIcon {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid currentColor;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.websiteMissionHero > div:last-child {
+  min-width: 0;
+}
+
+.websiteMissionHero span,
+.websiteGameInfo > span,
+.websiteProgressHeader span,
+.websiteRewardToast span {
+  display: block;
+  color: rgba(255, 255, 255, 0.17);
+  font-size: 5px;
+  font-weight: 750;
+  letter-spacing: 0.15em;
+}
+
+.websiteMissionHero h6 {
+  margin-top: 3px;
+  color: rgba(255, 255, 255, 0.74);
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: -0.025em;
+}
+
+.websiteMissionHero p {
+  max-width: 430px;
+  margin-top: 4px;
+  color: rgba(255, 255, 255, 0.24);
+  font-size: 7px;
+  line-height: 1.6;
+}
+
+.websiteGamePanel {
+  display: grid;
+  grid-template-columns: 118px minmax(0, 1fr);
+  gap: 13px;
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.055);
+  border-radius: 14px;
+  background:
+    radial-gradient(
+      circle at 20% 50%,
+      rgba(var(--violet), 0.05),
+      transparent 45%
+    ),
+    rgba(255, 255, 255, 0.012);
+}
+
+.websiteGameVisual {
+  position: relative;
+  display: grid;
+  min-height: 102px;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 11px;
+  background: rgba(0, 0, 0, 0.26);
+}
+
+.websiteGameVisual::before {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      90deg,
+      transparent 49.5%,
+      rgba(255, 255, 255, 0.015) 50%,
+      transparent 50.5%
+    ),
+    linear-gradient(
+      transparent 49.5%,
+      rgba(255, 255, 255, 0.015) 50%,
+      transparent 50.5%
+    );
+  content: "";
+}
+
+.websiteGameOrb {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: 58px;
+  height: 58px;
+  place-items: center;
+  border: 1px solid rgba(var(--violet), 0.12);
+  border-radius: 18px;
+  background:
+    radial-gradient(
+      circle,
+      rgba(var(--violet), 0.12),
+      rgba(var(--violet), 0.025)
+    );
+  color: rgba(var(--violet), 0.7);
+  box-shadow:
+    0 0 35px rgba(var(--violet), 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  transition:
+    color 350ms ease,
+    border-color 350ms ease,
+    background 350ms ease,
+    transform 350ms ease;
+}
+
+.websiteGameOrbProcessing {
+  animation: websiteOrbProcessing 900ms ease-in-out infinite;
+}
+
+.websiteGameOrbComplete {
+  border-color: rgba(var(--emerald), 0.16);
+  background:
+    radial-gradient(
+      circle,
+      rgba(var(--emerald), 0.12),
+      rgba(var(--emerald), 0.025)
+    );
+  color: rgba(var(--emerald), 0.72);
+  transform: scale(1.04);
+}
+
+.websiteGameLines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.websiteGameLines i {
+  position: absolute;
+  height: 1px;
+  border-radius: 999px;
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(var(--cyan), 0.11),
+      transparent
+    );
+  animation: websiteScan 2.4s linear infinite;
+}
+
+.websiteGameLines i:nth-child(1) {
+  top: 26%;
+  left: 8%;
+  width: 45%;
+}
+
+.websiteGameLines i:nth-child(2) {
+  top: 51%;
+  right: 5%;
+  width: 36%;
+  animation-delay: 500ms;
+}
+
+.websiteGameLines i:nth-child(3) {
+  bottom: 19%;
+  left: 16%;
+  width: 60%;
+  animation-delay: 900ms;
+}
+
+.websiteGameInfo {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.websiteGameInfo strong {
+  margin-top: 4px;
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 10px;
+}
+
+.websiteGameInfo p {
+  min-height: 28px;
+  margin-top: 5px;
+  color: rgba(255, 255, 255, 0.23);
+  font-size: 7px;
+  line-height: 1.55;
+}
+
+.websiteGameInfo button {
+  display: inline-flex;
+  width: fit-content;
+  min-height: 27px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 9px;
+  padding: 0 10px;
+  border: 1px solid rgba(var(--cyan), 0.1);
+  border-radius: 8px;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(var(--cyan), 0.065),
+      rgba(var(--cyan), 0.02)
+    );
+  color: rgba(var(--cyan), 0.65);
+  font-size: 6px;
+  font-weight: 700;
+}
+
+.websiteProgressCard {
+  margin-top: 10px;
+  padding: 11px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.012);
+}
+
+.websiteProgressHeader,
+.websiteProgressFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.websiteProgressHeader > div {
+  min-width: 0;
+}
+
+.websiteProgressHeader strong {
+  display: block;
+  margin-top: 3px;
+  overflow: hidden;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 8px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.websiteProgressHeader > b {
+  color: rgba(var(--cyan), 0.54);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 8px;
+}
+
+.websiteProgressTrack {
+  height: 6px;
+  margin-top: 9px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.websiteProgressFill {
+  position: relative;
+  height: 100%;
+  border-radius: inherit;
+  transition: width 900ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.websiteProgressFill::after {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.22),
+      transparent
+    );
+  content: "";
+  transform: translateX(-100%);
+  animation: websiteProgressSweep 1.5s ease infinite;
+}
+
+.websiteProgressFooter {
+  margin-top: 7px;
+  color: rgba(255, 255, 255, 0.16);
+  font-size: 6px;
+}
+
+.websiteRewardToast {
+  display: flex;
+  max-height: 0;
+  align-items: center;
+  gap: 9px;
+  margin-top: 0;
+  padding: 0 10px;
+  overflow: hidden;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    max-height 360ms ease,
+    margin 360ms ease,
+    padding 360ms ease,
+    opacity 300ms ease,
+    transform 300ms ease;
+}
+
+.websiteRewardToastVisible {
+  max-height: 60px;
+  margin-top: 10px;
+  padding: 9px 10px;
+  border-color: rgba(var(--amber), 0.09);
+  background: rgba(var(--amber), 0.025);
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.websiteRewardToastIcon {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid rgba(var(--amber), 0.11);
+  border-radius: 9px;
+  background: rgba(var(--amber), 0.04);
+  color: rgba(var(--amber), 0.66);
+}
+
+.websiteRewardToast strong {
+  display: block;
+  margin-top: 2px;
+  color: rgba(var(--amber), 0.7);
+  font-size: 9px;
+}
+
+.websiteRewardToast p {
+  margin-left: auto;
+  color: rgba(255, 255, 255, 0.19);
+  font-size: 6px;
+}
+
+@keyframes websiteMissionIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px) scale(0.995);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes websiteOrbProcessing {
+  0%,
+  100% {
+    box-shadow:
+      0 0 25px rgba(var(--violet), 0.04),
+      inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    transform: scale(0.97);
+  }
+
+  50% {
+    box-shadow:
+      0 0 45px rgba(var(--violet), 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    transform: scale(1.035);
+  }
+}
+
+@keyframes websiteScan {
+  from {
+    opacity: 0;
+    transform: translateX(-18px);
+  }
+
+  35%,
+  70% {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+    transform: translateX(22px);
+  }
+}
+
+@keyframes websiteProgressSweep {
+  0%,
+  65% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@media (max-width: 640px) {
+  .missionSurfaceSwitcher {
+    flex-wrap: wrap;
+  }
+
+  .missionSurfaceButton {
+    flex: 1;
+  }
+
+  .missionSurfaceHint {
+    width: 100%;
+    margin: 1px 0 0;
+    padding: 3px 3px 1px;
+    text-align: center;
+  }
+
+  .websiteBrowserBar {
+    grid-template-columns: 48px minmax(0, 1fr) 20px;
+    padding: 0 8px;
+  }
+
+  .websiteDemoShell {
+    grid-template-columns: 1fr;
+  }
+
+  .websiteDemoSidebar {
+    display: none;
+  }
+
+  .websiteDemoTopbar {
+    min-height: 48px;
+    padding: 0 12px;
+  }
+
+  .websiteMissionContent {
+    padding: 12px;
+  }
+
+  .websiteGamePanel {
+    grid-template-columns: 92px minmax(0, 1fr);
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .websiteGameVisual {
+    min-height: 96px;
+  }
+
+  .websiteGameOrb {
+    width: 50px;
+    height: 50px;
+    border-radius: 15px;
+  }
+
+  .websiteRewardToast p {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .websiteMissionDemo,
+  .websiteGameOrbProcessing,
+  .websiteGameLines i,
+  .websiteProgressFill::after {
+    animation: none !important;
+  }
+}
+
+/* ============================================================
+   OCTOSON MISSION TUTORIAL
+   REAL WEBSITE REPLICA — 1:1 SCALED DASHBOARD UI
+   ============================================================ */
+
+.realDashboardViewport {
+  position: relative;
+  width: 100%;
+  height: 430px;
+  overflow: hidden;
+  background: #050507;
+}
+
+.realDashboardApp {
+  --mock-cyan: 165, 243, 252;
+  --mock-violet: 221, 214, 254;
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: 162px minmax(0, 1fr);
+  background: #050507;
+  color: #fff;
+}
+
+/* ---------- sidebar ---------- */
+
+.realDashboardSidebar {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  border-right: 1px solid rgba(255, 255, 255, 0.055);
+  background: rgba(7, 7, 9, 0.98);
+}
+
+.realDashboardBrand {
+  display: flex;
+  height: 45px;
+  flex: 0 0 45px;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+}
+
+.realDashboardBrandIcon {
+  position: relative;
+  display: grid;
+  width: 25px;
+  height: 25px;
+  flex: 0 0 auto;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(165, 243, 252, 0.13);
+  border-radius: 8px;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(165, 243, 252, 0.12),
+      transparent 62%
+    ),
+    rgba(165, 243, 252, 0.055);
+}
+
+.realDashboardBrandIcon svg {
+  width: 11px;
+  height: 11px;
+  color: rgba(207, 250, 254, 0.85);
+  stroke-width: 1.8;
+}
+
+.realDashboardBrandName {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 650;
+  letter-spacing: -0.025em;
+}
+
+.realDashboardBrandName span {
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 4px;
+  padding: 1px 4px;
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(255, 255, 255, 0.25);
+  font-size: 4px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+}
+
+.realDashboardBrand p {
+  margin-top: 2px;
+  color: rgba(255, 255, 255, 0.18);
+  font-size: 5px;
+  font-weight: 500;
+  letter-spacing: 0.17em;
+}
+
+.realDashboardDivider {
+  height: 1px;
+  margin: 0 12px;
+  background: rgba(255, 255, 255, 0.055);
+}
+
+.realDashboardNavArea {
+  min-height: 0;
+  flex: 1;
+  padding: 12px 8px;
+}
+
+.realDashboardNavLabel {
+  margin: 0 0 7px;
+  padding: 0 7px;
+  color: rgba(255, 255, 255, 0.15);
+  font-size: 5px;
+  font-weight: 650;
+  letter-spacing: 0.22em;
+}
+
+.realDashboardNav {
+  display: grid;
+  gap: 2px;
+}
+
+.realDashboardNavItem {
+  position: relative;
+  display: flex;
+  height: 26px;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+  padding: 0 8px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.32);
+  font-size: 7px;
+  font-weight: 500;
+}
+
+.realDashboardNavItem > svg {
+  width: 10px;
+  height: 10px;
+  flex: 0 0 auto;
+  color: rgba(255, 255, 255, 0.28);
+  stroke-width: 1.8;
+}
+
+.realDashboardNavItem > span:not(.realDashboardActiveLine) {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.realDashboardNavItemActive {
+  border-color: rgba(255, 255, 255, 0.065);
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+
+.realDashboardNavItemActive > svg {
+  color: rgba(207, 250, 254, 0.9);
+}
+
+.realDashboardActiveLine {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 2px;
+  height: 11px;
+  border-radius: 999px;
+  background: rgba(165, 243, 252, 0.9);
+  box-shadow: 0 0 9px rgba(165, 243, 252, 0.45);
+  transform: translateY(-50%);
+}
+
+.realDashboardNavChevron {
+  width: 7px !important;
+  height: 7px !important;
+  margin-left: auto;
+  color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.realDashboardStatus {
+  margin: 0 9px 9px;
+  padding: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.055);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.018);
+}
+
+.realDashboardStatus > div {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 6px;
+  font-weight: 500;
+}
+
+.realDashboardStatusDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(110, 231, 183, 0.8);
+  box-shadow: 0 0 8px rgba(110, 231, 183, 0.2);
+}
+
+.realDashboardStatus p {
+  margin-top: 5px;
+  color: rgba(255, 255, 255, 0.18);
+  font-size: 5px;
+  line-height: 1.55;
+}
+
+/* ---------- workspace + real header ---------- */
+
+.realDashboardWorkspace {
+  position: relative;
+  min-width: 0;
+  background:
+    radial-gradient(
+      circle at 18% -30%,
+      rgba(103, 232, 249, 0.03),
+      transparent 42%
+    ),
+    #050507;
+}
+
+.realDashboardWorkspace::before {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(
+      rgba(255,255,255,.08) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(255,255,255,.08) 1px,
+      transparent 1px
+    );
+  background-size: 40px 40px;
+  content: "";
+  opacity: 0.025;
+}
+
+.realDashboardHeader {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  height: 45px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 0 22px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.055);
+  background: rgba(5, 5, 7, 0.94);
+}
+
+.realDashboardSearch {
+  display: flex;
+  width: min(390px, 55%);
+  height: 28px;
+  align-items: center;
+  gap: 7px;
+  padding: 0 9px;
+  border: 1px solid rgba(255, 255, 255, 0.065);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.018);
+  color: rgba(255, 255, 255, 0.18);
+  font-size: 6px;
+}
+
+.realDashboardSearch svg {
+  width: 9px;
+  height: 9px;
+  flex: 0 0 auto;
+}
+
+.realDashboardSearch span {
+  min-width: 0;
+  flex: 1;
+}
+
+.realDashboardSearch kbd {
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+  padding: 2px 4px;
+  background: rgba(255, 255, 255, 0.025);
+  color: rgba(255, 255, 255, 0.17);
+  font-family: inherit;
+  font-size: 5px;
+}
+
+.realDashboardUser {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.realDashboardUser strong {
+  max-width: 100px;
+  overflow: hidden;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 7px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.realDashboardSound {
+  position: relative;
+  display: grid;
+  width: 23px;
+  height: 23px;
+  place-items: center;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 8px;
+  background: rgba(255,255,255,.035);
+}
+
+.realDashboardSound svg {
+  width: 9px;
+  height: 9px;
+  color: rgba(255,255,255,.52);
+}
+
+.realDashboardSound span {
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  width: 3px;
+  height: 3px;
+  border-radius: 999px;
+  background: rgba(110,231,183,.8);
+}
+
+.realDashboardAvatar {
+  position: relative;
+  display: grid;
+  width: 23px;
+  height: 23px;
+  place-items: center;
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 8px;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(139,92,246,.23),
+      rgba(34,211,238,.08)
+    ),
+    #0b0c10;
+  color: rgba(255,255,255,.78);
+  font-size: 7px;
+  font-weight: 700;
+}
+
+.realDashboardAvatar span {
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  width: 6px;
+  height: 6px;
+  border: 1px solid #050507;
+  border-radius: 999px;
+  background: rgb(110,231,183);
+}
+
+.realDashboardUser button {
+  min-height: 23px;
+  padding: 0 8px;
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 8px;
+  background: rgba(255,255,255,.02);
+  color: rgba(255,255,255,.3);
+  font-size: 6px;
+}
+
+/* ---------- page ---------- */
+
+.realDashboardContent {
+  position: relative;
+  z-index: 1;
+  height: calc(100% - 45px);
+  padding: 20px 22px 25px;
+  overflow: hidden;
+}
+
+/* ---------- REAL SLOTS PAGE ---------- */
+
+.realCasinoBack {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0 0 10px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: rgba(255,255,255,.3);
+  font-size: 6px;
+}
+
+.realCasinoBack svg {
+  width: 9px;
+  height: 9px;
+}
+
+.realCasinoHeading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 15px;
+}
+
+.realCasinoEyebrow {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: rgba(207,250,254,.45);
+  font-size: 6px;
+  font-weight: 650;
+  letter-spacing: .18em;
+}
+
+.realCasinoEyebrow > span {
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgb(165,243,252);
+  box-shadow: 0 0 8px rgba(165,243,252,.22);
+}
+
+.realCasinoTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 7px;
+}
+
+.realCasinoTitle svg {
+  width: 15px;
+  height: 15px;
+  color: rgba(207,250,254,.4);
+}
+
+.realCasinoTitle h5 {
+  margin: 0;
+  color: #fff;
+  font-size: 25px;
+  font-weight: 650;
+  letter-spacing: -.05em;
+}
+
+.realCasinoHeading > div:first-child > p {
+  max-width: 360px;
+  margin-top: 5px;
+  color: rgba(255,255,255,.25);
+  font-size: 7px;
+  line-height: 1.55;
+}
+
+.realCasinoWallet {
+  min-width: 108px;
+  padding: 9px 12px;
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 10px;
+  background: rgba(255,255,255,.02);
+}
+
+.realCasinoWallet > div {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: rgba(255,255,255,.25);
+  font-size: 6px;
+}
+
+.realCasinoWallet svg {
+  width: 9px;
+  height: 9px;
+}
+
+.realCasinoWallet strong {
+  display: block;
+  margin-top: 4px;
+  color: rgba(255,255,255,.8);
+  font-size: 11px;
+}
+
+.realCasinoWallet strong span {
+  margin-left: 5px;
+  color: rgba(207,250,254,.4);
+  font-size: 5px;
+}
+
+.realCasinoGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 205px;
+  gap: 12px;
+}
+
+.realSlotsStage {
+  position: relative;
+  min-height: 226px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 16px;
+  background: #08090c;
+}
+
+.realSlotsAmbient {
+  position: absolute;
+  left: 50%;
+  top: -105px;
+  width: 360px;
+  height: 270px;
+  border-radius: 999px;
+  background: rgba(165,243,252,.04);
+  filter: blur(70px);
+  transform: translateX(-50%);
+}
+
+.realSlotsMachine {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(82%, 380px);
+  padding: 16px;
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 17px;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.025),
+      rgba(255,255,255,.008)
+    ),
+    #090a0e;
+  box-shadow:
+    0 18px 55px rgba(0,0,0,.32),
+    inset 0 1px 0 rgba(255,255,255,.025);
+  transform: translate(-50%, -50%);
+}
+
+.realSlotsTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: rgba(255,255,255,.15);
+  font-size: 5px;
+}
+
+.realSlotsTop strong {
+  color: rgba(207,250,254,.42);
+  font-size: 6px;
+  letter-spacing: .16em;
+}
+
+.realSlotsReels {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 7px;
+  margin-top: 12px;
+}
+
+.realSlotReel {
+  display: grid;
+  height: 70px;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.065);
+  border-radius: 12px;
+  background:
+    radial-gradient(
+      circle at 50% 40%,
+      rgba(165,243,252,.035),
+      transparent 60%
+    ),
+    rgba(0,0,0,.26);
+  color: rgba(255,255,255,.88);
+  font-size: 27px;
+  box-shadow: inset 0 0 20px rgba(0,0,0,.26);
+}
+
+.realSlotReelSpin {
+  animation: octosonRealSlotSpin 360ms linear infinite;
+}
+
+.realSlotsStageRunning {
+  box-shadow: inset 0 0 50px rgba(165,243,252,.018);
+}
+
+.realSlotsMachineFooter {
+  margin-top: 10px;
+  text-align: center;
+  color: rgba(255,255,255,.22);
+  font-size: 6px;
+}
+
+.realCasinoControls {
+  min-height: 226px;
+  padding: 14px;
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 16px;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.018),
+      rgba(255,255,255,.006)
+    ),
+    #08090c;
+}
+
+.realCasinoControlHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 11px;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+}
+
+.realCasinoControlHeader span,
+.realCasinoControls > label {
+  display: block;
+  color: rgba(255,255,255,.18);
+  font-size: 5px;
+  font-weight: 650;
+  letter-spacing: .14em;
+}
+
+.realCasinoControlHeader strong {
+  display: block;
+  margin-top: 3px;
+  color: rgba(255,255,255,.62);
+  font-size: 8px;
+}
+
+.realCasinoControlHeader svg {
+  width: 13px;
+  height: 13px;
+  color: rgba(207,250,254,.35);
+}
+
+.realCasinoControls > label {
+  margin-top: 12px;
+}
+
+.realCasinoBetInput {
+  display: flex;
+  height: 31px;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  padding: 0 9px;
+  border: 1px solid rgba(255,255,255,.065);
+  border-radius: 8px;
+  background: rgba(0,0,0,.22);
+}
+
+.realCasinoBetInput svg {
+  width: 9px;
+  height: 9px;
+  color: rgba(255,255,255,.22);
+}
+
+.realCasinoBetInput span {
+  flex: 1;
+  color: rgba(255,255,255,.7);
+  font-size: 8px;
+}
+
+.realCasinoBetInput b {
+  color: rgba(207,250,254,.32);
+  font-size: 5px;
+}
+
+.realCasinoQuickBets {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.realCasinoQuickBets span {
+  display: grid;
+  height: 23px;
+  place-items: center;
+  border: 1px solid rgba(255,255,255,.05);
+  border-radius: 7px;
+  background: rgba(255,255,255,.018);
+  color: rgba(255,255,255,.28);
+  font-size: 6px;
+}
+
+.realCasinoPlayButton {
+  display: flex;
+  width: 100%;
+  height: 33px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 10px;
+  border: 1px solid rgba(165,243,252,.12);
+  border-radius: 9px;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(165,243,252,.08),
+      rgba(165,243,252,.025)
+    );
+  color: rgba(207,250,254,.72);
+  font-size: 7px;
+  font-weight: 650;
+}
+
+.realCasinoPlayButton svg {
+  width: 10px;
+  height: 10px;
+}
+
+.realCasinoPlayButtonBusy {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(165,243,252,.11),
+      rgba(165,243,252,.035)
+    );
+}
+
+.realCasinoSpinner {
+  width: 9px;
+  height: 9px;
+  border: 1px solid rgba(207,250,254,.25);
+  border-top-color: rgba(207,250,254,.8);
+  border-radius: 999px;
+  animation: realCasinoSpinner .7s linear infinite;
+}
+
+.realCasinoControlNotice {
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  margin-top: 10px;
+  color: rgba(255,255,255,.18);
+  font-size: 5px;
+  line-height: 1.55;
+}
+
+.realCasinoControlNotice svg {
+  width: 9px;
+  height: 9px;
+  flex: 0 0 auto;
+  color: rgba(110,231,183,.38);
+}
+
+/* ---------- WORLD / ACTIVITY MOCK ---------- */
+
+.realWorldHeading {
+  padding-top: 5px;
+}
+
+.realWorldEyebrow {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: rgba(207,250,254,.42);
+  font-size: 6px;
+  font-weight: 650;
+  letter-spacing: .18em;
+}
+
+.realWorldEyebrow span {
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(165,243,252,.8);
+}
+
+.realWorldHeading h5 {
+  margin-top: 7px;
+  color: #fff;
+  font-size: 25px;
+  font-weight: 650;
+  letter-spacing: -.05em;
+}
+
+.realWorldHeading p {
+  margin-top: 4px;
+  color: rgba(255,255,255,.24);
+  font-size: 7px;
+}
+
+.realWorldGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 210px;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.realWorldPrimary,
+.realWorldSide {
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 16px;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.02),
+      rgba(255,255,255,.006)
+    ),
+    #08090c;
+}
+
+.realWorldPrimary {
+  display: grid;
+  grid-template-columns: 46px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  min-height: 155px;
+  padding: 16px;
+}
+
+.realWorldIcon {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 1px solid currentColor;
+  border-radius: 14px;
+  background: rgba(255,255,255,.02);
+}
+
+.realWorldIcon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.realWorldPrimary > div:nth-child(2) > span {
+  color: rgba(255,255,255,.18);
+  font-size: 5px;
+  font-weight: 700;
+  letter-spacing: .15em;
+}
+
+.realWorldPrimary h6 {
+  margin-top: 4px;
+  color: rgba(255,255,255,.76);
+  font-size: 12px;
+}
+
+.realWorldPrimary p {
+  max-width: 310px;
+  margin-top: 5px;
+  color: rgba(255,255,255,.23);
+  font-size: 7px;
+  line-height: 1.55;
+}
+
+.realWorldPrimary button {
+  display: flex;
+  min-height: 30px;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+  border: 1px solid rgba(165,243,252,.1);
+  border-radius: 8px;
+  background: rgba(165,243,252,.04);
+  color: rgba(207,250,254,.62);
+  font-size: 6px;
+  font-weight: 650;
+}
+
+.realWorldPrimary button svg {
+  width: 9px;
+  height: 9px;
+}
+
+.realWorldSide {
+  padding: 15px;
+}
+
+.realWorldSide > span {
+  color: rgba(255,255,255,.17);
+  font-size: 5px;
+  font-weight: 700;
+  letter-spacing: .14em;
+}
+
+.realWorldSide > strong {
+  display: block;
+  margin-top: 5px;
+  color: rgba(255,255,255,.62);
+  font-size: 9px;
+}
+
+.realWorldSide > div:nth-of-type(1) {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  margin-top: 25px;
+}
+
+.realWorldSide b {
+  color: rgba(255,255,255,.7);
+  font-size: 12px;
+}
+
+.realWorldSide i {
+  color: rgba(255,255,255,.12);
+  font-style: normal;
+}
+
+.realWorldSide > div:nth-of-type(1) span {
+  color: rgba(255,255,255,.25);
+  font-size: 7px;
+}
+
+.realWorldProgressTrack {
+  height: 5px;
+  margin-top: 9px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255,255,255,.04);
+}
+
+.realWorldProgressTrack span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(165,243,252,.48),
+      rgba(196,181,253,.72)
+    );
+  transition: width 850ms cubic-bezier(.22,1,.36,1);
+}
+
+/* ---------- mission update notification ---------- */
+
+.realDashboardMissionToast {
+  position: absolute;
+  right: 22px;
+  bottom: 18px;
+  display: flex;
+  min-width: 210px;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 10px;
+  border: 1px solid rgba(110,231,183,.1);
+  border-radius: 10px;
+  background: rgba(8, 12, 11, .95);
+  box-shadow: 0 14px 40px rgba(0,0,0,.34);
+  opacity: 0;
+  transform: translateY(8px) scale(.98);
+  transition:
+    opacity 300ms ease,
+    transform 300ms cubic-bezier(.22,1,.36,1);
+}
+
+.realDashboardMissionToastVisible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.realDashboardMissionToast > div {
+  display: grid;
+  width: 25px;
+  height: 25px;
+  place-items: center;
+  border: 1px solid rgba(110,231,183,.12);
+  border-radius: 8px;
+  background: rgba(110,231,183,.04);
+}
+
+.realDashboardMissionToast svg {
+  width: 11px;
+  height: 11px;
+  color: rgba(110,231,183,.65);
+}
+
+.realDashboardMissionToast > span {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+}
+
+.realDashboardMissionToast small {
+  color: rgba(110,231,183,.38);
+  font-size: 4px;
+  font-weight: 700;
+  letter-spacing: .14em;
+}
+
+.realDashboardMissionToast strong {
+  margin-top: 2px;
+  overflow: hidden;
+  color: rgba(255,255,255,.65);
+  font-size: 7px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.realDashboardMissionToast > b {
+  color: rgba(110,231,183,.62);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 7px;
+}
+
+/* ---------- animations ---------- */
+
+@keyframes octosonRealSlotSpin {
+  0% {
+    transform: translateY(-2px);
+    filter: blur(0);
+  }
+
+  25% {
+    transform: translateY(7px);
+    filter: blur(1.2px);
+  }
+
+  50% {
+    transform: translateY(-7px);
+    filter: blur(1.4px);
+  }
+
+  75% {
+    transform: translateY(5px);
+    filter: blur(.8px);
+  }
+
+  100% {
+    transform: translateY(-2px);
+    filter: blur(0);
+  }
+}
+
+@keyframes realCasinoSpinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------- responsive tutorial ---------- */
+
+@media (max-width: 760px) {
+  .realDashboardViewport {
+    height: 390px;
+  }
+
+  .realDashboardApp {
+    grid-template-columns: 118px minmax(0, 1fr);
+  }
+
+  .realDashboardBrand {
+    padding-inline: 8px;
+  }
+
+  .realDashboardNavItem {
+    gap: 5px;
+    padding-inline: 6px;
+    font-size: 6px;
+  }
+
+  .realDashboardStatus {
+    display: none;
+  }
+
+  .realDashboardHeader {
+    padding-inline: 12px;
+  }
+
+  .realDashboardSearch {
+    width: 48%;
+  }
+
+  .realDashboardUser strong,
+  .realDashboardUser button {
+    display: none;
+  }
+
+  .realDashboardContent {
+    padding: 14px;
+  }
+
+  .realCasinoGrid,
+  .realWorldGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .realCasinoControls,
+  .realWorldSide {
+    display: none;
+  }
+
+  .realCasinoTitle h5,
+  .realWorldHeading h5 {
+    font-size: 20px;
+  }
+
+  .realSlotsStage {
+    min-height: 210px;
+  }
+
+  .realDashboardMissionToast {
+    right: 14px;
+    bottom: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .realSlotReelSpin,
+  .realCasinoSpinner {
+    animation: none !important;
+  }
+}
+
+/* =========================================================
+   FINAL MISSION TUTORIAL READABILITY
+   Keep layout/animation intact — improve hierarchy only
+   ========================================================= */
+
+/* Main tutorial headings */
+.missionGuideHeading {
+  font-size: 18px !important;
+  line-height: 1.25 !important;
+  font-weight: 750 !important;
+  letter-spacing: -0.025em !important;
+}
+
+.missionGuideDescription {
+  font-size: 11px !important;
+  line-height: 1.65 !important;
+  color: rgba(255, 255, 255, 0.46) !important;
+}
+
+.missionGuideSectionLabel {
+  font-size: 8px !important;
+}
+
+/* Discord demo: make command + explanation readable */
+.discordCommand {
+  font-size: 12px !important;
+  line-height: 1.4 !important;
+  font-weight: 700 !important;
+}
+
+.discordActionHint {
+  font-size: 9px !important;
+  line-height: 1.55 !important;
+  color: rgba(255, 255, 255, 0.42) !important;
+}
+
+.discordMessageMeta {
+  font-size: 8px !important;
+}
+
+/* Discord bot response */
+.discordEmbedEyebrow {
+  font-size: 7px !important;
+}
+
+.discordEmbedTitleRow strong {
+  font-size: 11px !important;
+}
+
+.discordEmbedText {
+  font-size: 9px !important;
+  line-height: 1.5 !important;
+  color: rgba(255, 255, 255, 0.42) !important;
+}
+
+.discordEmbedProgressTop {
+  font-size: 9px !important;
+}
+
+.discordEmbedFooter {
+  font-size: 7px !important;
+}
+
+/* =========================================================
+   AURA REWARD — PRIMARY VISUAL ELEMENT
+   ========================================================= */
+
+.discordRewardRevealVisible {
+  height: 58px !important;
+  padding-top: 9px !important;
+  padding-bottom: 9px !important;
+}
+
+.discordRewardReveal > div:nth-child(2) span {
+  font-size: 7px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.13em !important;
+  color: rgba(255, 255, 255, 0.34) !important;
+}
+
+.discordRewardReveal > div:nth-child(2) strong {
+  margin-top: 3px !important;
+  font-size: 15px !important;
+  line-height: 1 !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.025em !important;
+  color: rgba(var(--emerald), 0.95) !important;
+}
+
+.discordRewardExtras {
+  font-size: 7px !important;
+  color: rgba(255, 255, 255, 0.32) !important;
+}
+
+/* Bottom reward summary in tutorial */
+.missionGuideRewards {
+  gap: 8px !important;
+  margin-top: 17px !important;
+}
+
+.missionGuideRewards .reward {
+  padding: 8px 11px !important;
+}
+
+/* Existing Reward component uses Tailwind font-size utilities.
+   Override only rewards inside the tutorial. */
+.missionGuideRewards .reward span:nth-of-type(1) {
+  font-size: 12px !important;
+  font-weight: 800 !important;
+}
+
+.missionGuideRewards .reward span:nth-of-type(2) {
+  font-size: 8px !important;
+  font-weight: 650 !important;
+}
+
+/* Aura = first reward. Make it the hero reward. */
+.missionGuideRewards .reward:first-child {
+  padding: 10px 14px !important;
+  border-width: 1px !important;
+  background: rgba(var(--amber), 0.055) !important;
+}
+
+.missionGuideRewards .reward:first-child span:nth-of-type(1) {
+  font-size: 16px !important;
+  line-height: 1 !important;
+  letter-spacing: -0.03em !important;
+}
+
+.missionGuideRewards .reward:first-child span:nth-of-type(2) {
+  font-size: 9px !important;
+}
+
+/* Surface switcher */
+.missionSurfaceButton {
+  font-size: 9px !important;
+}
+
+.missionSurfaceHint {
+  font-size: 8px !important;
+  color: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Website demo — readability without changing its 1:1 design */
+.websiteAddressBar {
+  font-size: 7px !important;
+}
+
+.realCasinoHeading p {
+  font-size: 8px !important;
+  line-height: 1.5 !important;
+}
+
+.realCasinoTitle h5 {
+  font-size: 18px !important;
+}
+
+.realCasinoWallet strong {
+  font-size: 12px !important;
+}
+
+.realCasinoWallet strong span {
+  font-size: 6px !important;
+}
+
+/* Tutorial timeline */
+.missionTutorialTimelineItem {
+  font-size: 8px !important;
+}
+
+/* Mobile: keep everything inside modal */
+@media (max-width: 640px) {
+  .missionGuideHeading {
+    font-size: 16px !important;
+  }
+
+  .discordRewardReveal > div:nth-child(2) strong {
+    font-size: 13px !important;
+  }
+
+  .missionGuideRewards .reward:first-child span:nth-of-type(1) {
+    font-size: 14px !important;
+  }
+
+  .discordRewardExtras {
+    font-size: 6px !important;
+  }
+}
