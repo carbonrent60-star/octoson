@@ -15,7 +15,6 @@ import {
   Gem,
   Home,
   Layers3,
-  MoreHorizontal,
   Play,
   ShoppingBag,
   Sparkles,
@@ -27,10 +26,6 @@ import {
   Zap,
 } from "lucide-react";
 
-type MobileNavProps = {
-  onMore: () => void;
-};
-
 const navItems = [
   {
     href: "/dashboard",
@@ -38,14 +33,14 @@ const navItems = [
     icon: Home,
   },
   {
+    href: "/dashboard/earn",
+    label: "Qazan",
+    icon: CircleDollarSign,
+  },
+  {
     href: "/dashboard/leaderboard",
     label: "Reytinq",
     icon: Trophy,
-  },
-  {
-    href: "/dashboard/market",
-    label: "Bazar",
-    icon: ShoppingBag,
   },
   {
     href: "/dashboard/profile",
@@ -105,7 +100,7 @@ const quickGames = [
   },
 ];
 
-export default function MobileNav({ onMore }: MobileNavProps) {
+export default function MobileNav() {
   const pathname = usePathname();
   const router = useRouter();
   const [playOpen, setPlayOpen] = useState(false);
@@ -627,14 +622,6 @@ export default function MobileNav({ onMore }: MobileNavProps) {
               ))}
             </div>
 
-            <button
-              type="button"
-              aria-label="Daha çox"
-              onClick={onMore}
-              className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full text-white/0"
-            >
-              <MoreHorizontal className="h-3 w-3" />
-            </button>
           </div>
         </div>
       </div>

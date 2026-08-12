@@ -66,17 +66,21 @@ export default function DashboardShell({
               />
 
               <motion.div
-                initial={{ x: -280 }}
+                initial={{ x: -340 }}
                 animate={{ x: 0 }}
-                exit={{ x: -280 }}
+                exit={{ x: -340 }}
                 transition={{
                   type: "spring",
                   stiffness: 360,
                   damping: 34,
                 }}
-                className="fixed inset-y-0 left-0 z-[80] w-[270px] lg:hidden"
+                className="fixed inset-y-0 left-0 z-[80] w-[min(320px,calc(100vw-28px))] lg:hidden"
               >
-                <AppSidebar mobile isAdmin={isAdmin} />
+                <AppSidebar
+                  mobile
+                  isAdmin={isAdmin}
+                  onNavigate={() => setMobileOpen(false)}
+                />
 
                 <button
                   type="button"
@@ -157,7 +161,7 @@ export default function DashboardShell({
             </motion.div>
           </main>
 
-          <MobileNav onMore={() => setMobileOpen(true)} />
+          <MobileNav />
         </div>
       </div>
     </OctosonAudioProvider>

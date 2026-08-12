@@ -463,7 +463,7 @@ export default function LiveStats() {
   const dragRef =
     useRef<DragState | null>(null);
 
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const [selectorOpen, setSelectorOpen] =
     useState(false);
 
@@ -552,6 +552,24 @@ export default function LiveStats() {
       JSON.stringify(next)
     );
   }
+
+  useEffect(() => {
+    function handleOpenStats() {
+      setOpen(true);
+    }
+
+    window.addEventListener(
+      "octoson-live-stats-open",
+      handleOpenStats
+    );
+
+    return () => {
+      window.removeEventListener(
+        "octoson-live-stats-open",
+        handleOpenStats
+      );
+    };
+  }, []);
 
   useEffect(() => {
     function detectMobile() {
@@ -1000,47 +1018,6 @@ export default function LiveStats() {
 
   return (
     <>
-      <AnimatePresence>
-        {!open ? (
-          <motion.button
-            key="collapsed-stats"
-            type="button"
-            onClick={() => setOpen(true)}
-            initial={{
-              opacity: 0,
-              scale: 0.72,
-              filter: "blur(5px)",
-            }}
-            animate={{
-              opacity: 1,
-              scale: 1,
-              filter: "blur(0px)",
-            }}
-            exit={{
-              opacity: 0,
-              scale: 0.8,
-              filter: "blur(4px)",
-            }}
-            whileTap={{ scale: 0.9 }}
-            whileHover={
-              mobile
-                ? undefined
-                : { scale: 1.05 }
-            }
-            transition={{
-              type: "spring",
-              stiffness: 420,
-              damping: 28,
-            }}
-            className="fixed z-[80] flex h-11 w-11 items-center justify-center rounded-[14px] border border-white/[0.09] bg-[#111214]/[0.88] max-sm:bg-[#111214] text-white/[0.48] shadow-[0_18px_55px_rgba(0,0,0,.55),0_1px_0_rgba(255,255,255,.05)_inset] backdrop-blur-[28px]"
-            style={collapsedStyle}
-            aria-label="Live stats aç"
-          >
-            <Activity size={16} />
-          </motion.button>
-        ) : null}
-      </AnimatePresence>
-
       <AnimatePresence>
         {open ? (
           <motion.div
